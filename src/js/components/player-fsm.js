@@ -26,7 +26,6 @@ export default class PlayerFSM extends Component {
 
   handleMovement(m) {
     // NOTE: going through state machine to update states when/if needed
-    m.value.moveCallback(m)
   }
 
   update(_, keys) {}

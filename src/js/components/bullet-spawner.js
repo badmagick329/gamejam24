@@ -27,7 +27,7 @@ export default class BulletSpawner extends Component {
   _shootBullet(direction) {
     const location = this._playerBody.translation()
     const position = { x: location.x, y: location.y, z: location.z + 1 }
-    const bulletGeometry = new THREE.SphereGeometry(0.1, 16, 16)
+    const bulletGeometry = new THREE.SphereGeometry(0.3, 16, 16)
     const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
     const bulletMesh = new THREE.Mesh(bulletGeometry, bulletMaterial)
     this._scene.add(bulletMesh)

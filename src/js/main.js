@@ -19,7 +19,7 @@ import {
 import BulletSpawner from './components/bullet-spawner.js'
 import InputController from './components/input-controller.js'
 import MouseInputController from './components/mouse-input-controller.js'
-import MouseMovementController from './components/mouse-movement-controller.js'
+import MovementController from './components/movement-controller.js'
 import PlayerFSM from './components/player-fsm.js'
 import EntityManager from './ecs/entity-manager.js'
 import Entity from './ecs/entity.js'
@@ -83,12 +83,11 @@ export default async function run() {
       scene
     )
     player.addComponent(mouseInputController)
-    const movementController = new MouseMovementController(
+    const movementController = new MovementController(
       playerMesh,
       playerCollider,
       playerBody,
-      characterController,
-      ground
+      characterController
     )
     player.addComponent(movementController)
 
@@ -96,11 +95,6 @@ export default async function run() {
     const bulletSpawner = new BulletSpawner(playerBody, scene, world)
     player.addComponent(bulletSpawner)
     manager.add(player)
-
-    // register handlers
-    playerFsm.registerHandler('player.movement', (m) =>
-      playerFsm.handleMovement(m)
-    )
 
     postprocessing()
     const animate = (timestamp, timeDiff) => {
@@ -135,27 +129,68 @@ export default async function run() {
     height = h
 
     dirLight = new THREE.DirectionalLight('#ffffff', 1)
-    ambientLight = new THREE.AmbientLight('#ffffff', 0.5)
+    ambientLight = new THREE.AmbientLight('#ffffff', 5)
+    ambientLight.position.x = 5
+    ambientLight.position.y = 5
+    ambientLight.position.z = 5
+
     scene.add(dirLight, ambientLight)
   }
 
   function createMeshes() {
+    // debug Oject for debug menu
+    const debugObject = {}
+    debugObject.groundColor = 0x555555
+    debugObject.playerColor = 0x55aa55
+    debugObject.enemyColor = 0xa0b04a
+
     let geo, mat
     geo = new THREE.BoxGeometry(100, 0.01, 100)
-    mat = new THREE.MeshStandardMaterial({ color: 0x7a5100 })
+    mat = new THREE.MeshStandardMaterial({ color: debugObject.groundColor })
+    // mat = new THREE.MeshNormalMaterial()
+    mat.flatShading = true
     ground = new THREE.Mesh(geo, mat)
-    ground.rotation.x = -Math.PI
     ground.position.y = 0.1
     scene.add(ground)
 
-    const enemyColor = 0xf9c74f // yellowish
-    const playerColor = 0x43aa8b // greenish
+    debugObject.lightColour = () => {
+      ground.material.color.set(0x999999)
+      meshes[0].material.color.set(0x43aa8b)
+      for (let i = 1; i < meshes.length; i++) {
+        meshes[i].material.color.set(0xf9c74f)
+      }
+    }
+    gui.add(debugObject, 'lightColour')
+
+    debugObject.darkColour = () => {
+      ground.material.color.set(0x555555)
+      meshes[0].material.color.set(0x55aa55)
+      for (let i = 1; i < meshes.length; i++) {
+        meshes[i].material.color.set(0xa0b04a)
+      }
+    }
+    gui.add(debugObject, 'darkColour')
+
+    // const enemyColor = 0xf9c74f // yellowish
+    // const playerColor = 0x43aa8b // greenish
+    const enemyColor = debugObject.enemyColor
+    const playerColor = debugObject.playerColor
     for (let i = 0; i < boxPositions.length; i++) {
-      geo = new THREE.BoxGeometry(1, 1, 1)
+      if (i == 0) {
+        geo = new THREE.BoxGeometry(1, 1, 1, 10, 10, 10)
+      } else {
+        geo = new THREE.TorusGeometry(2, 3, 4, 3)
+      }
       mat = new THREE.MeshStandardMaterial({
         color: i === 0 ? playerColor : enemyColor,
       })
+      mat.flatShading = true
       const mesh = new THREE.Mesh(geo, mat)
+      // mesh.rotation.y = Math.PI
+      // quick scale of enemy mesh, not production
+      if (i > 0) {
+        mesh.scale.set(0.2, 0.2, 0.2)
+      }
       mesh.position.set(boxPositions[i].x, boxPositions[i].y, boxPositions[i].z)
       scene.add(mesh)
       meshes.push(mesh)
