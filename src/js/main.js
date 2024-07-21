@@ -138,17 +138,43 @@ export default async function run() {
   }
 
   function createMeshes() {
+    // debug Oject for debug menu
+    const debugObject = {}
+    debugObject.groundColor = 0x555555
+    debugObject.playerColor = 0x55aa55
+    debugObject.enemyColor = 0xa0b04a
+
     let geo, mat
     geo = new THREE.BoxGeometry(100, 0.01, 100)
-    mat = new THREE.MeshStandardMaterial({ color: 0x999999 })
+    mat = new THREE.MeshStandardMaterial({ color: debugObject.groundColor })
     // mat = new THREE.MeshNormalMaterial()
     mat.flatShading = true
     ground = new THREE.Mesh(geo, mat)
     ground.position.y = 0.1
     scene.add(ground)
 
-    const enemyColor = 0xf9c74f // yellowish
-    const playerColor = 0x43aa8b // greenish
+    debugObject.lightColour = () => {
+      ground.material.color.set(0x999999)
+      meshes[0].material.color.set(0x43aa8b)
+      for (let i = 1; i < meshes.length; i++) {
+        meshes[i].material.color.set(0xf9c74f)
+      }
+    }
+    gui.add(debugObject, 'lightColour')
+
+    debugObject.darkColour = () => {
+      ground.material.color.set(0x555555)
+      meshes[0].material.color.set(0x55aa55)
+      for (let i = 1; i < meshes.length; i++) {
+        meshes[i].material.color.set(0xa0b04a)
+      }
+    }
+    gui.add(debugObject, 'darkColour')
+
+    // const enemyColor = 0xf9c74f // yellowish
+    // const playerColor = 0x43aa8b // greenish
+    const enemyColor = debugObject.enemyColor
+    const playerColor = debugObject.playerColor
     for (let i = 0; i < boxPositions.length; i++) {
       if (i == 0) {
         geo = new THREE.BoxGeometry(1, 1, 1, 10, 10, 10)
@@ -161,6 +187,10 @@ export default async function run() {
       mat.flatShading = true
       const mesh = new THREE.Mesh(geo, mat)
       // mesh.rotation.y = Math.PI
+      // quick scale of enemy mesh, not production
+      if (i > 0) {
+        mesh.scale.set(0.2, 0.2, 0.2)
+      }
       mesh.position.set(boxPositions[i].x, boxPositions[i].y, boxPositions[i].z)
       scene.add(mesh)
       meshes.push(mesh)
