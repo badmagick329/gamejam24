@@ -1,39 +1,83 @@
 import * as THREE from 'three'
+import {
+  addPass,
+  initEngine,
+  useCamera,
+  useGui,
+  useRenderSize,
+  useScene,
+  useTick,
+} from './render/init.js'
+// import postprocessing passes
+import { SavePass } from 'three/examples/jsm/postprocessing/SavePass.js'
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
+import { BlendShader } from 'three/examples/jsm/shaders/BlendShader.js'
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js'
 
 async function main() {
-  // 1: setup scene and camera
-  const scene = new THREE.Scene()
-  const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  )
-  camera.position.z = 5
+  const startApp = () => {
+    const scene = useScene()
+    const camera = useCamera()
+    const gui = useGui()
+    const { width, height } = useRenderSize()
 
-  // 2: setup renderer
-  const renderer = new THREE.WebGLRenderer()
-  // 3: set canvas size (drawingbuffer size)
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.setAnimationLoop(animate)
-  document.body.appendChild(renderer.domElement)
+    const ROTATION_SPEED = 0.002
+    const MOTION_BLUR_AMOUNT = 0.725
 
-  // 4: setup geo and mat
-  const geometry = new THREE.BoxGeometry(1, 1, 1)
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+    const dirLight = new THREE.DirectionalLight('#ffffff', 1)
+    const ambientLight = new THREE.AmbientLight('#ffffff', 0.5)
+    scene.add(dirLight, ambientLight)
 
-  // 5: create a mesh to hold the geo and mat
-  const cube = new THREE.Mesh(geometry, material)
-  // 6: add it to scene
-  scene.add(cube)
+    const geometry = new THREE.IcosahedronGeometry()
+    const material = new THREE.MeshStandardMaterial({
+      color: '#4e62f9',
+    })
+    const mesh = new THREE.Mesh(geometry, material)
+    scene.add(mesh)
 
-  // 7: animation loop
-  function animate() {
-    cube.rotation.x += 0.01
-    cube.rotation.y += 0.01
+    // GUI
+    const cameraFolder = gui.addFolder('Camera')
+    cameraFolder.add(camera.position, 'z', 0, 10)
+    cameraFolder.open()
 
-    renderer.render(scene, camera)
+    // postprocessing
+    const renderTargetParameters = {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      stencilBuffer: false,
+    }
+
+    // save pass
+    const savePass = new SavePass(
+      new THREE.WebGLRenderTarget(width, height, renderTargetParameters)
+    )
+
+    // blend pass
+    const blendPass = new ShaderPass(BlendShader, 'tDiffuse1')
+    blendPass.uniforms['tDiffuse2'].value = savePass.renderTarget.texture
+    blendPass.uniforms['mixRatio'].value = MOTION_BLUR_AMOUNT
+
+    // output pass
+    const outputPass = new ShaderPass(CopyShader)
+    outputPass.renderToScreen = true
+
+    // adding passes to composer
+    addPass(blendPass)
+    addPass(savePass)
+    addPass(outputPass)
+
+    const animate = (timestamp, timeDiff) => {
+      mesh.rotation.x += ROTATION_SPEED
+      mesh.rotation.y += ROTATION_SPEED
+    }
+
+    useTick(({ timestamp, timeDiff }) => {
+      animate(timestamp, timeDiff)
+    })
   }
+
+  await initEngine()
+  startApp()
 }
 
 main()
