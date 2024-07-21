@@ -135,27 +135,38 @@ export default async function run() {
     height = h
 
     dirLight = new THREE.DirectionalLight('#ffffff', 1)
-    ambientLight = new THREE.AmbientLight('#ffffff', 0.5)
+    ambientLight = new THREE.AmbientLight('#ffffff', 5)
+    ambientLight.position.x = 5
+    ambientLight.position.y = 5
+    ambientLight.position.z = 5
+
     scene.add(dirLight, ambientLight)
   }
 
   function createMeshes() {
     let geo, mat
     geo = new THREE.BoxGeometry(100, 0.01, 100)
-    mat = new THREE.MeshStandardMaterial({ color: 0x7a5100 })
+    mat = new THREE.MeshStandardMaterial({ color: 0x999999 })
+    // mat = new THREE.MeshNormalMaterial()
+    mat.flatShading = true
     ground = new THREE.Mesh(geo, mat)
-    ground.rotation.x = -Math.PI
     ground.position.y = 0.1
     scene.add(ground)
 
     const enemyColor = 0xf9c74f // yellowish
     const playerColor = 0x43aa8b // greenish
     for (let i = 0; i < boxPositions.length; i++) {
-      geo = new THREE.BoxGeometry(1, 1, 1)
+      if (i == 0) {
+        geo = new THREE.BoxGeometry(1, 1, 1, 10, 10, 10)
+      } else {
+        geo = new THREE.TorusGeometry(2, 3, 4, 3)
+      }
       mat = new THREE.MeshStandardMaterial({
         color: i === 0 ? playerColor : enemyColor,
       })
+      mat.flatShading = true
       const mesh = new THREE.Mesh(geo, mat)
+      // mesh.rotation.y = Math.PI
       mesh.position.set(boxPositions[i].x, boxPositions[i].y, boxPositions[i].z)
       scene.add(mesh)
       meshes.push(mesh)
