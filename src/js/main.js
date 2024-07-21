@@ -107,8 +107,6 @@ export default async function run() {
         let rotation = bodies[i].rotation()
         meshes[i].quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
       }
-
-      let position = bodies[0].translation()
     }
 
     useTick(({ timestamp, timeDiff }) => {
