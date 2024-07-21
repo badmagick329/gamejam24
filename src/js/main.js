@@ -19,7 +19,7 @@ import {
 import BulletSpawner from './components/bullet-spawner.js'
 import InputController from './components/input-controller.js'
 import MouseInputController from './components/mouse-input-controller.js'
-import MouseMovementController from './components/mouse-movement-controller.js'
+import MovementController from './components/movement-controller.js'
 import PlayerFSM from './components/player-fsm.js'
 import EntityManager from './ecs/entity-manager.js'
 import Entity from './ecs/entity.js'
@@ -83,12 +83,11 @@ export default async function run() {
       scene
     )
     player.addComponent(mouseInputController)
-    const movementController = new MouseMovementController(
+    const movementController = new MovementController(
       playerMesh,
       playerCollider,
       playerBody,
-      characterController,
-      ground
+      characterController
     )
     player.addComponent(movementController)
 
@@ -96,11 +95,6 @@ export default async function run() {
     const bulletSpawner = new BulletSpawner(playerBody, scene, world)
     player.addComponent(bulletSpawner)
     manager.add(player)
-
-    // register handlers
-    playerFsm.registerHandler('player.movement', (m) =>
-      playerFsm.handleMovement(m)
-    )
 
     postprocessing()
     const animate = (timestamp, timeDiff) => {
