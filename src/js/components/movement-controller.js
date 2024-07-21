@@ -61,9 +61,8 @@ export default class MovementController extends Component {
     if (!this._fsm) {
       this._fsm = this.getComponent('PlayerFSM')
       this.registerHandler('player.movement', (m) => {
-        m.value = {
-          ...m.value,
-          moveCallback: movementMap[m.value.pressedKeys[0]],
+        for (const key of m.value.pressedKeys) {
+          movementMap[key] && movementMap[key](m)
         }
         this._fsm.handleMovement(m)
       })
