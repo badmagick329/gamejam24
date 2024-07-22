@@ -118,7 +118,7 @@ export class BulletSpawner extends Component {
   }
 
   _disposeBullet(idx) {
-    // TODO: Ensure everything is actually getting disposed
+    this._bullets[idx].bullet.dispose()
     this._scene.remove(this._bullets[idx].bullet.mesh)
     this._world.removeRigidBody(this._bullets[idx].bullet.rigidBody)
     this._bullets.splice(idx, 1)

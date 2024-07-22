@@ -22,4 +22,23 @@ export class GameBody {
     const rotation = this.rigidBody.rotation()
     this.mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
   }
+
+  dispose() {
+    this.diposeMesh()
+    // TODO: Add calls for disposing rapier stuff if needed? if not needed
+    // move disposeMesh code to here
+  }
+
+  diposeMesh() {
+    this.mesh.geometry.dispose()
+
+    if (this.mesh.material.map) {
+      object.material.map.dispose()
+    }
+    if (Array.isArray(this.mesh.material)) {
+      this.mesh.material.forEach((material) => material.dispose())
+    } else {
+      this.mesh.material.dispose()
+    }
+  }
 }
