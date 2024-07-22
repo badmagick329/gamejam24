@@ -39,16 +39,12 @@ export default async function run() {
 
     postprocessing(game.width, game.height, MOTION_BLUR_AMOUNT)
 
-    const animate = (timestamp, timeDiff) => {
+    useTick(({ timestamp, timeDiff }) => {
+      game.world.step()
       manager.update(timestamp, timeDiff)
       for (const body of game.bodies) {
         body.sync()
       }
-    }
-
-    useTick(({ timestamp, timeDiff }) => {
-      game.world.step()
-      animate(timestamp, timeDiff)
     })
   }
 
