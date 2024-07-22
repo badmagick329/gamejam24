@@ -24,12 +24,6 @@ export class GameBody {
   }
 
   dispose() {
-    this.diposeMesh()
-    // TODO: Add calls for disposing rapier stuff if needed? if not needed
-    // move disposeMesh code to here
-  }
-
-  diposeMesh() {
     this.mesh.geometry.dispose()
 
     if (this.mesh.material.map) {

@@ -118,9 +118,11 @@ export class BulletSpawner extends Component {
   }
 
   _disposeBullet(idx) {
-    this._bullets[idx].bullet.dispose()
-    this._scene.remove(this._bullets[idx].bullet.mesh)
-    this._world.removeRigidBody(this._bullets[idx].bullet.rigidBody)
+    let obj = this._bullets[idx].bullet
+    obj.dispose()
+    this._scene.remove(obj.mesh)
+    this._world.removeRigidBody(obj.rigidBody)
     this._bullets.splice(idx, 1)
+    obj = null
   }
 }
