@@ -9,6 +9,7 @@ export class GameBody {
    * @param {RAPIER.Collider} collider
    */
   constructor(mesh, rigidBody, collider) {
+    // TODO: Add ID field?
     this.mesh = mesh
     this.rigidBody = rigidBody
     this.collider = collider

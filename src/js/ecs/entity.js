@@ -1,4 +1,3 @@
-import * as THREE from 'three'
 import { Component } from './component'
 import { EntityManager } from './entity-manager'
 
@@ -13,18 +12,6 @@ export class Entity {
      * @type {Object.<string, Component>}
      */
     this._components = {}
-    /**
-     * @type {THREE.Vector3}
-     */
-    this._position = new THREE.Vector3()
-    /**
-     * @type {THREE.Quaternion}
-     */
-    this._rotation = new THREE.Quaternion()
-    /**
-     * @type {THREE.Box3}
-     */
-    this._boundingBox = new THREE.Box3()
 
     /**
      * @type {(EntityManager|null)}
@@ -83,30 +70,6 @@ export class Entity {
    */
   findEntity(n) {
     return this._parent.get(n)
-  }
-
-  /**
-   * @param {THREE.Vector3} p
-   * @returns {void}
-   */
-  setPosition(p) {
-    this._position.copy(p)
-  }
-
-  /**
-   * @param {THREE.Quaternion} r
-   * @returns {void}
-   */
-  setQuaternion(r) {
-    this._rotation.copy(r)
-  }
-
-  /**
-   * @param {THREE.Box3} box
-   * @return {void}
-   */
-  setBoundingBox(box) {
-    this._boundingBox.copy(box)
   }
 
   /**

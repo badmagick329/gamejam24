@@ -7,25 +7,20 @@ const BOX_SIZE = 1
 const BOX_SEGMENTS = 10
 const DEFAULT_COLOR = 0x55aa55
 
+/**
+ * @class
+ * @implements {PlayerFactoryAttributes}
+ */
 export class PlayerFactory {
   /**
-   * @param {import('../../types').PlayerFactoryConfig} config
+   * @param {PlayerFactoryConfig} config
    */
   constructor(config) {
     if (config.world === undefined) {
       throw new Error('PlayerFactory requires a world instance')
     }
-    /**
-     * @type {RAPIER.World}
-     */
     this.world = config.world
-    /**
-     * @type {THREE.Vector3}
-     */
     this.position = config?.position ?? this.defaultPosition()
-    /**
-     * @type {(THREE.BufferGeometry)}
-     */
     this.geo =
       config?.geo ??
       new THREE.BoxGeometry(
@@ -36,30 +31,15 @@ export class PlayerFactory {
         BOX_SEGMENTS,
         BOX_SEGMENTS
       )
-    /**
-     * @type {THREE.MeshStandardMaterial}
-     */
     this.mat =
       config.mat ?? new THREE.MeshStandardMaterial({ color: DEFAULT_COLOR })
     this.mat.flatShading = true
-    /**
-     * @type {RAPIER.ColliderDesc}
-     */
     this.colliderDesc =
       config?.colliderDesc ??
       RAPIER.ColliderDesc.cuboid(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2)
-    /**
-     * @type {(number)}
-     */
     this.linearDamping = 0.25
 
-    /**
-     * @type {(RAPIER.RigidBody|null)}
-     */
     this.rigidBody = null
-    /**
-     * @type {(GameBody|null)}
-     */
     this.body = null
   }
 

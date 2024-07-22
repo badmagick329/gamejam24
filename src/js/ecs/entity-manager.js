@@ -90,7 +90,7 @@ export class EntityManager {
 
   /**
    * Broadcast a message to all entities registered on a topic
-   * @param {import('../types').Message} msg
+   * @param {Message} msg
    * @returns {void}
    */
   broadcast(msg) {

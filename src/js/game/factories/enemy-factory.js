@@ -2,43 +2,26 @@ import * as RAPIER from '@dimforge/rapier3d-compat'
 import * as THREE from 'three'
 import { GameBody } from '../game-body'
 
+/**
+ * @class
+ * @implements {EnemyFactoryAttributes}
+ */
 export class EnemyFactory {
   /**
-   * @param {import('../../types').EnemyFactoryConfig} config
+   * @param {EnemyFactoryConfig} config
    */
   constructor(config) {
     if (config.world === undefined) {
       throw new Error('EnemyFactory requires a world instance')
     }
-    /**
-     * @type {RAPIER.World}
-     */
     this.world = config.world
-    /**
-     * @type {THREE.Vector3}
-     */
     this.position = config?.position ?? new THREE.Vector3(0, 20, 0)
 
-    /**
-     * @type {(THREE.Mesh|null)}
-     */
     this.mesh = null
-    /**
-     * @type {(RAPIER.ColliderDesc|null)}
-     */
     this.colliderDesc = null
-    /**
-     * @type {(number)}
-     */
     this.linearDamping = 0.25
 
-    /**
-     * @type {(RAPIER.RigidBody|null)}
-     */
     this.rigidBody = null
-    /**
-     * @type {(GameBody|null)}
-     */
     this.body = null
   }
 
