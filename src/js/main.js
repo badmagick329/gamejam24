@@ -22,11 +22,6 @@ import {
 export default async function run() {
   const MOTION_BLUR_AMOUNT = 0.425
 
-  /**
-   * @type {GameBody[]}
-   */
-  let bodies = []
-
   const startApp = async () => {
     const game = new Game()
     await game.init()
@@ -35,7 +30,7 @@ export default async function run() {
     game.bodies.push(playerBody)
     game.scene.add(playerBody.mesh)
 
-    createEnemies(game.scene, game.world)
+    createEnemies(game.scene, game.world, game.bodies)
 
     const renderer = useRenderer()
     renderer.shadowMap.enabled = true
@@ -81,7 +76,7 @@ export default async function run() {
     postprocessing(game.width, game.height, MOTION_BLUR_AMOUNT)
     const animate = (timestamp, timeDiff) => {
       manager.update(timestamp, timeDiff)
-      for (const body of bodies) {
+      for (const body of game.bodies) {
         body.sync()
       }
     }
@@ -105,9 +100,10 @@ export default async function run() {
   /**
    * @param {THREE.Scene} scene
    * @param {RAPIER.World} world
+   * @param {GameBody[]} bodies
    * @returns {void}
    */
-  function createEnemies(scene, world) {
+  function createEnemies(scene, world, bodies) {
     const enemyFactory = new EnemyFactory({ world })
     for (let i = 1; i < boxPositions.length; i++) {
       const enemy = enemyFactory
