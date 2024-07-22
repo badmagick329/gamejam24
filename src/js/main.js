@@ -110,6 +110,12 @@ export default async function run() {
 
   function setupScene() {
     scene = useScene()
+    // Experimenting with fog. Feel free to change
+    const color = 0x0e0e0e
+    const near = 10
+    const far = 150
+    scene.fog = new THREE.Fog(color, near, far)
+
     const controls = useControls()
     controls.enableRotate = false
     camera = useCamera()
