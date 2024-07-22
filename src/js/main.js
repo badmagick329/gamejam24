@@ -1,6 +1,6 @@
 import * as RAPIER from '@dimforge/rapier3d-compat'
 import * as THREE from 'three'
-import { initEngine, useRenderer, useTick } from './render/init.js'
+import { initEngine, useTick } from './render/init.js'
 
 import {
   BulletSpawner,
@@ -26,54 +26,19 @@ export default async function run() {
     const game = new Game()
     await game.init()
 
-    const playerBody = createPlayer(game.world)
-    game.bodies.push(playerBody)
-    game.scene.add(playerBody.mesh)
-
-    createEnemies(game.scene, game.world, game.bodies)
-
-    const renderer = useRenderer()
-    renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
-
-    const offset = 0.01
-    const characterController = game.world.createCharacterController(offset)
-    characterController.setApplyImpulsesToDynamicBodies(true)
-
-    // Create entities and components
-    const manager = new EntityManager()
-    const player = new Entity()
-    // player state machine
-    const playerFsm = new PlayerFSM()
-    player.addComponent(playerFsm)
-
-    // inputs and movement
-    const inputController = new InputController()
-    player.addComponent(inputController)
-    const mouseInputController = new MouseInputController(
-      renderer,
+    initPlayer(game.scene, game.world, game.bodies)
+    initEnemies(game.scene, game.world, game.bodies)
+    initEntitiesAndComponents(
+      game.renderer,
       game.camera,
-      game.scene
-    )
-    player.addComponent(mouseInputController)
-    const movementController = new MovementController(
-      playerBody.mesh,
-      playerBody.collider,
-      playerBody.rigidBody,
-      characterController
-    )
-    player.addComponent(movementController)
-
-    // bullets
-    const bulletSpawner = new BulletSpawner(
-      playerBody.rigidBody,
       game.scene,
+      game.playerBody,
+      game.characterController,
       game.world
     )
-    player.addComponent(bulletSpawner)
-    manager.add(player)
 
     postprocessing(game.width, game.height, MOTION_BLUR_AMOUNT)
+
     const animate = (timestamp, timeDiff) => {
       manager.update(timestamp, timeDiff)
       for (const body of game.bodies) {
@@ -88,13 +53,16 @@ export default async function run() {
   }
 
   /**
+   * @param {THREE.Scene} scene
    * @param {RAPIER.World} world
-   * @returns {GameBody}
+   * @param {GameBody[]} bodies
+   * @returns {void}
    */
-  function createPlayer(world) {
+  function initPlayer(scene, world, bodies) {
     const playerFactory = new PlayerFactory({ world })
     const playerGameBody = playerFactory.create()
-    return playerGameBody
+    bodies.push(playerGameBody)
+    scene.add(playerBody.mesh)
   }
 
   /**
@@ -103,7 +71,7 @@ export default async function run() {
    * @param {GameBody[]} bodies
    * @returns {void}
    */
-  function createEnemies(scene, world, bodies) {
+  function initEnemies(scene, world, bodies) {
     const enemyFactory = new EnemyFactory({ world })
     for (let i = 1; i < boxPositions.length; i++) {
       const enemy = enemyFactory
@@ -115,6 +83,52 @@ export default async function run() {
     }
   }
 
+  /**
+   * @param {THREE.WebGLRenderer} renderer
+   * @param {THREE.PerspectiveCamera} camera
+   * @param {THREE.Scene} scene
+   * @param {GameBody} playerBody
+   * @param {RAPIER.KinematicCharacterController} characterController
+   * @param {RAPIER.World} world
+   * @returns {void}
+   */
+  function initEntitiesAndComponents(
+    renderer,
+    camera,
+    scene,
+    playerBody,
+    characterController,
+    world
+  ) {
+    // Create entities and components
+    const manager = new EntityManager()
+    const player = new Entity()
+    // player state machine
+    const playerFsm = new PlayerFSM()
+    player.addComponent(playerFsm)
+
+    // inputs and movement
+    const inputController = new InputController()
+    player.addComponent(inputController)
+    const mouseInputController = new MouseInputController(
+      renderer,
+      camera,
+      scene
+    )
+    player.addComponent(mouseInputController)
+    const movementController = new MovementController(
+      playerBody.mesh,
+      playerBody.collider,
+      playerBody.rigidBody,
+      characterController
+    )
+    player.addComponent(movementController)
+
+    // bullets
+    const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)
+    player.addComponent(bulletSpawner)
+    manager.add(player)
+  }
   await initEngine()
   startApp()
 }

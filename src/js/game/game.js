@@ -4,6 +4,7 @@ import {
   useCamera,
   useControls,
   useGui,
+  useRenderer,
   useRenderSize,
   useScene,
 } from '../render/init.js'
@@ -20,10 +21,12 @@ export class Game {
   constructor() {
     this.scene = null
     this.camera = null
-    this.world = null
+    this.renderer = null
     this.gui = null
     this.width = null
     this.height = null
+    this.world = null
+    this.characterController = null
     this.ground = null
     this.bodies = []
   }
@@ -32,6 +35,14 @@ export class Game {
     this._setupScene()
     await this._initPhysicsWithGround()
     this._createGroundMeshAndDebugStuffRefactorThisLater()
+
+    const offset = 0.01
+    this.characterController = this.world.createCharacterController(offset)
+    characterController.setApplyImpulsesToDynamicBodies(true)
+  }
+
+  get playerBody() {
+    return this.bodies.length > 0 ? this.bodies[0] : null
   }
 
   _setupScene() {
@@ -57,6 +68,10 @@ export class Game {
     ambientLight.position.x = 5
     ambientLight.position.y = 5
     ambientLight.position.z = 5
+
+    this.renderer = useRenderer()
+    this.renderer.shadowMap.enabled = true
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
     this.scene.add(dirLight, ambientLight)
   }

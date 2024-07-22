@@ -25,10 +25,12 @@ declare global {
   interface GameClassAttributes {
     scene: THREE.Scene | null
     camera: THREE.PerspectiveCamera | null
-    world: RAPIER.World | null
+    renderer: THREE.WebGLRenderer | null
     gui: GUI | null
     width: number | null
     height: number | null
+    world: RAPIER.World | null
+    characterController: RAPIER.KinematicCharacterController | null
     ground: THREE.Mesh | null
     bodies: GameBody[]
   }
