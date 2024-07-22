@@ -38,7 +38,7 @@ export class Game {
 
     const offset = 0.01
     this.characterController = this.world.createCharacterController(offset)
-    characterController.setApplyImpulsesToDynamicBodies(true)
+    this.characterController.setApplyImpulsesToDynamicBodies(true)
   }
 
   get playerBody() {

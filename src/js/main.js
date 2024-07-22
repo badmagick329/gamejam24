@@ -28,7 +28,7 @@ export default async function run() {
 
     initPlayer(game.scene, game.world, game.bodies)
     initEnemies(game.scene, game.world, game.bodies)
-    initEntitiesAndComponents(
+    const manager = initEntitiesAndComponents(
       game.renderer,
       game.camera,
       game.scene,
@@ -62,7 +62,7 @@ export default async function run() {
     const playerFactory = new PlayerFactory({ world })
     const playerGameBody = playerFactory.create()
     bodies.push(playerGameBody)
-    scene.add(playerBody.mesh)
+    scene.add(playerGameBody.mesh)
   }
 
   /**
@@ -90,7 +90,7 @@ export default async function run() {
    * @param {GameBody} playerBody
    * @param {RAPIER.KinematicCharacterController} characterController
    * @param {RAPIER.World} world
-   * @returns {void}
+   * @returns {EntityManager}
    */
   function initEntitiesAndComponents(
     renderer,
@@ -128,6 +128,7 @@ export default async function run() {
     const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)
     player.addComponent(bulletSpawner)
     manager.add(player)
+    return manager
   }
   await initEngine()
   startApp()
