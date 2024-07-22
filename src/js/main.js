@@ -23,6 +23,9 @@ import MovementController from './components/movement-controller.js'
 import PlayerFSM from './components/player-fsm.js'
 import EntityManager from './ecs/entity-manager.js'
 import Entity from './ecs/entity.js'
+import EnemyFactory from './game/factories/enemy-factory.js'
+import PlayerFactory from './game/factories/player-factory.js'
+import GameBody from './game/game-body.js'
 
 export default async function run() {
   const MOTION_BLUR_AMOUNT = 0.425
@@ -34,31 +37,25 @@ export default async function run() {
   let world
 
   /**
-   * @type {RAPIER.RigidBody[]}
+   * @type {GameBody[]}
    */
   let bodies = []
-  /**
-   * @type {THREE.Mesh[]}
-   */
-  let meshes = []
 
   /**
    * @type {THREE.Mesh}
    */
   let ground = null
 
-  /**
-   * @type {RAPIER.Collider}
-   */
-  let playerCollider
-
   const startApp = async () => {
     setupScene()
-    createMeshes()
-    world = await initPhysics()
-    createBodies(world)
-    const playerMesh = meshes[0]
-    const playerBody = bodies[0]
+    world = await initPhysicsWithGround()
+
+    const playerBody = createPlayer()
+    bodies.push(playerBody)
+    scene.add(playerBody.mesh)
+
+    createEnemies(world)
+    createGroundMeshAndDebugStuffRefactorThisLater()
 
     const renderer = useRenderer()
     renderer.shadowMap.enabled = true
@@ -68,6 +65,7 @@ export default async function run() {
     const characterController = world.createCharacterController(offset)
     characterController.setApplyImpulsesToDynamicBodies(true)
 
+    // Create entities and components
     const manager = new EntityManager()
     const player = new Entity()
     // player state machine
@@ -84,28 +82,23 @@ export default async function run() {
     )
     player.addComponent(mouseInputController)
     const movementController = new MovementController(
-      playerMesh,
-      playerCollider,
-      playerBody,
+      playerBody.mesh,
+      playerBody.collider,
+      playerBody.rigidBody,
       characterController
     )
     player.addComponent(movementController)
 
     // bullets
-    const bulletSpawner = new BulletSpawner(playerBody, scene, world)
+    const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)
     player.addComponent(bulletSpawner)
     manager.add(player)
 
-    postprocessing()
+    postprocessing(width, height, MOTION_BLUR_AMOUNT)
     const animate = (timestamp, timeDiff) => {
       manager.update(timestamp, timeDiff)
-
-      for (let i = 0; i < bodies.length; i++) {
-        let position = bodies[i].translation()
-        meshes[i].position.set(position.x, position.y, position.z)
-
-        let rotation = bodies[i].rotation()
-        meshes[i].quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
+      for (const body of bodies) {
+        body.sync()
       }
     }
 
@@ -135,7 +128,30 @@ export default async function run() {
     scene.add(dirLight, ambientLight)
   }
 
-  function createMeshes() {
+  /**
+   * @returns {GameBody}
+   */
+  function createPlayer() {
+    const playerFactory = new PlayerFactory({ world })
+    const playerGameBody = playerFactory.create()
+    return playerGameBody
+  }
+
+  /**
+   * @returns {void}
+   */
+  function createEnemies() {
+    const enemyFactory = new EnemyFactory({ world })
+    for (let i = 1; i < boxPositions.length; i++) {
+      const enemy = enemyFactory
+        .setPosition(boxPositions[i].x, boxPositions[i].y, boxPositions[i].z)
+        .setBaseEnemy()
+        .create()
+      bodies.push(enemy)
+      scene.add(enemy.mesh)
+    }
+  }
+  function createGroundMeshAndDebugStuffRefactorThisLater() {
     // debug Oject for debug menu
     const debugObject = {}
     debugObject.groundColor = 0x555555
@@ -153,49 +169,24 @@ export default async function run() {
 
     debugObject.lightColour = () => {
       ground.material.color.set(0x999999)
-      meshes[0].material.color.set(0x43aa8b)
-      for (let i = 1; i < meshes.length; i++) {
-        meshes[i].material.color.set(0xf9c74f)
+      bodies[0].mesh.material.color.set(0x43aa8b)
+      for (let i = 1; i < bodies.length; i++) {
+        bodies[i].mesh.material.color.set(0xf9c74f)
       }
     }
     gui.add(debugObject, 'lightColour')
 
     debugObject.darkColour = () => {
       ground.material.color.set(0x555555)
-      meshes[0].material.color.set(0x55aa55)
-      for (let i = 1; i < meshes.length; i++) {
-        meshes[i].material.color.set(0xa0b04a)
+      bodies[0].mesh.material.color.set(0x55aa55)
+      for (let i = 1; i < bodies.length; i++) {
+        bodies[i].mesh.material.color.set(0xa0b04a)
       }
     }
     gui.add(debugObject, 'darkColour')
-
-    // const enemyColor = 0xf9c74f // yellowish
-    // const playerColor = 0x43aa8b // greenish
-    const enemyColor = debugObject.enemyColor
-    const playerColor = debugObject.playerColor
-    for (let i = 0; i < boxPositions.length; i++) {
-      if (i == 0) {
-        geo = new THREE.BoxGeometry(1, 1, 1, 10, 10, 10)
-      } else {
-        geo = new THREE.TorusGeometry(2, 3, 4, 3)
-      }
-      mat = new THREE.MeshStandardMaterial({
-        color: i === 0 ? playerColor : enemyColor,
-      })
-      mat.flatShading = true
-      const mesh = new THREE.Mesh(geo, mat)
-      // mesh.rotation.y = Math.PI
-      // quick scale of enemy mesh, not production
-      if (i > 0) {
-        mesh.scale.set(0.2, 0.2, 0.2)
-      }
-      mesh.position.set(boxPositions[i].x, boxPositions[i].y, boxPositions[i].z)
-      scene.add(mesh)
-      meshes.push(mesh)
-    }
   }
 
-  async function initPhysics() {
+  async function initPhysicsWithGround() {
     await RAPIER.init()
     let gravity = { x: 0.0, y: -9.81, z: 0.0 }
     let world = new RAPIER.World(gravity)
@@ -204,69 +195,6 @@ export default async function run() {
     world.createCollider(groundColliderDesc)
 
     return world
-  }
-
-  function createBodies(world) {
-    let rigidBodyDesc, rigidBody
-    const PLAYER_Y = 0.6
-
-    for (let i = 0; i < boxPositions.length; i++) {
-      if (i === 0) {
-        // create player
-        rigidBodyDesc =
-          RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(
-            boxPositions[i].x,
-            // boxPositions[i].y,
-            PLAYER_Y,
-            boxPositions[i].z
-          )
-      } else {
-        // create enemies
-        rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(
-          boxPositions[i].x,
-          boxPositions[i].y,
-          boxPositions[i].z
-        )
-      }
-      rigidBody = world.createRigidBody(rigidBodyDesc)
-      rigidBody.setLinearDamping(0.25)
-
-      const colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5)
-      if (i === 0) {
-        playerCollider = world.createCollider(colliderDesc, rigidBody)
-      } else {
-        let collider = world.createCollider(colliderDesc, rigidBody)
-      }
-      bodies.push(rigidBody)
-    }
-  }
-
-  function postprocessing() {
-    // postprocessing
-    const renderTargetParameters = {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      stencilBuffer: false,
-    }
-
-    // save pass
-    const savePass = new SavePass(
-      new THREE.WebGLRenderTarget(width, height, renderTargetParameters)
-    )
-
-    // blend pass
-    const blendPass = new ShaderPass(BlendShader, 'tDiffuse1')
-    blendPass.uniforms['tDiffuse2'].value = savePass.renderTarget.texture
-    blendPass.uniforms['mixRatio'].value = MOTION_BLUR_AMOUNT
-
-    // output pass
-    const outputPass = new ShaderPass(CopyShader)
-    outputPass.renderToScreen = true
-
-    // adding passes to composer
-    addPass(blendPass)
-    addPass(savePass)
-    addPass(outputPass)
   }
 
   await initEngine()
@@ -300,3 +228,31 @@ const boxPositions = [
     z: 0,
   },
 ]
+
+function postprocessing(width, height, MOTION_BLUR_AMOUNT) {
+  // postprocessing
+  const renderTargetParameters = {
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    stencilBuffer: false,
+  }
+
+  // save pass
+  const savePass = new SavePass(
+    new THREE.WebGLRenderTarget(width, height, renderTargetParameters)
+  )
+
+  // blend pass
+  const blendPass = new ShaderPass(BlendShader, 'tDiffuse1')
+  blendPass.uniforms['tDiffuse2'].value = savePass.renderTarget.texture
+  blendPass.uniforms['mixRatio'].value = MOTION_BLUR_AMOUNT
+
+  // output pass
+  const outputPass = new ShaderPass(CopyShader)
+  outputPass.renderToScreen = true
+
+  // adding passes to composer
+  addPass(blendPass)
+  addPass(savePass)
+  addPass(outputPass)
+}
