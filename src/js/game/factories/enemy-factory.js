@@ -1,10 +1,8 @@
 import * as RAPIER from '@dimforge/rapier3d-compat'
 import * as THREE from 'three'
-import GameBody from '../game-body'
+import { GameBody } from '../game-body'
 
-const BOX_SIZE = 1
-
-export default class EnemyFactory {
+export class EnemyFactory {
   /**
    * @param {import('../../types').EnemyFactoryConfig} config
    */

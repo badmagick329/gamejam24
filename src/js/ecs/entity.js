@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import Component from './component'
-import EntityManager from './entity-manager'
+import { Component } from './component'
+import { EntityManager } from './entity-manager'
 
-export default class Entity {
+export class Entity {
   constructor() {
     // NOTE: _name will be treated as a unique identifier. Make sure this is not duplicated
     /**

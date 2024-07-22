@@ -1,6 +1,6 @@
-import Entity from './entity'
+import { Entity } from './entity'
 
-export default class Component {
+export class Component {
   constructor() {
     /**
      * @type {(Entity|null)}

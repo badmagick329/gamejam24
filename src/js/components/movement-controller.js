@@ -1,6 +1,6 @@
 import RAPIER from '@dimforge/rapier3d-compat'
 import * as THREE from 'three'
-import Component from '../ecs/component'
+import { Component } from '../ecs'
 
 const movementMap = {
   forward: (m) => {
@@ -38,7 +38,7 @@ const movementMap = {
   },
 }
 
-export default class MovementController extends Component {
+export class MovementController extends Component {
   /**
    * @param {THREE.Mesh} mesh
    * @param {RAPIER.Collider} collider

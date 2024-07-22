@@ -1,7 +1,7 @@
 import * as RAPIER from '@dimforge/rapier3d-compat'
 import * as THREE from 'three'
 
-export default class GameBody {
+export class GameBody {
   /**
    * Responsible for common interactions between mesh and rigid body
    * @param {THREE.Mesh} mesh

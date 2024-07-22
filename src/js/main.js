@@ -16,16 +16,16 @@ import {
   useTick,
 } from './render/init.js'
 
-import BulletSpawner from './components/bullet-spawner.js'
-import InputController from './components/input-controller.js'
-import MouseInputController from './components/mouse-input-controller.js'
-import MovementController from './components/movement-controller.js'
-import PlayerFSM from './components/player-fsm.js'
-import EntityManager from './ecs/entity-manager.js'
-import Entity from './ecs/entity.js'
-import EnemyFactory from './game/factories/enemy-factory.js'
-import PlayerFactory from './game/factories/player-factory.js'
-import GameBody from './game/game-body.js'
+import {
+  BulletSpawner,
+  InputController,
+  MouseInputController,
+  MovementController,
+  PlayerFSM,
+} from './components'
+
+import { Entity, EntityManager } from './ecs'
+import { EnemyFactory, GameBody, PlayerFactory } from './game'
 
 export default async function run() {
   const MOTION_BLUR_AMOUNT = 0.425

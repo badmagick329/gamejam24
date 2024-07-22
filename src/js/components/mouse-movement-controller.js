@@ -1,8 +1,8 @@
 import RAPIER from '@dimforge/rapier3d-compat'
 import * as THREE from 'three'
-import Component from '../ecs/component'
+import { Component } from '../ecs'
 
-export default class MouseMovementController extends Component {
+class MouseMovementController extends Component {
   /**
    * @param {THREE.Mesh} mesh
    * @param {RAPIER.Collider} collider

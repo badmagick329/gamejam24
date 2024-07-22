@@ -1,6 +1,6 @@
-import Entity from './entity'
+import { Entity } from './entity'
 
-export default class EntityManager {
+export class EntityManager {
   constructor() {
     /**
      * @type {number}

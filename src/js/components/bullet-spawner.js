@@ -1,11 +1,11 @@
 import RAPIER from '@dimforge/rapier3d-compat'
 import * as THREE from 'three'
-import Component from '../ecs/component'
+import { Component } from '../ecs'
 
 const INTERVAL = 150
 const MAX_TIME = 20000
 
-export default class BulletSpawner extends Component {
+export class BulletSpawner extends Component {
   /**
    * @param {RAPIER.RigidBody} playerBody
    * @param {THREE.Scene} scene

@@ -1,13 +1,13 @@
 import * as RAPIER from '@dimforge/rapier3d-compat'
 import * as THREE from 'three'
-import GameBody from '../game-body'
+import { GameBody } from '../game-body'
 
 const PLAYER_Y = 0.6
 const BOX_SIZE = 1
 const BOX_SEGMENTS = 10
 const DEFAULT_COLOR = 0x55aa55
 
-export default class PlayerFactory {
+export class PlayerFactory {
   /**
    * @param {import('../../types').PlayerFactoryConfig} config
    */

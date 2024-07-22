@@ -1,7 +1,7 @@
-import Component from '../ecs/component'
-import { State } from '../game/state'
+import { Component } from '../ecs'
+import { State } from '../game'
 
-export default class PlayerFSM extends Component {
+export class PlayerFSM extends Component {
   constructor() {
     super()
     const idleState = new State('idle')

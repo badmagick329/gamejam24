@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import Component from '../ecs/component'
+import { Component } from '../ecs'
 
-export default class MouseInputController extends Component {
+export class MouseInputController extends Component {
   constructor(renderer, camera, scene) {
     super()
     this.mousePosition = null

@@ -1,6 +1,6 @@
-import Component from '../ecs/component'
+import { Component } from '../ecs'
 
-export default class InputController extends Component {
+export class InputController extends Component {
   constructor() {
     super()
     this._keys = {
