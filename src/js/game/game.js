@@ -8,6 +8,7 @@ import {
   useRenderSize,
   useScene,
 } from '../render/init.js'
+import { log } from 'three/examples/jsm/nodes/Nodes.js'
 
 /**
  * @class
@@ -62,15 +63,30 @@ export class Game {
 
     const dirLight = new THREE.DirectionalLight('#ffffff', 1)
     const ambientLight = new THREE.AmbientLight('#ffffff', 5)
-    ambientLight.position.x = 5
-    ambientLight.position.y = 5
-    ambientLight.position.z = 5
+    dirLight.position.y = 5
+    dirLight.position.z = 5
+    dirLight.position.x = 5
 
     this.renderer = useRenderer()
     this.renderer.shadowMap.enabled = true
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
+    dirLight.castShadow = true
+
+    dirLight.shadow.camera.near = -38
+    dirLight.shadow.camera.far = 55
+    dirLight.shadow.camera.top = 35
+    dirLight.shadow.camera.right = 55
+    dirLight.shadow.camera.bottom = -35
+    dirLight.shadow.camera.left = -55
+
+    console.log(dirLight.shadow)
     this.scene.add(dirLight, ambientLight)
+
+    const directionalLightCameraHelper = new THREE.CameraHelper(
+      dirLight.shadow.camera
+    )
+    this.scene.add(directionalLightCameraHelper)
   }
 
   async _initPhysicsWithGround() {
@@ -98,6 +114,8 @@ export class Game {
     this.ground = new THREE.Mesh(geo, mat)
     this.ground.position.y = 0.1
     this.scene.add(this.ground)
+
+    this.ground.receiveShadow = true
 
     debugObject.lightColour = () => {
       this.ground.material.color.set(0x999999)

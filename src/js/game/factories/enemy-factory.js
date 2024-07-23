@@ -51,6 +51,7 @@ export class EnemyFactory {
       this.rigidBody,
       this.world.createCollider(this.colliderDesc, this.rigidBody)
     )
+    this.body.mesh.castShadow = true
     return this.body
   }
 
@@ -77,7 +78,6 @@ export class EnemyFactory {
     const geo = new THREE.TorusGeometry(2, 3, 4, 3)
     const mat = new THREE.MeshStandardMaterial({ color: 0xa0b04a })
     mat.flatShading = true
-
     this.mesh = new THREE.Mesh(geo, mat)
     this.mesh.scale.set(0.2, 0.2, 0.2)
     this.colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5)

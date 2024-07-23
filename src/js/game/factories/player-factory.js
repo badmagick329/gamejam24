@@ -60,6 +60,7 @@ export class PlayerFactory {
       this.rigidBody,
       this.world.createCollider(this.colliderDesc, this.rigidBody)
     )
+    this.body.mesh.castShadow = true
     return this.body
   }
 
