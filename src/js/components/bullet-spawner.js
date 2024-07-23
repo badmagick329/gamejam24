@@ -5,7 +5,7 @@ import { GameBody } from '../game'
 
 const config = {
   intervalBetweenShots: 110,
-  maxTimeAlive: 20000,
+  maxTimeAlive: 10000,
   maxTravel: 50,
   triggerKey: 'space',
   bulletSpeed: 24.0,
@@ -28,12 +28,13 @@ export class BulletSpawner extends Component {
   }
 
   update(time, delta) {
-    this._handleShoot(time)
-
     for (let i = 0; i < this._bullets.length; i++) {
       this._bullets[i].bullet.sync()
-      this._handleDisposal(this._bullets[i], this._bullets[i].timeAlive, i)
+      this._bullets[i].timeAlive += delta
+      this._handleDisposal(this._bullets[i], i)
     }
+
+    this._handleShoot(time)
   }
 
   _shootBullet(direction) {
