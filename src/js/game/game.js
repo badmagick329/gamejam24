@@ -8,7 +8,6 @@ import {
   useRenderSize,
   useScene,
 } from '../render/init.js'
-import { log } from 'three/examples/jsm/nodes/Nodes.js'
 
 /**
  * @class
