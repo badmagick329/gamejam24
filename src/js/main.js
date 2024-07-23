@@ -12,13 +12,7 @@ import {
 } from './components'
 
 import { Entity, EntityManager } from './ecs'
-import {
-  EnemyFactory,
-  Game,
-  GameBody,
-  PlayerFactory,
-  postprocessing,
-} from './game'
+import { Game, GameBody, PlayerFactory, postprocessing } from './game'
 
 export default async function run() {
   const MOTION_BLUR_AMOUNT = 0.425
@@ -28,7 +22,6 @@ export default async function run() {
     await game.init()
 
     game.player = initPlayer(game.scene, game.world)
-    initEnemies(game.scene, game.world, game.enemies)
     const manager = initEntitiesAndComponents(
       game.renderer,
       game.camera,
@@ -61,24 +54,6 @@ export default async function run() {
     const playerGameBody = playerFactory.create()
     scene.add(playerGameBody.mesh)
     return playerGameBody
-  }
-
-  /**
-   * @param {THREE.Scene} scene
-   * @param {RAPIER.World} world
-   * @param {GameBody[]} enemies
-   * @returns {void}
-   */
-  function initEnemies(scene, world, enemies) {
-    const enemyFactory = new EnemyFactory({ world })
-    for (const pos of boxPositions) {
-      const enemy = enemyFactory
-        .setPosition(pos.x, pos.y, pos.z)
-        .setBaseEnemy()
-        .create()
-      enemies.push(enemy)
-      scene.add(enemy.mesh)
-    }
   }
 
   /**
