@@ -135,6 +135,7 @@ export default async function run() {
       manager,
       scene,
       world,
+      playerBody,
       enemies
     )
     enemySpawner.addComponent(baseEnemySpawner)

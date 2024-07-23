@@ -4,7 +4,7 @@ import { Component } from '../ecs'
 import { GameBody } from '../game'
 
 const config = {
-  intervalBetweenShots: 150,
+  intervalBetweenShots: 110,
   maxTimeAlive: 20000,
   maxTravel: 50,
   triggerKey: 'space',

@@ -78,7 +78,7 @@ export class Game {
     const gravity = { x: 0.0, y: -9.81, z: 0.0 }
     this.world = new RAPIER.World(gravity)
 
-    const groundColliderDesc = RAPIER.ColliderDesc.cuboid(50.0, 0.1, 50.0)
+    const groundColliderDesc = RAPIER.ColliderDesc.cuboid(50.0, 0.1, 30.0)
     this.world.createCollider(groundColliderDesc)
   }
 
@@ -91,7 +91,7 @@ export class Game {
     debugObject.enemyColor = 0xa0b04a
 
     let geo, mat
-    geo = new THREE.BoxGeometry(100, 0.01, 100)
+    geo = new THREE.BoxGeometry(100, 0.01, 60)
     mat = new THREE.MeshStandardMaterial({ color: debugObject.groundColor })
     // mat = new THREE.MeshNormalMaterial()
     mat.flatShading = true
