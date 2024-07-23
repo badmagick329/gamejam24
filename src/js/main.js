@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { initEngine, useTick } from './render/init.js'
 
 import {
+  BaseEnemySpawner,
   BulletSpawner,
   InputController,
   MouseInputController,
@@ -26,15 +27,16 @@ export default async function run() {
     const game = new Game()
     await game.init()
 
-    initPlayer(game.scene, game.world, game.bodies)
-    initEnemies(game.scene, game.world, game.bodies)
+    game.player = initPlayer(game.scene, game.world)
+    initEnemies(game.scene, game.world, game.enemies)
     const manager = initEntitiesAndComponents(
       game.renderer,
       game.camera,
       game.scene,
-      game.playerBody,
+      game.player,
       game.characterController,
-      game.world
+      game.world,
+      game.enemies
     )
 
     postprocessing(game.width, game.height, MOTION_BLUR_AMOUNT)
@@ -42,8 +44,9 @@ export default async function run() {
     useTick(({ timestamp, timeDiff }) => {
       game.world.step()
       manager.update(timestamp, timeDiff)
-      for (const body of game.bodies) {
-        body.sync()
+      game.player.sync()
+      for (const enemy of game.enemies) {
+        enemy.sync()
       }
     })
   }
@@ -51,30 +54,29 @@ export default async function run() {
   /**
    * @param {THREE.Scene} scene
    * @param {RAPIER.World} world
-   * @param {GameBody[]} bodies
-   * @returns {void}
+   * @returns {GameBody}
    */
-  function initPlayer(scene, world, bodies) {
+  function initPlayer(scene, world) {
     const playerFactory = new PlayerFactory({ world })
     const playerGameBody = playerFactory.create()
-    bodies.push(playerGameBody)
     scene.add(playerGameBody.mesh)
+    return playerGameBody
   }
 
   /**
    * @param {THREE.Scene} scene
    * @param {RAPIER.World} world
-   * @param {GameBody[]} bodies
+   * @param {GameBody[]} enemies
    * @returns {void}
    */
-  function initEnemies(scene, world, bodies) {
+  function initEnemies(scene, world, enemies) {
     const enemyFactory = new EnemyFactory({ world })
-    for (let i = 1; i < boxPositions.length; i++) {
+    for (const pos of boxPositions) {
       const enemy = enemyFactory
-        .setPosition(boxPositions[i].x, boxPositions[i].y, boxPositions[i].z)
+        .setPosition(pos.x, pos.y, pos.z)
         .setBaseEnemy()
         .create()
-      bodies.push(enemy)
+      enemies.push(enemy)
       scene.add(enemy.mesh)
     }
   }
@@ -86,6 +88,7 @@ export default async function run() {
    * @param {GameBody} playerBody
    * @param {RAPIER.KinematicCharacterController} characterController
    * @param {RAPIER.World} world
+   * @param {GameBody[]} enemies
    * @returns {EntityManager}
    */
   function initEntitiesAndComponents(
@@ -94,7 +97,8 @@ export default async function run() {
     scene,
     playerBody,
     characterController,
-    world
+    world,
+    enemies
   ) {
     // Create entities and components
     const manager = new EntityManager()
@@ -123,7 +127,19 @@ export default async function run() {
     // bullets
     const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)
     player.addComponent(bulletSpawner)
-    manager.add(player)
+    manager.add(player, 'player')
+
+    // enemies
+    const enemySpawner = new Entity()
+    const baseEnemySpawner = new BaseEnemySpawner(
+      manager,
+      scene,
+      world,
+      enemies
+    )
+    enemySpawner.addComponent(baseEnemySpawner)
+
+    manager.add(enemySpawner, 'enemySpawner')
     return manager
   }
   await initEngine()
@@ -131,11 +147,6 @@ export default async function run() {
 }
 
 const boxPositions = [
-  {
-    x: 0,
-    y: 20,
-    z: 0,
-  },
   {
     x: 0,
     y: 20,

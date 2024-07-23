@@ -15,7 +15,8 @@ declare global {
     world: RAPIER.World | null
     characterController: RAPIER.KinematicCharacterController | null
     ground: THREE.Mesh | null
-    bodies: GameBody[]
+    player: Gamebody
+    enemies: GameBody[]
   }
 
   // player-factory.js

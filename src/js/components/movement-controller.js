@@ -52,7 +52,7 @@ export class MovementController extends Component {
     this._body = body
     this._controller = controller
     this._fsm = null
-    this._step = 0.1
+    this._step = 0.25
   }
 
   update(_, delta) {

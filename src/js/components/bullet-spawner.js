@@ -75,7 +75,7 @@ export class BulletSpawner extends Component {
       .setCcdEnabled(true)
     const rigidBody = this._world.createRigidBody(desc)
 
-    const colDesc = RAPIER.ColliderDesc.ball(0.8).setFriction(0.5)
+    const colDesc = RAPIER.ColliderDesc.ball(1.2).setFriction(0.5)
     const collider = this._world.createCollider(colDesc, rigidBody)
 
     return { rigidBody, collider }
@@ -119,9 +119,7 @@ export class BulletSpawner extends Component {
 
   _disposeBullet(idx) {
     let obj = this._bullets[idx].bullet
-    obj.dispose()
-    this._scene.remove(obj.mesh)
-    this._world.removeRigidBody(obj.rigidBody)
+    obj.dispose(this._scene, this._world)
     this._bullets.splice(idx, 1)
     obj = null
   }

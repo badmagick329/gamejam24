@@ -28,7 +28,8 @@ export class Game {
     this.world = null
     this.characterController = null
     this.ground = null
-    this.bodies = []
+    this.player = null
+    this.enemies = []
   }
 
   async init() {
@@ -41,22 +42,18 @@ export class Game {
     this.characterController.setApplyImpulsesToDynamicBodies(true)
   }
 
-  get playerBody() {
-    return this.bodies.length > 0 ? this.bodies[0] : null
-  }
-
   _setupScene() {
     this.scene = useScene()
     // Experimenting with fog. Feel free to change
     const color = 0x0e0e0e
     const near = 10
-    const far = 150
+    const far = 180
     this.scene.fog = new THREE.Fog(color, near, far)
 
     const controls = useControls()
     controls.enableRotate = false
     this.camera = useCamera()
-    this.camera.position.set(0, 30, -30)
+    this.camera.position.set(0, 50, -50)
 
     this.gui = useGui()
     const { width: w, height: h } = useRenderSize()
@@ -85,6 +82,7 @@ export class Game {
     this.world.createCollider(groundColliderDesc)
   }
 
+  // TODO: Refactor
   _createGroundMeshAndDebugStuffRefactorThisLater() {
     // debug Object for debug menu
     const debugObject = {}
@@ -103,18 +101,18 @@ export class Game {
 
     debugObject.lightColour = () => {
       this.ground.material.color.set(0x999999)
-      this.bodies[0].mesh.material.color.set(0x43aa8b)
-      for (let i = 1; i < bodies.length; i++) {
-        this.bodies[i].mesh.material.color.set(0xf9c74f)
+      this.player.mesh.material.color.set(0x43aa8b)
+      for (const enemy of this.enemies) {
+        enemy.mesh.material.color.set(0xf9c74f)
       }
     }
     this.gui.add(debugObject, 'lightColour')
 
     debugObject.darkColour = () => {
       this.ground.material.color.set(0x555555)
-      this.this.bodies[0].mesh.material.color.set(0x55aa55)
-      for (let i = 1; i < bodies.length; i++) {
-        this.bodies[i].mesh.material.color.set(0xa0b04a)
+      this.player.mesh.material.color.set(0x55aa55)
+      for (const enemy of this.enemies) {
+        enemy.mesh.material.color.set(0xa0b04a)
       }
     }
     this.gui.add(debugObject, 'darkColour')

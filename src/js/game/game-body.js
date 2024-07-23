@@ -23,7 +23,12 @@ export class GameBody {
     this.mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
   }
 
-  dispose() {
+  /**
+   * @param {THREE.Scene} scene
+   * @param {RAPIER.World} world
+   * @returns {void}
+   */
+  dispose(scene, world) {
     this.mesh.geometry.dispose()
 
     if (this.mesh.material.map) {
@@ -34,5 +39,8 @@ export class GameBody {
     } else {
       this.mesh.material.dispose()
     }
+
+    scene.remove(this.mesh)
+    world.removeRigidBody(this.rigidBody)
   }
 }

@@ -63,6 +63,20 @@ export class EntityManager {
     e.setName(n)
   }
 
+  remove(n) {
+    let e = this._entitiesMap[n]
+    if (!e) {
+      return
+    }
+
+    delete this._entitiesMap[n]
+    const idx = this._entities.indexOf(e)
+    if (idx !== -1) {
+      this._entities.splice(idx, 1)
+    }
+    e = null
+  }
+
   /**
    * Responsible for calling updates on all entities
    * @param {number} timeElapsed
