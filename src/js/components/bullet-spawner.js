@@ -9,6 +9,7 @@ const config = {
   maxTravel: 50,
   triggerKey: 'space',
   bulletSpeed: 50.0,
+  bulletRadius: 0.3,
 }
 
 export class BulletSpawner extends Component {
@@ -44,7 +45,11 @@ export class BulletSpawner extends Component {
 
   _shootBullet(direction) {
     const position = this._playerBody.position
-    const bulletGeometry = new THREE.SphereGeometry(0.3, 16, 16)
+    const bulletGeometry = new THREE.SphereGeometry(
+      this._config.bulletRadius,
+      16,
+      16
+    )
     const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
     const bulletMesh = new THREE.Mesh(bulletGeometry, bulletMaterial)
     this._scene.add(bulletMesh)
@@ -65,7 +70,7 @@ export class BulletSpawner extends Component {
   _createBulletBody(position, direction) {
     const cannonBody = new CANNON.Body({
       mass: 1000,
-      shape: new CANNON.Sphere(0.3),
+      shape: new CANNON.Sphere(this._config.bulletRadius),
       position: new CANNON.Vec3(position.x, position.y, position.z),
       material: new CANNON.Material(),
       velocity: new CANNON.Vec3(
