@@ -55,7 +55,7 @@ export class Component {
   }
 
   /**
-   * @param {Message} m
+   * @param {import('../types').Message} m
    * @returns {void}
    */
   broadcast(m) {

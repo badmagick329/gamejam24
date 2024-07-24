@@ -52,7 +52,7 @@ const getLogger = () => {
  * throttledLogger.info(1500, 'This message will be shown')
  * ```
  */
-class Logger {
+export class Logger {
   constructor() {
     this._level = INFO
   }
@@ -125,8 +125,8 @@ class Logger {
    * @param {string} source
    */
   getThrottledLogger(ignoreTime, source) {
-    let lastLog = null
-    source = source !== undefined ? `[${source.toUpperCase()}]` : '[N/A]'
+    const lastLogTimes = {}
+    source = source !== undefined ? `[${source}]` : '[N/A]'
 
     return {
       /**
@@ -134,9 +134,9 @@ class Logger {
        * @param  {...any} args - Arguments to pass onto console.log
        */
       debug: (time, ...args) => {
-        if (!lastLog || time - lastLog > ignoreTime) {
+        if (!lastLogTimes[source] || time - lastLogTimes[source] > ignoreTime) {
           this.debug(source, ...args)
-          lastLog = time
+          lastLogTimes[source] = time
         }
       },
       /**
@@ -144,9 +144,9 @@ class Logger {
        * @param  {...any} args - Arguments to pass onto console.log
        */
       info: (time, ...args) => {
-        if (!lastLog || time - lastLog > ignoreTime) {
+        if (!lastLogTimes[source] || time - lastLogTimes[source] > ignoreTime) {
           this.info(source, ...args)
-          lastLog = time
+          lastLogTimes[source] = time
         }
       },
       /**
@@ -154,9 +154,9 @@ class Logger {
        * @param  {...any} args - Arguments to pass onto console.log
        */
       warning: (time, ...args) => {
-        if (!lastLog || time - lastLog > ignoreTime) {
+        if (!lastLogTimes[source] || time - lastLogTimes[source] > ignoreTime) {
           this.warning(source, ...args)
-          lastLog = time
+          lastLogTimes[source] = time
         }
       },
       /**
@@ -164,9 +164,9 @@ class Logger {
        * @param  {...any} args - Arguments to pass onto console.log
        */
       error: (time, ...args) => {
-        if (!lastLog || time - lastLog > ignoreTime) {
+        if (!lastLogTimes[source] || time - lastLogTimes[source] > ignoreTime) {
           this.error(source, ...args)
-          lastLog = time
+          lastLogTimes[source] = time
         }
       },
       /**
@@ -174,9 +174,9 @@ class Logger {
        * @param  {...any} args - Arguments to pass onto console.log
        */
       critical: (time, ...args) => {
-        if (!lastLog || time - lastLog > ignoreTime) {
+        if (!lastLogTimes[source] || time - lastLogTimes[source] > ignoreTime) {
           this.critical(source, ...args)
-          lastLog = time
+          lastLogTimes[source] = time
         }
       },
     }

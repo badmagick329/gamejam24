@@ -90,7 +90,7 @@ export class Entity {
    * @returns {void}
    */
   update(timeElapsed, timeDiff) {
-    for (let k in this._components) {
+    for (const k in this._components) {
       this._components[k].update(timeElapsed, timeDiff)
     }
   }
@@ -105,7 +105,7 @@ export class Entity {
   }
 
   /**
-   * @param {Message} m
+   * @param {import('../types').Message} m
    * @returns {void}
    */
   broadcast(m) {

@@ -1,11 +1,7 @@
-import * as RAPIER from '@dimforge/rapier3d-compat'
+import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import { GameBody } from '../game-body'
 
-/**
- * @class
- * @implements {EnemyFactoryAttributes}
- */
 export class EnemyFactory {
   /**
    * @param {EnemyFactoryConfig} config
@@ -14,21 +10,38 @@ export class EnemyFactory {
     if (config.world === undefined) {
       throw new Error('EnemyFactory requires a world instance')
     }
+    /**
+     * @type {CANNON.World}
+     */
     this.world = config.world
+    /**
+     * @type {THREE.Vector3}
+     */
     this.position = config?.position ?? new THREE.Vector3(0, 20, 0)
-
-    this.mesh = null
+    /**
+     * @type {({x:number,y:number,z:number}|null)}
+     */
     this.colliderDesc = null
-    this.linearDamping = 0.25
+    /**
+     * @type {(THREE.Mesh|null)}
+     */
+    this.mesh = null
+    /**
+     * @type {number}
+     */
+    this.linearDamping = 0.05
 
-    this.rigidBody = null
+    /**
+     * @type {(GameBody|null)}
+     */
     this.body = null
   }
 
   /**
+   * @param {string} name
    * @returns {GameBody}
    */
-  create() {
+  create(name) {
     if (this.mesh === null) {
       throw new Error(
         'EnemyFactory requires a mesh. Use an enemy setter before creating GameBody'
@@ -36,21 +49,28 @@ export class EnemyFactory {
     }
     if (this.colliderDesc === null) {
       throw new Error(
-        'EnemyFactory requires a colliderDesc. Use an enemy setter before creating GameBody'
+        'EnemyFactory requires a collider description. Use an enemy setter before creating GameBody'
       )
     }
-    const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(
-      this.position.x,
-      this.position.y,
-      this.position.z
-    )
-    this.rigidBody = this.world.createRigidBody(rigidBodyDesc)
-    this.rigidBody.setLinearDamping(this.linearDamping)
-    this.body = new GameBody(
-      this.mesh,
-      this.rigidBody,
-      this.world.createCollider(this.colliderDesc, this.rigidBody)
-    )
+    const cannonBody = new CANNON.Body({
+      mass: 50,
+      shape: new CANNON.Box(
+        new CANNON.Vec3(
+          this.colliderDesc.x,
+          this.colliderDesc.y,
+          this.colliderDesc.z
+        )
+      ),
+      position: new CANNON.Vec3(
+        this.position.x,
+        this.position.y,
+        this.position.z
+      ),
+      material: new CANNON.Material(),
+    })
+    cannonBody.linearDamping = this.linearDamping
+    this.world.addBody(cannonBody)
+    this.body = new GameBody(this.mesh, cannonBody, name)
     this.body.mesh.castShadow = true
     return this.body
   }
@@ -75,12 +95,19 @@ export class EnemyFactory {
    * @returns {EnemyFactory}
    */
   setBaseEnemy() {
-    const geo = new THREE.TorusGeometry(2, 3, 4, 3)
+    // const geo = new THREE.TorusGeometry(2, 3, 4, 3)
+    const geo = new THREE.BoxGeometry(2, 2, 2)
     const mat = new THREE.MeshStandardMaterial({ color: 0xa0b04a })
     mat.flatShading = true
     this.mesh = new THREE.Mesh(geo, mat)
-    this.mesh.scale.set(0.2, 0.2, 0.2)
-    this.colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5)
+    // this.mesh.scale.set(0.2, 0.2, 0.2)
+    this.colliderDesc = { x: 1, y: 1, z: 1 }
     return this
   }
 }
+
+/**
+ * @typedef {Object} EnemyFactoryConfig
+ * @property {CANNON.World} world
+ * @property {THREE.Vector3} [position]
+ */

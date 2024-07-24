@@ -1,16 +1,13 @@
-import * as RAPIER from '@dimforge/rapier3d-compat'
+import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import { GameBody } from '../game-body'
 
 const PLAYER_Y = 0.6
 const BOX_SIZE = 1
+const SPHERE_RADIUS = 1
 const BOX_SEGMENTS = 10
 const DEFAULT_COLOR = 0x55aa55
 
-/**
- * @class
- * @implements {PlayerFactoryAttributes}
- */
 export class PlayerFactory {
   /**
    * @param {PlayerFactoryConfig} config
@@ -20,26 +17,32 @@ export class PlayerFactory {
       throw new Error('PlayerFactory requires a world instance')
     }
     this.world = config.world
+    /**
+     * @type {THREE.Vector3}
+     */
     this.position = config?.position ?? this.defaultPosition()
-    this.geo =
-      config?.geo ??
-      new THREE.BoxGeometry(
-        BOX_SIZE,
-        BOX_SIZE,
-        BOX_SIZE,
-        BOX_SEGMENTS,
-        BOX_SEGMENTS,
-        BOX_SEGMENTS
-      )
+    /**
+     * @type {THREE.Material}
+     */
     this.mat =
       config.mat ?? new THREE.MeshStandardMaterial({ color: DEFAULT_COLOR })
     this.mat.flatShading = true
-    this.colliderDesc =
-      config?.colliderDesc ??
-      RAPIER.ColliderDesc.cuboid(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2)
-    this.linearDamping = 0.25
+    /**
+     * @type {number}
+     */
+    this.linearDamping = 0.95
 
-    this.rigidBody = null
+    /**
+     * @type {(THREE.BufferGeometry|null)}
+     */
+    this.geo = null
+    /**
+     * @type {(CANNON.Body|null)}
+     */
+    this.cannonBody = null
+    /**
+     * @type {(GameBody|null)}
+     */
     this.body = null
   }
 
@@ -47,18 +50,10 @@ export class PlayerFactory {
    * @returns {GameBody}
    */
   create() {
-    const rigidBodyDesc =
-      RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(
-        this.position.x,
-        this.position.y,
-        this.position.z
-      )
-    this.rigidBody = this.world.createRigidBody(rigidBodyDesc)
-    this.rigidBody.setLinearDamping(this.linearDamping)
+    this._initSphereGeometryAndCannonBody()
     this.body = new GameBody(
       new THREE.Mesh(this.geo, this.mat),
-      this.rigidBody,
-      this.world.createCollider(this.colliderDesc, this.rigidBody)
+      this.cannonBody
     )
     this.body.mesh.castShadow = true
     return this.body
@@ -78,4 +73,56 @@ export class PlayerFactory {
   defaultPosition() {
     return new THREE.Vector3(0, PLAYER_Y, 0)
   }
+
+  _initBoxGeometryAndCannonBody() {
+    this.geo = new THREE.BoxGeometry(
+      BOX_SIZE,
+      BOX_SIZE,
+      BOX_SIZE,
+      BOX_SEGMENTS,
+      BOX_SEGMENTS,
+      BOX_SEGMENTS
+    )
+    this.cannonBody = new CANNON.Body({
+      mass: 50,
+      shape: new CANNON.Box(
+        new CANNON.Vec3(
+          this.geo.parameters.width / 2,
+          this.geo.parameters.height / 2,
+          this.geo.parameters.depth / 2
+        )
+      ),
+      position: new CANNON.Vec3(
+        this.position.x,
+        this.position.y,
+        this.position.z
+      ),
+      material: new CANNON.Material(),
+    })
+    this.cannonBody.linearDamping = this.linearDamping
+    this.world.addBody(this.cannonBody)
+  }
+
+  _initSphereGeometryAndCannonBody() {
+    this.geo = new THREE.SphereGeometry(SPHERE_RADIUS, 10, 10)
+    this.cannonBody = new CANNON.Body({
+      mass: 50,
+      shape: new CANNON.Sphere(SPHERE_RADIUS),
+      position: new CANNON.Vec3(
+        this.position.x,
+        this.position.y + 2,
+        this.position.z
+      ),
+      material: new CANNON.Material(),
+    })
+    this.cannonBody.linearDamping = this.linearDamping
+    this.world.addBody(this.cannonBody)
+  }
 }
+
+/**
+ * @typedef {Object} PlayerFactoryConfig
+ * @property {CANNON.World} world
+ * @property {THREE.Vector3} [position]
+ * @property {THREE.Material} [mat]
+ */

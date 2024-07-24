@@ -84,7 +84,7 @@ export class EntityManager {
    * @returns {void}
    */
   update(timeElapsed, timeDiff) {
-    for (let e of this._entities) {
+    for (const e of this._entities) {
       e.update(timeElapsed, timeDiff)
     }
   }
@@ -104,7 +104,7 @@ export class EntityManager {
 
   /**
    * Broadcast a message to all entities registered on a topic
-   * @param {Message} msg
+   * @param {import('../types').Message} m
    * @returns {void}
    */
   broadcast(msg) {

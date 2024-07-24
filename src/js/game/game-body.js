@@ -1,31 +1,45 @@
-import * as RAPIER from '@dimforge/rapier3d-compat'
+import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
+import { Logger } from '../logging'
 
 export class GameBody {
+  static ID = 0
   /**
-   * Responsible for common interactions between mesh and rigid body
+   * Responsible for common interactions between mesh and physics body
    * @param {THREE.Mesh} mesh
-   * @param {RAPIER.RigidBody} body
-   * @param {RAPIER.Collider} collider
+   * @param {CANNON.Body} rigidBody
+   * @param {string} [name]
    */
-  constructor(mesh, rigidBody, collider) {
-    // TODO: Add ID field?
+  constructor(mesh, rigidBody, name) {
     this.mesh = mesh
     this.rigidBody = rigidBody
-    this.collider = collider
+    this._name = name ?? this._generateName()
+    this._logger = new Logger()
+    this._throttledLogger = null
+    if (this._name) {
+      this._throttledLogger = this._logger.getThrottledLogger(1000, this._name)
+    }
   }
 
-  sync() {
-    const position = this.rigidBody.translation()
-    this.mesh.position.set(position.x, position.y, position.z)
+  _generateName() {
+    return `GameBody-${GameBody.ID++}`
+  }
 
-    const rotation = this.rigidBody.rotation()
-    this.mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
+  sync(time) {
+    this._throttledLogger?.debug(
+      time,
+      'mesh position',
+      this.mesh.position,
+      'body position',
+      this.rigidBody.position
+    )
+    this.mesh.position.copy(this.rigidBody.position)
+    this.mesh.quaternion.copy(this.rigidBody.quaternion)
   }
 
   /**
    * @param {THREE.Scene} scene
-   * @param {RAPIER.World} world
+   * @param {CANNON.World} world
    * @returns {void}
    */
   dispose(scene, world) {
@@ -34,13 +48,15 @@ export class GameBody {
     if (this.mesh.material.map) {
       object.material.map.dispose()
     }
-    if (Array.isArray(this.mesh.material)) {
-      this.mesh.material.forEach((material) => material.dispose())
-    } else {
-      this.mesh.material.dispose()
-    }
+
+    Array.isArray(this.mesh.material)
+      ? this.mesh.material.forEach((material) => material.dispose())
+      : this.mesh.material.dispose()
 
     scene.remove(this.mesh)
-    world.removeRigidBody(this.rigidBody)
+    world.removeBody(this.rigidBody)
+
+    this.rigidBody = null
+    this.mesh = null
   }
 }

@@ -1,12 +1,12 @@
-import * as RAPIER from '@dimforge/rapier3d-compat'
+import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import { initEngine, useTick } from './render/init.js'
 
 import {
   BaseEnemySpawner,
-  BulletSpawner,
+  // BulletSpawner,
   InputController,
-  MouseInputController,
+  // MouseInputController,
   MovementController,
   PlayerFSM,
 } from './components'
@@ -19,7 +19,7 @@ export default async function run() {
 
   const startApp = async () => {
     const game = new Game()
-    await game.init()
+    game.init()
 
     game.player = initPlayer(game.scene, game.world)
     const manager = initEntitiesAndComponents(
@@ -27,7 +27,6 @@ export default async function run() {
       game.camera,
       game.scene,
       game.player,
-      game.characterController,
       game.world,
       game.enemies
     )
@@ -35,18 +34,17 @@ export default async function run() {
     postprocessing(game.width, game.height, MOTION_BLUR_AMOUNT)
 
     useTick(({ timestamp, timeDiff }) => {
-      game.world.step()
       manager.update(timestamp, timeDiff)
-      game.player.sync()
-      for (const enemy of game.enemies) {
-        enemy.sync()
-      }
+      game.world.fixedStep()
+      game.player.sync(timestamp)
+      game.enemies.forEach((e) => e.sync(timestamp))
+      game?.cannonDebugger?.update()
     })
   }
 
   /**
    * @param {THREE.Scene} scene
-   * @param {RAPIER.World} world
+   * @param {CANNON.World} world
    * @returns {GameBody}
    */
   function initPlayer(scene, world) {
@@ -61,8 +59,7 @@ export default async function run() {
    * @param {THREE.PerspectiveCamera} camera
    * @param {THREE.Scene} scene
    * @param {GameBody} playerBody
-   * @param {RAPIER.KinematicCharacterController} characterController
-   * @param {RAPIER.World} world
+   * @param {CANNON.World} world
    * @param {GameBody[]} enemies
    * @returns {EntityManager}
    */
@@ -71,7 +68,6 @@ export default async function run() {
     camera,
     scene,
     playerBody,
-    characterController,
     world,
     enemies
   ) {
@@ -85,23 +81,21 @@ export default async function run() {
     // inputs and movement
     const inputController = new InputController()
     player.addComponent(inputController)
-    const mouseInputController = new MouseInputController(
-      renderer,
-      camera,
-      scene
-    )
-    player.addComponent(mouseInputController)
+    // const mouseInputController = new MouseInputController(
+    //   renderer,
+    //   camera,
+    //   scene
+    // )
+    // player.addComponent(mouseInputController)
     const movementController = new MovementController(
       playerBody.mesh,
-      playerBody.collider,
-      playerBody.rigidBody,
-      characterController
+      playerBody.rigidBody
     )
     player.addComponent(movementController)
 
     // bullets
-    const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)
-    player.addComponent(bulletSpawner)
+    // const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)
+    // player.addComponent(bulletSpawner)
     manager.add(player, 'player')
 
     // enemies
@@ -121,26 +115,3 @@ export default async function run() {
   await initEngine()
   startApp()
 }
-
-const boxPositions = [
-  {
-    x: 0,
-    y: 20,
-    z: 3,
-  },
-  {
-    x: 0,
-    y: 20,
-    z: -3,
-  },
-  {
-    x: 3,
-    y: 20,
-    z: 0,
-  },
-  {
-    x: -3,
-    y: 20,
-    z: 0,
-  },
-]

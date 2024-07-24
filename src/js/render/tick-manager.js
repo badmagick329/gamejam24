@@ -45,8 +45,9 @@ class TickManager extends EventTarget {
       // get timediff
       this.timestamp = timestamp ?? performance.now()
       this.timeDiff = timestamp - lastTimestamp
+      lastTimestamp = timestamp
 
-      const timeDiffCapped = Math.min(Math.max(this.timeDiff, 0), 100)
+      const timeDiffCapped = this.timeDiff
 
       // performance tracker
       controls?.update()

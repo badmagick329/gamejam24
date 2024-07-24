@@ -1,4 +1,5 @@
-import * as RAPIER from '@dimforge/rapier3d-compat'
+import * as CANNON from 'cannon-es'
+import CannonDebugger from 'cannon-es-debugger'
 import * as THREE from 'three'
 import {
   useCamera,
@@ -9,37 +10,73 @@ import {
   useScene,
 } from '../render/init.js'
 
-/**
- * @class
- * @implements {GameClassAttributes}
- */
+const GROUND_WIDTH = 100.0
+const GROUND_DEPTH = 60.0
+
 export class Game {
   /**
    * A lightweight container for game config and objects with some logic
    * for setting up config
    */
   constructor() {
+    /**
+     * @type {(THREE.Scene|null)}
+     */
     this.scene = null
+    /**
+     * @type {(THREE.PerspectiveCamera|null)}
+     */
     this.camera = null
+    /**
+     * @type {(THREE.WebGLRenderer|null)}
+     */
     this.renderer = null
+    /**
+     * @type {(GUI|null)}
+     */
     this.gui = null
+    /**
+     * @type {(number|null)}
+     */
     this.width = null
+    /**
+     * @type {(number|null)}
+     */
     this.height = null
+    /**
+     * @type {(CANNON.World|null)}
+     */
     this.world = null
-    this.characterController = null
+    /**
+     * @type {(THREE.Mesh|null)}
+     */
     this.ground = null
+    /**
+     * @type {(any|null)}
+     */
+    this.cannonDebugger = null
+    /**
+     * @type {(GameBody|null)}
+     */
     this.player = null
+    /**
+     * @type {GameBody[]}
+     */
     this.enemies = []
+
+    this._groundWidth = GROUND_WIDTH
+    this._groundDepth = GROUND_DEPTH
   }
 
-  async init() {
+  init() {
     this._setupScene()
-    await this._initPhysicsWithGround()
-    this._createGroundMeshAndDebugStuffRefactorThisLater()
-
-    const offset = 0.01
-    this.characterController = this.world.createCharacterController(offset)
-    this.characterController.setApplyImpulsesToDynamicBodies(true)
+    this._setupControls()
+    this._setupCamera()
+    this._setupRenderer()
+    this._setupLight()
+    this._setupPhysicsWithGround()
+    this._setupGroundMesh()
+    this._setupDebug()
   }
 
   _setupScene() {
@@ -49,26 +86,35 @@ export class Game {
     const near = 10
     const far = 180
     this.scene.fog = new THREE.Fog(color, near, far)
+  }
 
+  _setupControls() {
+    // NOTE: tick-manager is responsible for updating controls. No need to store this here atm
     const controls = useControls()
     controls.enableRotate = false
+  }
+
+  _setupCamera() {
     this.camera = useCamera()
     this.camera.position.set(0, 50, -50)
+  }
 
-    this.gui = useGui()
+  _setupRenderer() {
     const { width: w, height: h } = useRenderSize()
     this.width = w
     this.height = h
 
+    this.renderer = useRenderer()
+    this.renderer.shadowMap.enabled = true
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
+  }
+
+  _setupLight() {
     const dirLight = new THREE.DirectionalLight('#ffffff', 1)
     const ambientLight = new THREE.AmbientLight('#ffffff', 5)
     dirLight.position.y = 5
     dirLight.position.z = 5
     dirLight.position.x = 5
-
-    this.renderer = useRenderer()
-    this.renderer.shadowMap.enabled = true
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
     dirLight.castShadow = true
 
@@ -79,43 +125,50 @@ export class Game {
     dirLight.shadow.camera.bottom = -35
     dirLight.shadow.camera.left = -55
 
-    console.log(dirLight.shadow)
     this.scene.add(dirLight, ambientLight)
-
-    const directionalLightCameraHelper = new THREE.CameraHelper(
-      dirLight.shadow.camera
-    )
-    this.scene.add(directionalLightCameraHelper)
+    // const directionalLightCameraHelper = new THREE.CameraHelper(
+    //   dirLight.shadow.camera
+    // )
+    // this.scene.add(directionalLightCameraHelper)
   }
 
-  async _initPhysicsWithGround() {
-    await RAPIER.init()
-    const gravity = { x: 0.0, y: -9.81, z: 0.0 }
-    this.world = new RAPIER.World(gravity)
+  _setupPhysicsWithGround() {
+    this.world = new CANNON.World({
+      gravity: new CANNON.Vec3(0, -9.81, 0),
+    })
+    const cannonBody = new CANNON.Body({
+      shape: new CANNON.Box(
+        new CANNON.Vec3(this._groundWidth / 2.2, this._groundDepth / 2.2, 0.1)
+      ),
+      type: CANNON.Body.STATIC,
+      material: new CANNON.Material(),
+    })
+    cannonBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
+    this.world.addBody(cannonBody)
 
-    const groundColliderDesc = RAPIER.ColliderDesc.cuboid(50.0, 0.1, 30.0)
-    this.world.createCollider(groundColliderDesc)
+    this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
+      scale: 1.2,
+    })
   }
 
-  // TODO: Refactor
-  _createGroundMeshAndDebugStuffRefactorThisLater() {
-    // debug Object for debug menu
-    const debugObject = {}
-    debugObject.groundColor = 0x555555
-    debugObject.playerColor = 0x55aa55
-    debugObject.enemyColor = 0xa0b04a
-
+  _setupGroundMesh() {
     let geo, mat
-    geo = new THREE.BoxGeometry(100, 0.01, 60)
-    mat = new THREE.MeshStandardMaterial({ color: debugObject.groundColor })
-    // mat = new THREE.MeshNormalMaterial()
+    geo = new THREE.BoxGeometry(this._groundWidth, 0.01, this._groundDepth)
+    mat = new THREE.MeshStandardMaterial({
+      color: 0x555555,
+      side: THREE.DoubleSide,
+    })
     mat.flatShading = true
     this.ground = new THREE.Mesh(geo, mat)
     this.ground.position.y = 0.1
     this.scene.add(this.ground)
 
     this.ground.receiveShadow = true
+  }
 
+  _setupDebug() {
+    this.gui = useGui()
+    const debugObject = {}
     debugObject.lightColour = () => {
       this.ground.material.color.set(0x999999)
       this.player.mesh.material.color.set(0x43aa8b)

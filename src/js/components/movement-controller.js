@@ -1,4 +1,4 @@
-import RAPIER from '@dimforge/rapier3d-compat'
+import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import { Component } from '../ecs'
 
@@ -41,18 +41,14 @@ const movementMap = {
 export class MovementController extends Component {
   /**
    * @param {THREE.Mesh} mesh
-   * @param {RAPIER.Collider} collider
-   * @param {RAPIER.RigidBody} body
-   * @param {RAPIER.KinematicCharacterController} controller
+   * @param {CANNON.Body} body
    */
-  constructor(mesh, collider, body, controller) {
+  constructor(mesh, body) {
     super()
     this._mesh = mesh
-    this._collider = collider
     this._body = body
-    this._controller = controller
     this._fsm = null
-    this._step = 0.25
+    this._step = 30
   }
 
   update(_, delta) {
@@ -86,10 +82,8 @@ export class MovementController extends Component {
       value: {
         pressedKeys,
         movementMap,
-        mesh: this._mesh,
         body: this._body,
-        collider: this._collider,
-        controller: this._controller,
+        mesh: this._mesh,
         step: this._step,
         delta,
       },
@@ -98,28 +92,21 @@ export class MovementController extends Component {
 }
 
 function moveTo(vector, values) {
-  const { controller, collider, body, mesh, step } = values
-  const movement = new RAPIER.Vector3(
+  /**
+   * @type {CANNON.Body}
+   */
+  const body = values.body
+  /**
+   * @type {number}
+   */
+  const step = values.step
+  const movement = new CANNON.Vec3(
     vector.x * step,
     vector.y * step,
     vector.z * step
   )
 
-  // 1. Apply the movement to the character controller
-  controller.computeColliderMovement(collider, movement)
-
-  // 2. Get the effective movement from the controller
-  const effectiveMovement = controller.computedMovement()
-
-  // 3. Update the rigid body position
-  const newPosition = body.translation()
-  newPosition.x += effectiveMovement.x
-  newPosition.y += effectiveMovement.y
-  newPosition.z += effectiveMovement.z
-  body.setNextKinematicTranslation(newPosition)
-
-  // 4. Update mesh position
-  mesh.position.copy(newPosition)
+  body.velocity.set(movement.x, 0, movement.z)
 }
 
 /**

@@ -1,8 +1,9 @@
+import * as CANNON from 'cannon-es'
 import { Component, Entity, EntityManager } from '../ecs'
-import { EnemyFactory } from '../game'
+import { EnemyFactory, GameBody } from '../game'
 import { addVariance } from '../utils'
-import { BaseEnemyMovement } from './base-enemy-movement'
-import { EnemyFSM } from './enemy-fsm'
+// import { BaseEnemyMovement } from './base-enemy-movement'
+// import { EnemyFSM } from './enemy-fsm'
 
 const SPAWN_INTERVAL = 2000
 
@@ -10,7 +11,7 @@ export class BaseEnemySpawner extends Component {
   /**
    * @param {EntityManager} entityManger
    * @param {THREE.Scene} scene
-   * @param {RAPIER.World} world
+   * @param {CANNON.World} world
    * @param {GameBody} player
    * @param {GameBody[]} enemies
    */
@@ -68,6 +69,7 @@ export class BaseEnemySpawner extends Component {
         continue
       }
 
+      console.log('disposing', this._enemies[i])
       this._enemies[i].dispose(this._scene, this._world)
       toRemove.push(i)
       this._enemies[i] = null
@@ -75,6 +77,7 @@ export class BaseEnemySpawner extends Component {
 
     // Important: remove from array in place
     for (let i = 0; i < toRemove.length; i++) {
+      console.log('removing from array', i)
       this._enemies.splice(toRemove[i], 1)
     }
     if (toRemove.length > 0) {
@@ -87,7 +90,7 @@ export class BaseEnemySpawner extends Component {
    * @returns {boolean}
    */
   _isOutOfBounds(enemy) {
-    return enemy.rigidBody.translation().y < -30
+    return enemy.rigidBody.position.y < -30
   }
 
   /**
@@ -96,10 +99,10 @@ export class BaseEnemySpawner extends Component {
    */
   _initComponents(enemy) {
     const enemyEntity = new Entity()
-    const movement = new BaseEnemyMovement(enemy, this._player)
-    const enemyFSM = new EnemyFSM()
-    enemyEntity.addComponent(movement)
-    enemyEntity.addComponent(enemyFSM)
+    // const movement = new BaseEnemyMovement(enemy, this._player)
+    // const enemyFSM = new EnemyFSM()
+    // enemyEntity.addComponent(movement)
+    // enemyEntity.addComponent(enemyFSM)
     this._manager.add(enemyEntity)
   }
 }
