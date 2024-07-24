@@ -10,6 +10,7 @@ const config = {
   triggerKey: 'space',
   bulletSpeed: 50.0,
   bulletRadius: 0.3,
+  playerZOffset: 3,
 }
 
 export class BulletSpawner extends Component {
@@ -33,7 +34,7 @@ export class BulletSpawner extends Component {
       this._bullets[i].bullet.rigidBody.velocity.set(
         0,
         0,
-        this._config.bulletSpeed
+        -this._config.bulletSpeed
       )
       this._bullets[i].bullet.sync()
       this._bullets[i].timeAlive += delta
@@ -54,7 +55,14 @@ export class BulletSpawner extends Component {
     const bulletMesh = new THREE.Mesh(bulletGeometry, bulletMaterial)
     this._scene.add(bulletMesh)
 
-    const cannonBody = this._createBulletBody(position, direction)
+    const cannonBody = this._createBulletBody(
+      {
+        x: position.x,
+        y: position.y,
+        z: position.z - this._config.playerZOffset,
+      },
+      direction
+    )
     const bullet = new GameBody(bulletMesh, cannonBody, {
       ignoreGravity: true,
     })
@@ -92,7 +100,7 @@ export class BulletSpawner extends Component {
         this.getComponent('InputController')._keys
       )) {
         if (key === this._config.triggerKey && active) {
-          this._shootBullet({ x: 0, y: 0, z: 1 })
+          this._shootBullet({ x: 0, y: 0, z: -1.0 })
           this._lastShot = time
         }
       }

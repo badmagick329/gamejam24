@@ -96,7 +96,7 @@ export class Game {
 
   _setupCamera() {
     this.camera = useCamera()
-    this.camera.position.set(0, 50, -50)
+    this.camera.position.set(0, 50, 50)
   }
 
   _setupRenderer() {

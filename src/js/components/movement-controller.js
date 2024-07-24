@@ -5,35 +5,35 @@ import { Component } from '../ecs'
 const movementMap = {
   forward: (m) => {
     // Local forward direction (+Z in local space)
-    const vector = new THREE.Vector3(0, 0, 1)
-    moveTo(vector, m.value)
-  },
-  forwardRight: (m) => {
-    const vector = new THREE.Vector3(-1, 0, 1)
-    moveTo(vector, m.value)
-  },
-  right: (m) => {
-    const vector = new THREE.Vector3(-1, 0, 0)
-    moveTo(vector, m.value)
-  },
-  backwardRight: (m) => {
-    const vector = new THREE.Vector3(-1, 0, -1)
-    moveTo(vector, m.value)
-  },
-  backward: (m) => {
     const vector = new THREE.Vector3(0, 0, -1)
     moveTo(vector, m.value)
   },
-  backwardLeft: (m) => {
+  forwardRight: (m) => {
     const vector = new THREE.Vector3(1, 0, -1)
     moveTo(vector, m.value)
   },
-  left: (m) => {
+  right: (m) => {
     const vector = new THREE.Vector3(1, 0, 0)
     moveTo(vector, m.value)
   },
-  forwardLeft: (m) => {
+  backwardRight: (m) => {
     const vector = new THREE.Vector3(1, 0, 1)
+    moveTo(vector, m.value)
+  },
+  backward: (m) => {
+    const vector = new THREE.Vector3(0, 0, 1)
+    moveTo(vector, m.value)
+  },
+  backwardLeft: (m) => {
+    const vector = new THREE.Vector3(-1, 0, 1)
+    moveTo(vector, m.value)
+  },
+  left: (m) => {
+    const vector = new THREE.Vector3(-1, 0, 0)
+    moveTo(vector, m.value)
+  },
+  forwardLeft: (m) => {
+    const vector = new THREE.Vector3(-1, 0, -1)
     moveTo(vector, m.value)
   },
 }

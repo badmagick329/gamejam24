@@ -48,7 +48,7 @@ export class BaseEnemySpawner extends Component {
     this._lastSpawn = timeElapsed
     const x = addVariance(0, 30, 30)
     const y = addVariance(40, 30, 10)
-    const z = addVariance(0, 10, 30)
+    const z = addVariance(0, 30, 10)
     const enemy = this._enemyFactory
       .setPosition(x, y, z)
       .setBaseEnemy()
