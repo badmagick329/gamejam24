@@ -85,10 +85,29 @@ class Logger {
   }
 
   /**
+   * @param {number} level - Log level
+   */
+  set level(level) {
+    if (level < CRITICAL || level > DEBUG) {
+      throw new Error('Invalid log level. Must be between 0 and 4')
+    }
+    this._level = level
+  }
+
+  /**
+   * @param  {...any} args - Arguments to pass onto console.log
+   */
+  debug(...args) {
+    if (this._level >= DEBUG) {
+      console.log(this._timestamp(), ...args)
+    }
+  }
+
+  /**
    * @param  {...any} args - Arguments to pass onto console.log
    */
   info(...args) {
-    if (this._level <= INFO) {
+    if (this._level >= INFO) {
       console.log(this._timestamp(), ...args)
     }
   }
@@ -97,7 +116,7 @@ class Logger {
    * @param  {...any} args - Arguments to pass onto console.log
    */
   warning(...args) {
-    if (this._level <= WARNING) {
+    if (this._level >= WARNING) {
       console.warn(this._timestamp(), ...args)
     }
   }
@@ -106,7 +125,7 @@ class Logger {
    * @param  {...any} args - Arguments to pass onto console.log
    */
   error(...args) {
-    if (this._level <= ERROR) {
+    if (this._level >= ERROR) {
       console.error(this._timestamp(), ...args)
     }
   }
@@ -115,7 +134,7 @@ class Logger {
    * @param  {...any} args - Arguments to pass onto console.log
    */
   critical(...args) {
-    if (this._level <= CRITICAL) {
+    if (this._level >= CRITICAL) {
       console.error(this._timestamp(), ...args)
     }
   }
