@@ -146,12 +146,12 @@ export class Game {
     cannonBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
     this.world.addBody(cannonBody)
 
-    // this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
-    //   scale: 1.2,
-    // })
-    const cannonDebugger = new CannonDebugger(this.scene, this.world, {
+    this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
       scale: 1.2,
     })
+    // const cannonDebugger = new CannonDebugger(this.scene, this.world, {
+    //   scale: 1.2,
+    // })
   }
 
   _setupGroundMesh() {

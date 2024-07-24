@@ -27,6 +27,10 @@ export class EnemyFactory {
      */
     this.mesh = null
     /**
+     * @type {(CANNON.Body|null)}
+     */
+    this.cannonBody = null
+    /**
      * @type {number}
      */
     this.linearDamping = 0.05
@@ -52,25 +56,7 @@ export class EnemyFactory {
         'EnemyFactory requires a collider description. Use an enemy setter before creating GameBody'
       )
     }
-    const cannonBody = new CANNON.Body({
-      mass: 50,
-      shape: new CANNON.Box(
-        new CANNON.Vec3(
-          this.colliderDesc.x,
-          this.colliderDesc.y,
-          this.colliderDesc.z
-        )
-      ),
-      position: new CANNON.Vec3(
-        this.position.x,
-        this.position.y,
-        this.position.z
-      ),
-      material: new CANNON.Material(),
-    })
-    cannonBody.linearDamping = this.linearDamping
-    this.world.addBody(cannonBody)
-    this.body = new GameBody(this.mesh, cannonBody, name)
+    this.body = new GameBody(this.mesh, this.cannonBody, name)
     this.body.mesh.castShadow = true
     return this.body
   }
@@ -102,6 +88,26 @@ export class EnemyFactory {
     this.mesh = new THREE.Mesh(geo, mat)
     this.mesh.scale.set(0.2, 0.2, 0.2)
     this.colliderDesc = { x: 1, y: 1, z: 1 }
+    this.cannonBody = new CANNON.Body({
+      mass: 50,
+      shape: new CANNON.Box(
+        new CANNON.Vec3(
+          this.colliderDesc.x,
+          this.colliderDesc.y,
+          this.colliderDesc.z
+        )
+      ),
+      position: new CANNON.Vec3(
+        this.position.x,
+        this.position.y,
+        this.position.z
+      ),
+      material: new CANNON.Material(),
+    })
+    this.cannonBody.linearDamping = this.linearDamping
+    // Rotation experiments
+    this.cannonBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
+    this.world.addBody(this.cannonBody)
     return this
   }
 }
