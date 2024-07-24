@@ -4,7 +4,7 @@ import { initEngine, useTick } from './render/init.js'
 
 import {
   BaseEnemySpawner,
-  // BulletSpawner,
+  BulletSpawner,
   InputController,
   // MouseInputController,
   MovementController,
@@ -94,8 +94,8 @@ export default async function run() {
     player.addComponent(movementController)
 
     // bullets
-    // const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)
-    // player.addComponent(bulletSpawner)
+    const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)
+    player.addComponent(bulletSpawner)
     manager.add(player, 'player')
 
     // enemies

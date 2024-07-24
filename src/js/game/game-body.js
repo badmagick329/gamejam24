@@ -10,7 +10,7 @@ export class GameBody {
    * @param {CANNON.Body} rigidBody
    * @param {string} [name]
    */
-  constructor(mesh, rigidBody, name) {
+  constructor(mesh, rigidBody, name, config) {
     this.mesh = mesh
     this.rigidBody = rigidBody
     this._name = name ?? this._generateName()
@@ -19,6 +19,9 @@ export class GameBody {
     if (this._name) {
       this._throttledLogger = this._logger.getThrottledLogger(1000, this._name)
     }
+
+    this._ignoreGravity =
+      config?.ignoreGravity !== undefined ? config.ignoreGravity : false
   }
 
   _generateName() {
@@ -33,6 +36,10 @@ export class GameBody {
       'body position',
       this.rigidBody.position
     )
+    if (this._ignoreGravity) {
+      this.rigidBody.applyForce(new CANNON.Vec3(0, 9.81, 0))
+    }
+
     this.mesh.position.copy(this.rigidBody.position)
     this.mesh.quaternion.copy(this.rigidBody.quaternion)
   }

@@ -138,7 +138,7 @@ export class Game {
     })
     const cannonBody = new CANNON.Body({
       shape: new CANNON.Box(
-        new CANNON.Vec3(this._groundWidth / 2.2, this._groundDepth / 2.2, 0.1)
+        new CANNON.Vec3(this._groundWidth / 2.0, this._groundDepth / 2.0, 0.1)
       ),
       type: CANNON.Body.STATIC,
       material: new CANNON.Material(),
@@ -146,7 +146,10 @@ export class Game {
     cannonBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
     this.world.addBody(cannonBody)
 
-    this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
+    // this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
+    //   scale: 1.2,
+    // })
+    const cannonDebugger = new CannonDebugger(this.scene, this.world, {
       scale: 1.2,
     })
   }

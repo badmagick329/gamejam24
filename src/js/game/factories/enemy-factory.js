@@ -95,12 +95,12 @@ export class EnemyFactory {
    * @returns {EnemyFactory}
    */
   setBaseEnemy() {
-    // const geo = new THREE.TorusGeometry(2, 3, 4, 3)
-    const geo = new THREE.BoxGeometry(2, 2, 2)
+    const geo = new THREE.TorusGeometry(2, 3, 4, 3)
+    // const geo = new THREE.BoxGeometry(2, 2, 2)
     const mat = new THREE.MeshStandardMaterial({ color: 0xa0b04a })
     mat.flatShading = true
     this.mesh = new THREE.Mesh(geo, mat)
-    // this.mesh.scale.set(0.2, 0.2, 0.2)
+    this.mesh.scale.set(0.2, 0.2, 0.2)
     this.colliderDesc = { x: 1, y: 1, z: 1 }
     return this
   }

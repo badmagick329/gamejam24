@@ -1,4 +1,4 @@
-import RAPIER from '@dimforge/rapier3d-compat'
+import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import { Component } from '../ecs'
 import { GameBody } from '../game'
@@ -8,14 +8,14 @@ const config = {
   maxTimeAlive: 10000,
   maxTravel: 50,
   triggerKey: 'space',
-  bulletSpeed: 24.0,
+  bulletSpeed: 50.0,
 }
 
 export class BulletSpawner extends Component {
   /**
-   * @param {RAPIER.RigidBody} playerBody
+   * @param {CANNON.Body} playerBody
    * @param {THREE.Scene} scene
-   * @param {RAPIER.World} world
+   * @param {CANNON.World} world
    */
   constructor(playerBody, scene, world) {
     super()
@@ -29,6 +29,11 @@ export class BulletSpawner extends Component {
 
   update(time, delta) {
     for (let i = 0; i < this._bullets.length; i++) {
+      this._bullets[i].bullet.rigidBody.velocity.set(
+        0,
+        0,
+        this._config.bulletSpeed
+      )
       this._bullets[i].bullet.sync()
       this._bullets[i].timeAlive += delta
       this._handleDisposal(this._bullets[i], i)
@@ -38,22 +43,16 @@ export class BulletSpawner extends Component {
   }
 
   _shootBullet(direction) {
-    const location = this._playerBody.translation()
-    const position = { x: location.x, y: location.y, z: location.z + 1 }
+    const position = this._playerBody.position
     const bulletGeometry = new THREE.SphereGeometry(0.3, 16, 16)
     const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
     const bulletMesh = new THREE.Mesh(bulletGeometry, bulletMaterial)
     this._scene.add(bulletMesh)
 
-    const bulletBodyAndCollider = this._createBulletBodyAndCollider(
-      position,
-      direction
-    )
-    const bullet = new GameBody(
-      bulletMesh,
-      bulletBodyAndCollider.rigidBody,
-      bulletBodyAndCollider.collider
-    )
+    const cannonBody = this._createBulletBody(position, direction)
+    const bullet = new GameBody(bulletMesh, cannonBody, {
+      ignoreGravity: true,
+    })
     // TODO: Calc max travel based on player's current position
     // Might need to change how shootBullet is being called too
     this._bullets.push({
@@ -63,23 +62,20 @@ export class BulletSpawner extends Component {
     })
   }
 
-  _createBulletBodyAndCollider(position, direction) {
-    const desc = RAPIER.RigidBodyDesc.dynamic()
-      .setTranslation(position.x, position.y, position.z)
-      .setLinvel(
+  _createBulletBody(position, direction) {
+    const cannonBody = new CANNON.Body({
+      mass: 1000,
+      shape: new CANNON.Sphere(0.3),
+      position: new CANNON.Vec3(position.x, position.y, position.z),
+      material: new CANNON.Material(),
+      velocity: new CANNON.Vec3(
         direction.x * this._config.bulletSpeed,
         direction.y * this._config.bulletSpeed,
         direction.z * this._config.bulletSpeed
-      )
-      .setGravityScale(0.0)
-      .setAdditionalMass(1000)
-      .setCcdEnabled(true)
-    const rigidBody = this._world.createRigidBody(desc)
-
-    const colDesc = RAPIER.ColliderDesc.ball(1.2).setFriction(0.5)
-    const collider = this._world.createCollider(colDesc, rigidBody)
-
-    return { rigidBody, collider }
+      ),
+    })
+    this._world.addBody(cannonBody)
+    return cannonBody
   }
 
   _handleShoot(time) {
@@ -103,7 +99,7 @@ export class BulletSpawner extends Component {
    * @param {number} index
    */
   _handleDisposal(bullet, index) {
-    const position = bullet.bullet.rigidBody.translation()
+    const position = bullet.bullet.rigidBody.position
     if (
       position.z > bullet.maxTravel ||
       position.z < -bullet.maxTravel ||
