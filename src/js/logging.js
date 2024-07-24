@@ -69,8 +69,8 @@ class Logger {
    * @param {number} level - Log level
    */
   set level(level) {
-    if (level < CRITICAL || level > INFO) {
-      throw new Error('Invalid log level. Must be between 0 and 3')
+    if (level < CRITICAL || level > DEBUG) {
+      throw new Error('Invalid log level. Must be between 0 and 4')
     }
     this._level = level
   }
