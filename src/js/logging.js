@@ -79,25 +79,6 @@ class Logger {
    * @param  {...any} args - Arguments to pass onto console.log
    */
   debug(...args) {
-    if (this._level <= DEBUG) {
-      console.log(this._timestamp(), ...args)
-    }
-  }
-
-  /**
-   * @param {number} level - Log level
-   */
-  set level(level) {
-    if (level < CRITICAL || level > DEBUG) {
-      throw new Error('Invalid log level. Must be between 0 and 4')
-    }
-    this._level = level
-  }
-
-  /**
-   * @param  {...any} args - Arguments to pass onto console.log
-   */
-  debug(...args) {
     if (this._level >= DEBUG) {
       console.log(this._timestamp(), ...args)
     }
