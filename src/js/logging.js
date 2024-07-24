@@ -26,8 +26,6 @@ const getLogger = () => {
 }
 
 /**
- * Logger
- *
  * By default log level is set to INFO. This means that INFO, WARNING, ERROR and CRITICAL messages will be shown
  * but DEBUG messages will not be shown. To change the log level, set the level property to one of the log levels
  * defined in the logLevels object.
