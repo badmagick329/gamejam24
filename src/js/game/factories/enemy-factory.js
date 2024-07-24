@@ -58,6 +58,7 @@ export class EnemyFactory {
     }
     this.body = new GameBody(this.mesh, this.cannonBody, name)
     this.body.mesh.castShadow = true
+    this.world.addBody(this.cannonBody)
     return this.body
   }
 
@@ -107,7 +108,6 @@ export class EnemyFactory {
     this.cannonBody.linearDamping = this.linearDamping
     // Rotation experiments
     this.cannonBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
-    this.world.addBody(this.cannonBody)
     return this
   }
 }
