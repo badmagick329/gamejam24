@@ -30,6 +30,7 @@ export class BaseEnemySpawner extends Component {
   }
 
   update(timeElapsed, timeDiff) {
+    this._removeOutOfBoundsEnemies()
     if (this._numberOfSpawns >= this._maxEnemies) {
       return
     }
@@ -40,8 +41,6 @@ export class BaseEnemySpawner extends Component {
     if (this._lastSpawn && timeElapsed - this._lastSpawn > SPAWN_INTERVAL) {
       this._spawn(timeElapsed)
     }
-
-    this._removeOutOfBoundsEnemies()
   }
 
   _spawn(timeElapsed) {
@@ -77,11 +76,10 @@ export class BaseEnemySpawner extends Component {
 
     // Important: remove from array in place
     for (let i = 0; i < toRemove.length; i++) {
-      console.log('removing from array', i)
       this._enemies.splice(toRemove[i], 1)
     }
     if (toRemove.length > 0) {
-      // console.log('enemies array now is', this._enemies)
+      console.log('enemies array length now is', this._enemies.length)
     }
   }
 
@@ -90,7 +88,7 @@ export class BaseEnemySpawner extends Component {
    * @returns {boolean}
    */
   _isOutOfBounds(enemy) {
-    return enemy.rigidBody.position.y < -30
+    return enemy.rigidBody.position.y < -30 || enemy.rigidBody.position.z < -50
   }
 
   /**
