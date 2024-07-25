@@ -16,7 +16,6 @@ export class BaseEnemyMovement extends Component {
   }
 
   update() {
-    // TODO: Add movement
     if (this._dead) {
       return
     }
@@ -42,31 +41,5 @@ export class BaseEnemyMovement extends Component {
       this._enemy.rigidBody.velocity.y,
       direction.z * this._step
     )
-
-    // this.moveTo(direction, {
-    //   body: this._enemy.rigidBody,
-    //   step: this._step,
-    // })
-  }
-
-  moveTo(vector, values) {
-    /**
-     * @type {CANNON.Body}
-     */
-    const body = values.body
-    /**
-     * @type {number}
-     */
-    if (body.velocity.y > 0.6) {
-      return
-    }
-    const step = values.step
-    const movement = new CANNON.Vec3(
-      vector.x * step,
-      vector.y * step,
-      vector.z * step
-    )
-
-    body.velocity.set(movement.x, -9.81, movement.z)
   }
 }

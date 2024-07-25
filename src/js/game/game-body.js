@@ -75,21 +75,19 @@ export class GameBody {
       return
     }
 
-    if (this._additionalGravity) {
-      this._throttledLogger?.debug(
-        time,
-        'adding aditional gravity',
-        this._additionalGravity
-      )
-      this.rigidBody?.applyForce(new CANNON.Vec3(0, this._additionalGravity, 0))
-    }
-
     if (
       this._freezeGravityAt &&
       this.rigidBody?.position?.y <= this._freezeGravityAt
     ) {
       const velocity = this.rigidBody.velocity
       this.rigidBody?.velocity?.set(velocity.x, 0.2, velocity.z)
+    } else if (this._additionalGravity) {
+      this._throttledLogger?.debug(
+        time,
+        'adding aditional gravity',
+        this._additionalGravity
+      )
+      this.rigidBody?.applyForce(new CANNON.Vec3(0, this._additionalGravity, 0))
     }
   }
 }

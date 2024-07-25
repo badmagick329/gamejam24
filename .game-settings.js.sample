@@ -1,7 +1,7 @@
 const settings = {
-  thirdPerson: true,
-  groundWidth: 10.0,
-  groundDepth: 10.0,
+  thirdPerson: false,
+  groundWidth: 100.0,
+  groundDepth: 60.0,
   cannonDebugger: false,
   lightCameraHelper: false,
   darkGround: 0x555555,
@@ -16,12 +16,12 @@ const settings = {
   playerSpeed: 30,
   playerLinearDamping: 0.95,
   bulletSpeed: 50.0,
-  bulletRadius: 0.3,
+  bulletRadius: 0.6,
   bulletIntervalBetweenShots: 110,
-  enemyMovement: false,
-  enemyType: 'box',
+  enemyMovement: true,
+  enemyType: 'torus',
   freezeEnemyRotation: false,
-  freezeEnemyGravityAt: 2.2,
+  freezeEnemyGravityAt: 1.4,
 }
 
 export { settings }
