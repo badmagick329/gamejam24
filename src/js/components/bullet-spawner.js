@@ -66,7 +66,7 @@ export class BulletSpawner extends Component {
       },
       direction
     )
-    const bullet = new GameBody(bulletMesh, cannonBody, {
+    const bullet = new GameBody(bulletMesh, cannonBody, '', {
       ignoreGravity: true,
     })
     bullet.sync()
