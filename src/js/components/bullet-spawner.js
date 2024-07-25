@@ -2,6 +2,7 @@ import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import { Component } from '../ecs'
 import { GameBody } from '../game'
+import { BULLET_GROUP, ENEMY_GROUP } from '../game/consts'
 
 const config = {
   intervalBetweenShots: 110,
@@ -86,6 +87,8 @@ export class BulletSpawner extends Component {
         direction.y * this._config.bulletSpeed,
         direction.z * this._config.bulletSpeed
       ),
+      collisionFilterGroup: BULLET_GROUP,
+      collisionFilterMask: ENEMY_GROUP,
     })
     this._world.addBody(cannonBody)
     return cannonBody

@@ -1,5 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
+import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP, WALL_GROUP } from '../consts'
 import { GameBody } from '../game-body'
 
 const PLAYER_Y = 0.6
@@ -53,7 +54,8 @@ export class PlayerFactory {
     this._initSphereGeometryAndCannonBody()
     this.body = new GameBody(
       new THREE.Mesh(this.geo, this.mat),
-      this.cannonBody
+      this.cannonBody,
+      'player'
     )
     this.body.mesh.castShadow = true
     return this.body
@@ -114,6 +116,9 @@ export class PlayerFactory {
         this.position.z
       ),
       material: new CANNON.Material(),
+      collisionFilterGroup: PLAYER_GROUP,
+      collisionFilterMask:
+        PLAYER_GROUP | ENEMY_GROUP | WALL_GROUP | GROUND_GROUP,
     })
     this.cannonBody.linearDamping = this.linearDamping
     this.world.addBody(this.cannonBody)

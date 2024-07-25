@@ -1,6 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { Logger } from '../logging'
+import { Logger, logLevels } from '../logging'
 
 export class GameBody {
   static ID = 0
@@ -15,9 +15,10 @@ export class GameBody {
     this.rigidBody = rigidBody
     this._name = name ?? this._generateName()
     this._logger = new Logger()
+    this._logger.level = logLevels.INFO
     this._throttledLogger = null
-    if (this._name) {
-      this._throttledLogger = this._logger.getThrottledLogger(1000, this._name)
+    if (this._name && this._name === 'player') {
+      this._throttledLogger = this._logger.getThrottledLogger(2000, this._name)
     }
 
     this._ignoreGravity =
@@ -29,19 +30,17 @@ export class GameBody {
   }
 
   sync(time) {
-    this._throttledLogger?.debug(
-      time,
-      'mesh position',
-      this.mesh.position,
-      'body position',
-      this.rigidBody.position
-    )
+    this._throttledLogger?.debug(time, 'body position', this.rigidBody.position)
     if (this._ignoreGravity) {
       this.rigidBody.applyForce(new CANNON.Vec3(0, 9.81, 0))
     }
 
     this.mesh.position.copy(this.rigidBody.position)
     this.mesh.quaternion.copy(this.rigidBody.quaternion)
+  }
+
+  stopBody() {
+    this.rigidBody.velocity.set(0, 0, 0)
   }
 
   /**

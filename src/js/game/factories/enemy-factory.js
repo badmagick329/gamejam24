@@ -1,5 +1,11 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
+import {
+  BULLET_GROUP,
+  ENEMY_GROUP,
+  GROUND_GROUP,
+  PLAYER_GROUP,
+} from '../consts'
 import { GameBody } from '../game-body'
 
 export class EnemyFactory {
@@ -104,6 +110,9 @@ export class EnemyFactory {
         this.position.z
       ),
       material: new CANNON.Material(),
+      collisionFilterGroup: ENEMY_GROUP,
+      collisionFilterMask:
+        PLAYER_GROUP | ENEMY_GROUP | GROUND_GROUP | BULLET_GROUP,
     })
     this.cannonBody.linearDamping = this.linearDamping
     // Rotation experiments

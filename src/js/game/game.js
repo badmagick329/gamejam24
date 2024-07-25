@@ -9,9 +9,16 @@ import {
   useRenderSize,
   useScene,
 } from '../render/init.js'
+import {
+  ENEMY_GROUP,
+  GROUND_GROUP,
+  PLAYER_GROUP,
+  WALL_GROUP,
+} from './consts.js'
 
 const GROUND_WIDTH = 100.0
 const GROUND_DEPTH = 60.0
+const WALL_THICKNESS = 5.0
 
 export class Game {
   /**
@@ -66,6 +73,7 @@ export class Game {
 
     this._groundWidth = GROUND_WIDTH
     this._groundDepth = GROUND_DEPTH
+    this._wallThickness = WALL_THICKNESS
   }
 
   init() {
@@ -75,6 +83,7 @@ export class Game {
     this._setupRenderer()
     this._setupLight()
     this._setupPhysicsWithGround()
+    this._buildThatWall()
     this._setupGroundMesh()
     this._setupDebug()
   }
@@ -91,7 +100,8 @@ export class Game {
   _setupControls() {
     // NOTE: tick-manager is responsible for updating controls. No need to store this here atm
     const controls = useControls()
-    controls.enableRotate = false
+    // NOTE: Allow rotate during dev
+    controls.enableRotate = true
   }
 
   _setupCamera() {
@@ -136,22 +146,73 @@ export class Game {
     this.world = new CANNON.World({
       gravity: new CANNON.Vec3(0, -9.81, 0),
     })
-    const cannonBody = new CANNON.Body({
+    const groundCannonBody = new CANNON.Body({
       shape: new CANNON.Box(
         new CANNON.Vec3(this._groundWidth / 2.0, this._groundDepth / 2.0, 0.1)
       ),
       type: CANNON.Body.STATIC,
       material: new CANNON.Material(),
+      collisionFilterGroup: GROUND_GROUP,
+      collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
     })
-    cannonBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
-    this.world.addBody(cannonBody)
+    groundCannonBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
+    this.world.addBody(groundCannonBody)
 
     this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
-      scale: 1.2,
+      scale: 1.02,
     })
     // const cannonDebugger = new CannonDebugger(this.scene, this.world, {
-    //   scale: 1.2,
+    //   scale: 1.02,
     // })
+  }
+
+  _buildThatWall() {
+    const wallConfig = [
+      {
+        sX: 1,
+        sY: 5,
+        sZ: this._groundDepth / 2,
+        pX: -this._groundWidth / 2,
+        pY: 5,
+        pZ: 0,
+      },
+      {
+        sX: 1,
+        sY: 5,
+        sZ: this._groundDepth / 2,
+        pX: this._groundWidth / 2,
+        pY: 5,
+        pZ: 0,
+      },
+      {
+        sX: this._groundWidth / 2,
+        sY: 5,
+        sZ: 1,
+        pX: 0,
+        pY: 5,
+        pZ: -this._groundDepth / 2,
+      },
+      {
+        sX: this._groundWidth / 2,
+        sY: 5,
+        sZ: 1,
+        pX: 0,
+        pY: 5,
+        pZ: this._groundDepth / 2,
+      },
+    ]
+
+    wallConfig.forEach((wc) => {
+      const wallCannonBody = new CANNON.Body({
+        mass: 0,
+        shape: new CANNON.Box(new CANNON.Vec3(wc.sX, wc.sY, wc.sZ)),
+        material: new CANNON.Material(),
+        collisionFilterGroup: WALL_GROUP,
+        collisionFilterMask: PLAYER_GROUP,
+      })
+      wallCannonBody.position.set(wc.pX, wc.pY, wc.pZ)
+      this.world.addBody(wallCannonBody)
+    })
   }
 
   _setupGroundMesh() {
