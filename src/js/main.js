@@ -1,5 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
+import { ThirdPersonCamera } from './components'
 import { initEngine, useTick } from './render/init.js'
 
 import {
@@ -38,22 +39,15 @@ export default async function run() {
     postprocessing(game.width, game.height, MOTION_BLUR_AMOUNT)
 
     useTick(({ timestamp, timeDiff }) => {
-      manager.update(timestamp, timeDiff)
-      // TODO: Temporary stuff. move/remove after testing
-      throttledLogger.debug(
-        timestamp,
-        'controls',
-        game.controls,
-        'mesh.position',
-        game.player.mesh.position
-      )
-      game.controls.target.copy(game.player.mesh.position)
-      // ----------------
-
       game.world.fixedStep()
       game.player.sync(timestamp)
       game.enemies.forEach((e) => e.sync(timestamp))
-      game?.cannonDebugger?.update()
+      manager.update(timestamp, timeDiff)
+      // game?.cannonDebugger?.update()
+
+      // TODO: Temporary stuff. move/remove after testing
+      // game.controls.target.copy(game.player.mesh.position)
+      // ----------------
     })
   }
 
@@ -107,6 +101,11 @@ export default async function run() {
       playerBody.rigidBody
     )
     player.addComponent(movementController)
+
+    // camera
+    const thirdPersonCamera = new ThirdPersonCamera()
+    player.addComponent(thirdPersonCamera)
+    thirdPersonCamera.setTarget(playerBody.mesh)
 
     // bullets
     const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)

@@ -9,7 +9,7 @@ const config = {
   maxTimeAlive: 10000,
   maxTravel: 50,
   triggerKey: 'space',
-  bulletSpeed: 50.0,
+  bulletSpeed: 24.0,
   bulletRadius: 0.3,
   playerZOffset: 3,
 }

@@ -5,6 +5,7 @@ import { InputController } from './input-controller'
 import { MouseInputController } from './mouse-input-controller'
 import { MovementController } from './movement-controller'
 import { PlayerFSM } from './player-fsm'
+import { ThirdPersonCamera } from './third-person-camera'
 
 export {
   BaseEnemySpawner,
@@ -14,4 +15,5 @@ export {
   MouseInputController,
   MovementController,
   PlayerFSM,
+  ThirdPersonCamera,
 }
