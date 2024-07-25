@@ -16,8 +16,8 @@ import {
   WALL_GROUP,
 } from './consts.js'
 
-const GROUND_WIDTH = 100.0
-const GROUND_DEPTH = 60.0
+const GROUND_WIDTH = 10.0
+const GROUND_DEPTH = 10.0
 const WALL_THICKNESS = 5.0
 
 export class Game {
@@ -98,7 +98,8 @@ export class Game {
     const color = 0x0e0e0e
     const near = 10
     const far = 180
-    this.scene.fog = new THREE.Fog(color, near, far)
+    // turned off fog
+    // this.scene.fog = new THREE.Fog(color, near, far)
   }
 
   _setupControls() {
@@ -125,6 +126,7 @@ export class Game {
   _setupLight() {
     const dirLight = new THREE.DirectionalLight('#ffffff', 1)
     const ambientLight = new THREE.AmbientLight('#ffffff', 5)
+    const hemiLight = new THREE.HemisphereLight('#ff0000', '#0000ff', 10)
     dirLight.position.y = 5
     dirLight.position.z = 5
     dirLight.position.x = 5
@@ -138,7 +140,7 @@ export class Game {
     dirLight.shadow.camera.bottom = -35
     dirLight.shadow.camera.left = -55
 
-    this.scene.add(dirLight, ambientLight)
+    this.scene.add(dirLight, ambientLight, hemiLight)
     // const directionalLightCameraHelper = new THREE.CameraHelper(
     //   dirLight.shadow.camera
     // )
