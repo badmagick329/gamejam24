@@ -67,6 +67,7 @@ export class BulletSpawner extends Component {
     const bullet = new GameBody(bulletMesh, cannonBody, {
       ignoreGravity: true,
     })
+    bullet.sync()
     // TODO: Calc max travel based on player's current position
     // Might need to change how shootBullet is being called too
     this._bullets.push({
