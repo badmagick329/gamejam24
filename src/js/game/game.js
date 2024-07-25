@@ -35,6 +35,10 @@ export class Game {
      */
     this.camera = null
     /**
+     * @type {(THREE.OrbitControls|null)}
+     */
+    this.controls = null
+    /**
      * @type {(THREE.WebGLRenderer|null)}
      */
     this.renderer = null
@@ -98,10 +102,9 @@ export class Game {
   }
 
   _setupControls() {
-    // NOTE: tick-manager is responsible for updating controls. No need to store this here atm
-    const controls = useControls()
+    this.controls = useControls()
     // NOTE: Allow rotate during dev
-    controls.enableRotate = true
+    this.controls.enableRotate = true
   }
 
   _setupCamera() {
@@ -161,9 +164,6 @@ export class Game {
     this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
       scale: 1.02,
     })
-    // const cannonDebugger = new CannonDebugger(this.scene, this.world, {
-    //   scale: 1.02,
-    // })
   }
 
   _buildThatWall() {

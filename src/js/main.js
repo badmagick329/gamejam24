@@ -13,11 +13,15 @@ import {
 
 import { Entity, EntityManager } from './ecs'
 import { Game, GameBody, PlayerFactory, postprocessing } from './game'
+import { Logger, logLevels } from './logging.js'
 
 export default async function run() {
   const MOTION_BLUR_AMOUNT = 0.425
 
   const startApp = async () => {
+    const logger = new Logger()
+    logger.level = logLevels.DEBUG
+    const throttledLogger = logger.getThrottledLogger(1000, 'camera')
     const game = new Game()
     game.init()
 
@@ -35,6 +39,17 @@ export default async function run() {
 
     useTick(({ timestamp, timeDiff }) => {
       manager.update(timestamp, timeDiff)
+      // TODO: Temporary stuff. move/remove after testing
+      throttledLogger.debug(
+        timestamp,
+        'controls',
+        game.controls,
+        'mesh.position',
+        game.player.mesh.position
+      )
+      game.controls.target.copy(game.player.mesh.position)
+      // ----------------
+
       game.world.fixedStep()
       game.player.sync(timestamp)
       game.enemies.forEach((e) => e.sync(timestamp))
