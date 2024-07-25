@@ -16,6 +16,7 @@ export class EnemyFactory {
     if (config.world === undefined) {
       throw new Error('EnemyFactory requires a world instance')
     }
+    this._settings = config.settings
     /**
      * @type {CANNON.World}
      */
@@ -62,7 +63,11 @@ export class EnemyFactory {
         'EnemyFactory requires a collider description. Use an enemy setter before creating GameBody'
       )
     }
-    this.body = new GameBody(this.mesh, this.cannonBody, name)
+    this.body = new GameBody(this.mesh, this.cannonBody, name, {
+      freezeGravityAt: this._settings.freezeEnemyGravityAt,
+      additionalGravity: -9.81 * 50,
+      freezeRotation: this._settings.freezeEnemyRotation,
+    })
     this.body.mesh.castShadow = true
     this.world.addBody(this.cannonBody)
     return this.body
@@ -88,22 +93,37 @@ export class EnemyFactory {
    * @returns {EnemyFactory}
    */
   setBaseEnemy() {
-    const geo = new THREE.TorusGeometry(2, 3, 4, 3)
-    // const geo = new THREE.BoxGeometry(2, 2, 2)
+    // TODO: Kind of a mess. Refactor
+    let geo, enemyShape
+    if (this._settings.enemyType === 'box') {
+      geo = new THREE.BoxGeometry(2, 2, 2)
+    } else if (this._settings.enemyType === 'torus') {
+      geo = new THREE.TorusGeometry(2, 3, 4, 3)
+    } else if (this._settings.enemyType === 'sphere') {
+      geo = new THREE.SphereGeometry(0.5, 16, 16)
+    }
     const mat = new THREE.MeshStandardMaterial({ color: 0xa0b04a })
     mat.flatShading = true
     this.mesh = new THREE.Mesh(geo, mat)
-    this.mesh.scale.set(0.2, 0.2, 0.2)
-    this.colliderDesc = { x: 1, y: 1, z: 1 }
+
+    if (this._settings.enemyType === 'torus') {
+      this.mesh.scale.set(0.25, 0.25, 0.25)
+    }
+
+    if (
+      this._settings.enemyType === 'torus' ||
+      this._settings.enemyType === 'box'
+    ) {
+      this.colliderDesc = { x: 1, y: 1, z: 1 }
+      enemyShape = new CANNON.Box(new CANNON.Vec3(1, 1, 1))
+    } else {
+      this.colliderDesc = { radius: 2 }
+      enemyShape = new CANNON.Sphere(0.5)
+    }
+
     this.cannonBody = new CANNON.Body({
       mass: 50,
-      shape: new CANNON.Box(
-        new CANNON.Vec3(
-          this.colliderDesc.x,
-          this.colliderDesc.y,
-          this.colliderDesc.z
-        )
-      ),
+      shape: enemyShape,
       position: new CANNON.Vec3(
         this.position.x,
         this.position.y,
@@ -125,4 +145,5 @@ export class EnemyFactory {
  * @typedef {Object} EnemyFactoryConfig
  * @property {CANNON.World} world
  * @property {THREE.Vector3} [position]
+ * @property {import('../../types').GameSettings} settings
  */

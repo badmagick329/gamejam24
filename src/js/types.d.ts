@@ -24,4 +24,7 @@ export type GameSettings = {
   bulletRadius: number
   bulletIntervalBetweenShots: number
   enemyMovement: boolean
+  enemyType: 'box' | 'torus' | 'sphere'
+  freezeEnemyRotation: boolean
+  freezeEnemyGravityAt: number
 }

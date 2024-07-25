@@ -15,6 +15,7 @@ import {
   PLAYER_GROUP,
   WALL_GROUP,
 } from './consts.js'
+import { GameBody } from './game-body.js'
 
 const GROUND_WIDTH = 100.0
 const GROUND_DEPTH = 60.0
@@ -166,7 +167,10 @@ export class Game {
         new CANNON.Vec3(this._groundWidth / 2.0, this._groundDepth / 2.0, 0.1)
       ),
       type: CANNON.Body.STATIC,
-      material: new CANNON.Material(),
+      material: new CANNON.Material({
+        friction: 0.1,
+        restitution: 0,
+      }),
       collisionFilterGroup: GROUND_GROUP,
       collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
     })

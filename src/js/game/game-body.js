@@ -16,13 +16,15 @@ export class GameBody {
     this._name = name ?? this._generateName()
     this._logger = new Logger()
     this._logger.level = logLevels.INFO
-    this._throttledLogger = null
-    if (this._name && this._name === 'player') {
+    if (this._name) {
       this._throttledLogger = this._logger.getThrottledLogger(2000, this._name)
     }
 
     this._ignoreGravity =
       config?.ignoreGravity !== undefined ? config.ignoreGravity : false
+    this._freezeGravityAt = config?.freezeGravityAt
+    this._additionalGravity = config?.additionalGravity
+    this._freezeRotation = config?.freezeRotation
   }
 
   _generateName() {
@@ -30,9 +32,10 @@ export class GameBody {
   }
 
   sync(time) {
-    this._throttledLogger?.debug(time, 'body position', this.rigidBody.position)
-    if (this._ignoreGravity) {
-      this.rigidBody.applyForce(new CANNON.Vec3(0, 9.81, 0))
+    this._handleCustomGravity(time)
+    if (this._freezeRotation) {
+      this.rigidBody.angularVelocity.set(0, 0, 0)
+      this.rigidBody.quaternion.set(0, 0, 0, 1)
     }
 
     this.mesh.position.copy(this.rigidBody.position)
@@ -64,5 +67,29 @@ export class GameBody {
 
     this.rigidBody = null
     this.mesh = null
+  }
+
+  _handleCustomGravity(time) {
+    if (this._ignoreGravity) {
+      this.rigidBody?.applyForce(new CANNON.Vec3(0, 9.81, 0))
+      return
+    }
+
+    if (this._additionalGravity) {
+      this._throttledLogger?.debug(
+        time,
+        'adding aditional gravity',
+        this._additionalGravity
+      )
+      this.rigidBody?.applyForce(new CANNON.Vec3(0, this._additionalGravity, 0))
+    }
+
+    if (
+      this._freezeGravityAt &&
+      this.rigidBody?.position?.y <= this._freezeGravityAt
+    ) {
+      const velocity = this.rigidBody.velocity
+      this.rigidBody?.velocity?.set(velocity.x, 0.2, velocity.z)
+    }
   }
 }

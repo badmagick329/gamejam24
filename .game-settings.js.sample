@@ -19,6 +19,9 @@ const settings = {
   bulletRadius: 0.3,
   bulletIntervalBetweenShots: 110,
   enemyMovement: false,
+  enemyType: 'box',
+  freezeEnemyRotation: false,
+  freezeEnemyGravityAt: 2.2,
 }
 
 export { settings }

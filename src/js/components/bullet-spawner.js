@@ -39,7 +39,7 @@ export class BulletSpawner extends Component {
         0,
         -this._settings.bulletSpeed
       )
-      this._bullets[i].bullet.sync()
+      this._bullets[i].bullet.sync(time)
       this._bullets[i].timeAlive += delta
       this._handleDisposal(this._bullets[i], i)
     }

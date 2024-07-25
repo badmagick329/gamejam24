@@ -25,7 +25,7 @@ export class BaseEnemySpawner extends Component {
     this._player = player
     this._enemies = enemies
     this._lastSpawn = null
-    this._enemyFactory = new EnemyFactory({ world })
+    this._enemyFactory = new EnemyFactory({ world, settings })
     // TODO: a temp stop button for spawning for testing. make it a toggleable in debug?
     this._maxEnemies = 5
     this._numberOfSpawns = 0
@@ -53,7 +53,7 @@ export class BaseEnemySpawner extends Component {
     const enemy = this._enemyFactory
       .setPosition(x, y, z)
       .setBaseEnemy()
-      .create()
+      .create(`enemy-${timeElapsed}`)
     this._enemies.push(enemy)
     this._scene.add(enemy.mesh)
     this._numberOfSpawns++
@@ -90,7 +90,11 @@ export class BaseEnemySpawner extends Component {
    * @returns {boolean}
    */
   _isOutOfBounds(enemy) {
-    return enemy.rigidBody.position.y < -30 || enemy.rigidBody.position.z < -50
+    return (
+      enemy.rigidBody?.position?.y < -30 ||
+      enemy.rigidBody?.position?.z < -50 ||
+      enemy.rigidBody?.position?.z > 50
+    )
   }
 
   /**

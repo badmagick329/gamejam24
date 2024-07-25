@@ -25,8 +25,16 @@ export class BaseEnemyMovement extends Component {
       this._dead = true
       return
     }
-    const direction = new CANNON.Vec3()
-    playerPosition.vsub(this._enemy.rigidBody.position, direction)
+    const enemyPosition = this._enemy.rigidBody.position
+    if (enemyPosition.y > 1.8) {
+      return
+    }
+    const direction = new CANNON.Vec3(
+      playerPosition.x,
+      playerPosition.y,
+      playerPosition.z
+    )
+    playerPosition.vsub(enemyPosition, direction)
     direction.normalize()
 
     this._enemy.rigidBody.velocity.set(
@@ -35,10 +43,10 @@ export class BaseEnemyMovement extends Component {
       direction.z * this._step
     )
 
-    this.moveTo(direction, {
-      body: this._enemy.rigidBody,
-      step: this._step,
-    })
+    // this.moveTo(direction, {
+    //   body: this._enemy.rigidBody,
+    //   step: this._step,
+    // })
   }
 
   moveTo(vector, values) {
