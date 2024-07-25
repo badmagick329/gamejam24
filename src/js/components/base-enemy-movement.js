@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import * as CANNON from 'cannon-es'
 import { Component } from '../ecs'
 import { GameBody } from '../game'
 
@@ -9,32 +9,56 @@ export class BaseEnemyMovement extends Component {
    */
   constructor(enemy, player) {
     super()
-    console.log('enemy', enemy)
     this._enemy = enemy
     this._player = player
-    this._step = 0.1
+    this._step = 15
+    this._dead = false
   }
 
   update() {
     // TODO: Add movement
-    // Temp movement test
-    const enemyTranslation = this._enemy.rigidBody.translation()
-    if (enemyTranslation.z < 20) {
-      this._enemy.rigidBody.applyImpulse({ x: 0.0, y: 0.0, z: 0.1 }, true)
-    } else {
+    if (this._dead) {
+      return
     }
-    const enemyPos = new THREE.Vector3(
-      enemyTranslation.x,
-      enemyTranslation.y,
-      enemyTranslation.z
+    const playerPosition = this._player.rigidBody.position
+    if (!this._enemy?.rigidBody?.position) {
+      this._dead = true
+      return
+    }
+    const direction = new CANNON.Vec3()
+    playerPosition.vsub(this._enemy.rigidBody.position, direction)
+    direction.normalize()
+
+    this._enemy.rigidBody.velocity.set(
+      direction.x * this._step,
+      this._enemy.rigidBody.velocity.y,
+      direction.z * this._step
     )
-    const playerTranslation = this._player.rigidBody.translation()
-    const playerPos = new THREE.Vector3(
-      playerTranslation.x,
-      playerTranslation.y,
-      playerTranslation.z
+
+    this.moveTo(direction, {
+      body: this._enemy.rigidBody,
+      step: this._step,
+    })
+  }
+
+  moveTo(vector, values) {
+    /**
+     * @type {CANNON.Body}
+     */
+    const body = values.body
+    /**
+     * @type {number}
+     */
+    if (body.velocity.y > 0.6) {
+      return
+    }
+    const step = values.step
+    const movement = new CANNON.Vec3(
+      vector.x * step,
+      vector.y * step,
+      vector.z * step
     )
-    const direction = playerPos.clone().sub(enemyPos).normalize()
-    const distance = playerPos.distanceTo(enemyPos)
+
+    body.velocity.set(movement.x, -9.81, movement.z)
   }
 }

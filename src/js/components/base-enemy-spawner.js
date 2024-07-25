@@ -2,7 +2,7 @@ import * as CANNON from 'cannon-es'
 import { Component, Entity, EntityManager } from '../ecs'
 import { EnemyFactory, GameBody } from '../game'
 import { addVariance } from '../utils'
-// import { BaseEnemyMovement } from './base-enemy-movement'
+import { BaseEnemyMovement } from './base-enemy-movement'
 // import { EnemyFSM } from './enemy-fsm'
 
 const SPAWN_INTERVAL = 2000
@@ -14,9 +14,11 @@ export class BaseEnemySpawner extends Component {
    * @param {CANNON.World} world
    * @param {GameBody} player
    * @param {GameBody[]} enemies
+   * @param {import('../types').GameSettings} settings
    */
-  constructor(entityManager, scene, world, player, enemies) {
+  constructor(entityManager, scene, world, player, enemies, settings) {
     super()
+    this._settings = settings
     this._manager = entityManager
     this._scene = scene
     this._world = world
@@ -97,10 +99,12 @@ export class BaseEnemySpawner extends Component {
    */
   _initComponents(enemy) {
     const enemyEntity = new Entity()
-    // const movement = new BaseEnemyMovement(enemy, this._player)
-    // const enemyFSM = new EnemyFSM()
-    // enemyEntity.addComponent(movement)
-    // enemyEntity.addComponent(enemyFSM)
+    if (this._settings.enemyMovement) {
+      const movement = new BaseEnemyMovement(enemy, this._player)
+      // const enemyFSM = new EnemyFSM()
+      enemyEntity.addComponent(movement)
+      // enemyEntity.addComponent(enemyFSM)
+    }
     this._manager.add(enemyEntity)
   }
 }

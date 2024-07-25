@@ -5,12 +5,9 @@ import { GameBody } from '../game'
 import { BULLET_GROUP, ENEMY_GROUP } from '../game/consts'
 
 const config = {
-  intervalBetweenShots: 110,
   maxTimeAlive: 10000,
   maxTravel: 50,
   triggerKey: 'space',
-  bulletSpeed: 24.0,
-  bulletRadius: 0.3,
   playerZOffset: 3,
 }
 
@@ -19,8 +16,9 @@ export class BulletSpawner extends Component {
    * @param {CANNON.Body} playerBody
    * @param {THREE.Scene} scene
    * @param {CANNON.World} world
+   * @param {Object} settings
    */
-  constructor(playerBody, scene, world) {
+  constructor(playerBody, scene, world, settings) {
     super()
     this._playerBody = playerBody
     this._scene = scene
@@ -28,6 +26,10 @@ export class BulletSpawner extends Component {
     this._bullets = []
     this._lastShot = null
     this._config = config
+    /**
+     * @type {import('../types').GameSettings}
+     */
+    this._settings = settings
   }
 
   update(time, delta) {
@@ -35,7 +37,7 @@ export class BulletSpawner extends Component {
       this._bullets[i].bullet.rigidBody.velocity.set(
         0,
         0,
-        -this._config.bulletSpeed
+        -this._settings.bulletSpeed
       )
       this._bullets[i].bullet.sync()
       this._bullets[i].timeAlive += delta
@@ -48,7 +50,7 @@ export class BulletSpawner extends Component {
   _shootBullet(direction) {
     const position = this._playerBody.position
     const bulletGeometry = new THREE.SphereGeometry(
-      this._config.bulletRadius,
+      this._settings.bulletRadius,
       16,
       16
     )
@@ -80,13 +82,13 @@ export class BulletSpawner extends Component {
   _createBulletBody(position, direction) {
     const cannonBody = new CANNON.Body({
       mass: 1000,
-      shape: new CANNON.Sphere(this._config.bulletRadius),
+      shape: new CANNON.Sphere(this._settings.bulletRadius),
       position: new CANNON.Vec3(position.x, position.y, position.z),
       material: new CANNON.Material(),
       velocity: new CANNON.Vec3(
-        direction.x * this._config.bulletSpeed,
-        direction.y * this._config.bulletSpeed,
-        direction.z * this._config.bulletSpeed
+        direction.x * this._settings.bulletSpeed,
+        direction.y * this._settings.bulletSpeed,
+        direction.z * this._settings.bulletSpeed
       ),
       collisionFilterGroup: BULLET_GROUP,
       collisionFilterMask: ENEMY_GROUP,
@@ -98,7 +100,7 @@ export class BulletSpawner extends Component {
   _handleShoot(time) {
     if (
       this._lastShot === null ||
-      time - this._lastShot > this._config.intervalBetweenShots
+      time - this._lastShot > this._settings.bulletIntervalBetweenShots
     ) {
       for (const [key, active] of Object.entries(
         this.getComponent('InputController')._keys

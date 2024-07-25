@@ -1,5 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
+import { settings } from '../../.game-settings.js'
 import { ThirdPersonCamera } from './components'
 import { initEngine, useTick } from './render/init.js'
 
@@ -23,27 +24,36 @@ export default async function run() {
     const logger = new Logger()
     logger.level = logLevels.DEBUG
     const throttledLogger = logger.getThrottledLogger(1000, 'camera')
-    const game = new Game()
+    const game = new Game(settings)
+
     game.init()
 
-    game.player = initPlayer(game.scene, game.world)
+    game.player = initPlayer(game.scene, game.world, game.settings)
     const manager = initEntitiesAndComponents(
       game.renderer,
       game.camera,
       game.scene,
       game.player,
       game.world,
-      game.enemies
+      game.enemies,
+      game.settings
     )
 
     postprocessing(game.width, game.height, MOTION_BLUR_AMOUNT)
 
     useTick(({ timestamp, timeDiff }) => {
+      if (!settings.thirdPerson) {
+        manager.update(timestamp, timeDiff)
+      }
       game.world.fixedStep()
       game.player.sync(timestamp)
       game.enemies.forEach((e) => e.sync(timestamp))
-      manager.update(timestamp, timeDiff)
-      // game?.cannonDebugger?.update()
+      if (settings.thirdPerson) {
+        manager.update(timestamp, timeDiff)
+      }
+      if (game.settings.cannonDebugger) {
+        game?.cannonDebugger?.update()
+      }
 
       // TODO: Temporary stuff. move/remove after testing
       // game.controls.target.copy(game.player.mesh.position)
@@ -54,10 +64,11 @@ export default async function run() {
   /**
    * @param {THREE.Scene} scene
    * @param {CANNON.World} world
+   * @param {Object} settings
    * @returns {GameBody}
    */
-  function initPlayer(scene, world) {
-    const playerFactory = new PlayerFactory({ world })
+  function initPlayer(scene, world, settings) {
+    const playerFactory = new PlayerFactory({ world, settings })
     const playerGameBody = playerFactory.create()
     scene.add(playerGameBody.mesh)
     return playerGameBody
@@ -70,6 +81,7 @@ export default async function run() {
    * @param {GameBody} playerBody
    * @param {CANNON.World} world
    * @param {GameBody[]} enemies
+   * @param {Object} settings
    * @returns {EntityManager}
    */
   function initEntitiesAndComponents(
@@ -78,7 +90,8 @@ export default async function run() {
     scene,
     playerBody,
     world,
-    enemies
+    enemies,
+    settings
   ) {
     // Create entities and components
     const manager = new EntityManager()
@@ -98,17 +111,25 @@ export default async function run() {
     // player.addComponent(mouseInputController)
     const movementController = new MovementController(
       playerBody.mesh,
-      playerBody.rigidBody
+      playerBody.rigidBody,
+      settings.playerSpeed
     )
     player.addComponent(movementController)
 
     // camera
-    const thirdPersonCamera = new ThirdPersonCamera()
-    player.addComponent(thirdPersonCamera)
-    thirdPersonCamera.setTarget(playerBody.mesh)
+    if (settings.thirdPerson) {
+      const thirdPersonCamera = new ThirdPersonCamera()
+      player.addComponent(thirdPersonCamera)
+      thirdPersonCamera.setTarget(playerBody.mesh)
+    }
 
     // bullets
-    const bulletSpawner = new BulletSpawner(playerBody.rigidBody, scene, world)
+    const bulletSpawner = new BulletSpawner(
+      playerBody.rigidBody,
+      scene,
+      world,
+      settings
+    )
     player.addComponent(bulletSpawner)
     manager.add(player, 'player')
 
@@ -119,7 +140,8 @@ export default async function run() {
       scene,
       world,
       playerBody,
-      enemies
+      enemies,
+      settings
     )
     enemySpawner.addComponent(baseEnemySpawner)
 

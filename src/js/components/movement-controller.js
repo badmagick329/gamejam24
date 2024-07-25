@@ -42,13 +42,14 @@ export class MovementController extends Component {
   /**
    * @param {THREE.Mesh} mesh
    * @param {CANNON.Body} body
+   * @param {number} speed
    */
-  constructor(mesh, body) {
+  constructor(mesh, body, speed) {
     super()
     this._mesh = mesh
     this._body = body
+    this._step = speed
     this._fsm = null
-    this._step = 30
   }
 
   update(_, delta) {

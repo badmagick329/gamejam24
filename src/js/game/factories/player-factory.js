@@ -3,9 +3,6 @@ import * as THREE from 'three'
 import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP, WALL_GROUP } from '../consts'
 import { GameBody } from '../game-body'
 
-const PLAYER_Y = 0.6
-const BOX_SIZE = 1
-const SPHERE_RADIUS = 1
 const BOX_SEGMENTS = 10
 const DEFAULT_COLOR = 0x55aa55
 
@@ -17,6 +14,13 @@ export class PlayerFactory {
     if (config.world === undefined) {
       throw new Error('PlayerFactory requires a world instance')
     }
+    if (config.settings === undefined) {
+      throw new Error('PlayerFactory requires game settings')
+    }
+    /**
+     * @type {import('../../types').GameSettings}
+     */
+    this._settings = config.settings
     this.world = config.world
     /**
      * @type {THREE.Vector3}
@@ -28,10 +32,6 @@ export class PlayerFactory {
     this.mat =
       config.mat ?? new THREE.MeshStandardMaterial({ color: DEFAULT_COLOR })
     this.mat.flatShading = true
-    /**
-     * @type {number}
-     */
-    this.linearDamping = 0.95
 
     /**
      * @type {(THREE.BufferGeometry|null)}
@@ -73,14 +73,14 @@ export class PlayerFactory {
    * @returns {THREE.Vector3}
    */
   defaultPosition() {
-    return new THREE.Vector3(0, PLAYER_Y, 0)
+    return new THREE.Vector3(0, this._settings.playerY, 0)
   }
 
   _initBoxGeometryAndCannonBody() {
     this.geo = new THREE.BoxGeometry(
-      BOX_SIZE,
-      BOX_SIZE,
-      BOX_SIZE,
+      this._settings.playerBoxSize,
+      this._settings.playerBoxSize,
+      this._settings.playerBoxSize,
       BOX_SEGMENTS,
       BOX_SEGMENTS,
       BOX_SEGMENTS
@@ -101,15 +101,19 @@ export class PlayerFactory {
       ),
       material: new CANNON.Material(),
     })
-    this.cannonBody.linearDamping = this.linearDamping
+    this.cannonBody.linearDamping = this._settings.playerLinearDamping || 0.85
     this.world.addBody(this.cannonBody)
   }
 
   _initSphereGeometryAndCannonBody() {
-    this.geo = new THREE.SphereGeometry(SPHERE_RADIUS, 10, 10)
+    this.geo = new THREE.SphereGeometry(
+      this._settings.playerSphereRadius,
+      10,
+      10
+    )
     this.cannonBody = new CANNON.Body({
       mass: 50,
-      shape: new CANNON.Sphere(SPHERE_RADIUS),
+      shape: new CANNON.Sphere(this._settings.playerSphereRadius),
       position: new CANNON.Vec3(
         this.position.x,
         this.position.y + 2,
@@ -120,7 +124,7 @@ export class PlayerFactory {
       collisionFilterMask:
         PLAYER_GROUP | ENEMY_GROUP | WALL_GROUP | GROUND_GROUP,
     })
-    this.cannonBody.linearDamping = this.linearDamping
+    this.cannonBody.linearDamping = this._settings.playerLinearDamping || 0.95
     this.world.addBody(this.cannonBody)
   }
 }
@@ -130,4 +134,5 @@ export class PlayerFactory {
  * @property {CANNON.World} world
  * @property {THREE.Vector3} [position]
  * @property {THREE.Material} [mat]
+ * @property {import('../../types').GameSettings} settings
  */

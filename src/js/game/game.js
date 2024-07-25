@@ -16,8 +16,8 @@ import {
   WALL_GROUP,
 } from './consts.js'
 
-const GROUND_WIDTH = 10.0
-const GROUND_DEPTH = 10.0
+const GROUND_WIDTH = 100.0
+const GROUND_DEPTH = 60.0
 const WALL_THICKNESS = 5.0
 
 export class Game {
@@ -25,7 +25,7 @@ export class Game {
    * A lightweight container for game config and objects with some logic
    * for setting up config
    */
-  constructor() {
+  constructor(settings) {
     /**
      * @type {(THREE.Scene|null)}
      */
@@ -75,8 +75,16 @@ export class Game {
      */
     this.enemies = []
 
-    this._groundWidth = GROUND_WIDTH
-    this._groundDepth = GROUND_DEPTH
+    if (settings === undefined) {
+      throw new Error('Error loading the settings file')
+    }
+    /**
+     * @type {import('../types').GameSettings}
+     */
+    this.settings = settings
+
+    this._groundWidth = this.settings.groundWidth || GROUND_WIDTH
+    this._groundDepth = this.settings.groundDepth || GROUND_DEPTH
     this._wallThickness = WALL_THICKNESS
   }
 
@@ -141,10 +149,12 @@ export class Game {
     dirLight.shadow.camera.left = -55
 
     this.scene.add(dirLight, ambientLight, hemiLight)
-    // const directionalLightCameraHelper = new THREE.CameraHelper(
-    //   dirLight.shadow.camera
-    // )
-    // this.scene.add(directionalLightCameraHelper)
+    if (this.settings.lightCameraHelper) {
+      const directionalLightCameraHelper = new THREE.CameraHelper(
+        dirLight.shadow.camera
+      )
+      this.scene.add(directionalLightCameraHelper)
+    }
   }
 
   _setupPhysicsWithGround() {
@@ -236,19 +246,19 @@ export class Game {
     this.gui = useGui()
     const debugObject = {}
     debugObject.lightColour = () => {
-      this.ground.material.color.set(0x999999)
-      this.player.mesh.material.color.set(0x43aa8b)
+      this.ground.material.color.set(this.settings.lightGround)
+      this.player.mesh.material.color.set(this.settings.lightPlayer)
       for (const enemy of this.enemies) {
-        enemy.mesh.material.color.set(0xf9c74f)
+        enemy.mesh.material.color.set(this.settings.lightEnemy)
       }
     }
     this.gui.add(debugObject, 'lightColour')
 
     debugObject.darkColour = () => {
-      this.ground.material.color.set(0x555555)
-      this.player.mesh.material.color.set(0x55aa55)
+      this.ground.material.color.set(this.settings.darkGround)
+      this.player.mesh.material.color.set(this.settings.darkPlayer)
       for (const enemy of this.enemies) {
-        enemy.mesh.material.color.set(0xa0b04a)
+        enemy.mesh.material.color.set(this.settings.darkEnemy)
       }
     }
     this.gui.add(debugObject, 'darkColour')
