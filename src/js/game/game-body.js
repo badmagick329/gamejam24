@@ -26,6 +26,7 @@ export class GameBody {
     this._additionalGravity = config?.additionalGravity
     this._freezeRotation = config?.freezeRotation
     this.config = config
+    this.syncMesh = config?.syncMesh === undefined ? true : false
   }
 
   _generateName() {
@@ -44,8 +45,10 @@ export class GameBody {
       return
     }
 
-    this.mesh.position.copy(this.rigidBody.position)
-    this.mesh.quaternion.copy(this.rigidBody.quaternion)
+    if (this.syncMesh) {
+      this.mesh.position.copy(this.rigidBody.position)
+      this.mesh.quaternion.copy(this.rigidBody.quaternion)
+    }
   }
 
   stopBody() {
