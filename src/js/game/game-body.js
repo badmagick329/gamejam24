@@ -26,7 +26,7 @@ export class GameBody {
     this._additionalGravity = config?.additionalGravity
     this._freezeRotation = config?.freezeRotation
     this.config = config
-    this.syncMesh = config?.syncMesh === undefined ? true : false
+    this.syncMesh = config?.syncMesh === undefined ? true : config?.syncMesh
   }
 
   _generateName() {
