@@ -19,40 +19,40 @@ export class InputController extends Component {
   }
 
   _onKeyDown(event) {
-    switch (event.keyCode) {
-      case 87: // w
+    switch (event.key) {
+      case 'w':
         this._keys.forward = true
         break
-      case 65: // a
+      case 'a':
         this._keys.left = true
         break
-      case 83: // s
+      case 's':
         this._keys.backward = true
         break
-      case 68: // d
+      case 'd':
         this._keys.right = true
         break
-      case 32: // SPACE
+      case ' ':
         this._keys.space = true
         break
     }
   }
 
   _onKeyUp(event) {
-    switch (event.keyCode) {
-      case 87: // w
+    switch (event.key) {
+      case 'w':
         this._keys.forward = false
         break
-      case 65: // a
+      case 'a':
         this._keys.left = false
         break
-      case 83: // s
+      case 's':
         this._keys.backward = false
         break
-      case 68: // d
+      case 'd':
         this._keys.right = false
         break
-      case 32: // SPACE
+      case ' ':
         this._keys.space = false
         break
     }

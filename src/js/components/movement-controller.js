@@ -82,11 +82,8 @@ export class MovementController extends Component {
       topic: 'player.movement',
       value: {
         pressedKeys,
-        movementMap,
         body: this._body,
-        mesh: this._mesh,
         step: this._step,
-        delta,
       },
     })
   }
