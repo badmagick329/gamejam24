@@ -57,7 +57,9 @@ export default async function run() {
       }
 
       // TODO: Temporary stuff. move/remove after testing
-      game.controls.target.copy(game.player.mesh.position)
+      if (settings.thirdPerson) {
+        game.controls.target.copy(game.player.mesh.position)
+      }
       // ----------------
     })
   }

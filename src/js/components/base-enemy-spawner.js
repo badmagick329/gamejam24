@@ -5,8 +5,6 @@ import { addVariance } from '../utils'
 import { BaseEnemyMovement } from './base-enemy-movement'
 // import { EnemyFSM } from './enemy-fsm'
 
-const SPAWN_INTERVAL = 2000
-
 export class BaseEnemySpawner extends Component {
   /**
    * @param {EntityManager} entityManger
@@ -37,10 +35,16 @@ export class BaseEnemySpawner extends Component {
       return
     }
     // Delay first spawn, or do something else with it
-    if (this._lastSpawn === null && timeElapsed > SPAWN_INTERVAL * 1) {
+    if (
+      this._lastSpawn === null &&
+      timeElapsed > this._settings.baseEnemySpawnInterval * 1
+    ) {
       this._spawn(timeElapsed)
     }
-    if (this._lastSpawn && timeElapsed - this._lastSpawn > SPAWN_INTERVAL) {
+    if (
+      this._lastSpawn &&
+      timeElapsed - this._lastSpawn > this._settings.baseEnemySpawnInterval
+    ) {
       this._spawn(timeElapsed)
     }
   }
@@ -70,7 +74,6 @@ export class BaseEnemySpawner extends Component {
         continue
       }
 
-      console.log('disposing', this._enemies[i])
       this._enemies[i].dispose(this._scene, this._world)
       toRemove.push(i)
       this._enemies[i] = null
@@ -81,7 +84,7 @@ export class BaseEnemySpawner extends Component {
       this._enemies.splice(toRemove[i], 1)
     }
     if (toRemove.length > 0) {
-      console.log('enemies array length now is', this._enemies.length)
+      // console.log('enemies array length now is', this._enemies.length)
     }
   }
 

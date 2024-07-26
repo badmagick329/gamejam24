@@ -22,9 +22,11 @@ export type GameSettings = {
   playerLinearDamping: number
   bulletSpeed: number
   bulletRadius: number
+  bulletHeightOffset: number
   bulletIntervalBetweenShots: number
   enemyMovement: boolean
   enemyType: 'box' | 'torus' | 'sphere'
+  baseEnemySpawnInterval: number
   freezeEnemyRotation: boolean
   freezeEnemyGravityAt: number
 }

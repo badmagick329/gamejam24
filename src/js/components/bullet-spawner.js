@@ -47,7 +47,7 @@ export class BulletSpawner extends Component {
     this._handleShoot(time)
   }
 
-  _shootBullet(direction) {
+  _shootBullet(direction, time) {
     const position = this._playerBody.position
     const bulletGeometry = new THREE.SphereGeometry(
       this._settings.bulletRadius,
@@ -61,12 +61,12 @@ export class BulletSpawner extends Component {
     const cannonBody = this._createBulletBody(
       {
         x: position.x,
-        y: position.y,
+        y: position.y + this._settings.bulletHeightOffset,
         z: position.z - this._config.playerZOffset,
       },
       direction
     )
-    const bullet = new GameBody(bulletMesh, cannonBody, '', {
+    const bullet = new GameBody(bulletMesh, cannonBody, `Bullet-${time}`, {
       ignoreGravity: true,
     })
     bullet.sync()
@@ -106,7 +106,7 @@ export class BulletSpawner extends Component {
         this.getComponent('InputController')._keys
       )) {
         if (key === this._config.triggerKey && active) {
-          this._shootBullet({ x: 0, y: 0, z: -1.0 })
+          this._shootBullet({ x: 0, y: 0, z: -1.0 }, time)
           this._lastShot = time
         }
       }

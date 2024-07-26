@@ -17,9 +17,11 @@ const settings = {
   playerLinearDamping: 0.95,
   bulletSpeed: 50.0,
   bulletRadius: 0.6,
+  bulletHeightOffset: 0.4,
   bulletIntervalBetweenShots: 110,
   enemyMovement: true,
-  enemyType: 'torus',
+  enemyType: 'box',
+  baseEnemySpawnInterval: 2000,
   freezeEnemyRotation: false,
   freezeEnemyGravityAt: 1.4,
 }

@@ -40,23 +40,7 @@ export class GameBody {
     }
 
     if (this._name === 'defenceObject') {
-      this.rigidBody.angularVelocity.set(10, 0, 0)
-      this.rigidBody.position.x =
-        Math.sin(this.config.spawnAngle) * this.config.spawnRadius
-      this.rigidBody.position.y = 1.5 + 0.01
-      this.rigidBody.position.z =
-        Math.cos(this.config.spawnAngle) * this.config.spawnRadius
-      this.mesh.position.copy(this.rigidBody.position)
-      this.mesh.quaternion.copy(this.rigidBody.quaternion)
-      this._throttledLogger?.info(
-        time,
-        'name',
-        this._name,
-        '\nmesh q\n',
-        this.mesh.quaternion,
-        '\nbody q\n',
-        this.rigidBody.quaternion
-      )
+      this._defenceObjectStuff()
       return
     }
 
@@ -111,5 +95,26 @@ export class GameBody {
       )
       this.rigidBody?.applyForce(new CANNON.Vec3(0, this._additionalGravity, 0))
     }
+  }
+
+  _defenceObjectStuff() {
+    // TODO: Refactor
+    this.rigidBody.angularVelocity.set(10, 0, 0)
+    this.rigidBody.position.x =
+      Math.sin(this.config.spawnAngle) * this.config.spawnRadius
+    this.rigidBody.position.y = 1.5 + 0.01
+    this.rigidBody.position.z =
+      Math.cos(this.config.spawnAngle) * this.config.spawnRadius
+    this.mesh.position.copy(this.rigidBody.position)
+    this.mesh.quaternion.copy(this.rigidBody.quaternion)
+    // this._throttledLogger?.info(
+    //   time,
+    //   'name',
+    //   this._name,
+    //   '\nmesh q\n',
+    //   this.mesh.quaternion,
+    //   '\nbody q\n',
+    //   this.rigidBody.quaternion
+    // )
   }
 }
