@@ -17,8 +17,8 @@ import {
 } from './consts.js'
 import { GameBody } from './game-body.js'
 
-const GROUND_WIDTH = 100.0
-const GROUND_DEPTH = 60.0
+const GROUND_WIDTH = 20.0
+const GROUND_DEPTH = 20.0
 const WALL_THICKNESS = 5.0
 
 export class Game {
@@ -98,6 +98,8 @@ export class Game {
     this._setupPhysicsWithGround()
     this._buildThatWall()
     this._setupGroundMesh()
+    this._setupBuildings()
+    this._setupDefenceObjective()
     this._setupDebug()
   }
 
@@ -133,9 +135,9 @@ export class Game {
   }
 
   _setupLight() {
-    const dirLight = new THREE.DirectionalLight('#ffffff', 1)
-    const ambientLight = new THREE.AmbientLight('#ffffff', 5)
-    const hemiLight = new THREE.HemisphereLight('#ff0000', '#0000ff', 10)
+    const dirLight = new THREE.DirectionalLight('#555555', 0.2)
+    const ambientLight = new THREE.AmbientLight('#555555', 0.2)
+    const hemiLight = new THREE.HemisphereLight('#ff0000', '#0000ff', 2)
     dirLight.position.y = 5
     dirLight.position.z = 5
     dirLight.position.x = 5
@@ -149,6 +151,7 @@ export class Game {
     dirLight.shadow.camera.bottom = -35
     dirLight.shadow.camera.left = -55
 
+    // old add lights to scene
     this.scene.add(dirLight, ambientLight, hemiLight)
     if (this.settings.lightCameraHelper) {
       const directionalLightCameraHelper = new THREE.CameraHelper(
@@ -233,17 +236,129 @@ export class Game {
 
   _setupGroundMesh() {
     let geo, mat
-    geo = new THREE.BoxGeometry(this._groundWidth, 0.01, this._groundDepth)
+    geo = new THREE.PlaneGeometry(this._groundWidth, this._groundDepth)
     mat = new THREE.MeshStandardMaterial({
-      color: 0x555555,
+      color: 0xaaaaaa,
       side: THREE.DoubleSide,
+      flatShading: false,
     })
-    mat.flatShading = true
     this.ground = new THREE.Mesh(geo, mat)
-    this.ground.position.y = 0.1
+    // this.ground.position.y = 0.1
+    this.ground.rotation.x = Math.PI * 0.5
     this.scene.add(this.ground)
 
     this.ground.receiveShadow = true
+  }
+
+  _setupBuildings() {
+    const material = new THREE.MeshStandardMaterial()
+    const numberOfBuildings = Math.ceil(Math.random() * 4)
+    for (let i = 0; i < numberOfBuildings; i++) {
+      const buildingwidth = 1 + Math.random() * 2
+      const buildingHeight = 1 + Math.random() * 2
+      const buildingDepth = 1 + Math.random() * 2
+      const geometry = new THREE.BoxGeometry(
+        buildingwidth,
+        buildingHeight,
+        buildingDepth
+      )
+      const building = new THREE.Mesh(geometry, material)
+      building.position.y = buildingHeight * 0.5 + 0.01
+      do {
+        building.position.x = (this._groundWidth - 4) * (Math.random() - 0.5)
+        building.position.z = (this._groundDepth - 4) * (Math.random() - 0.5)
+      } while (
+        building.position.x < this._groundWidth / 2 - 4 &&
+        building.position.x > -(this._groundWidth / 2 - 4) &&
+        building.position.z < this._groundDepth / 2 - 4 &&
+        building.position.z > -(this._groundDepth / 2 - 4)
+      )
+      const angle = Math.random() * Math.PI * 0.5
+      building.rotation.y = angle
+      this.scene.add(building)
+
+      const buildingCannonBody = new CANNON.Body({
+        shape: new CANNON.Box(
+          new CANNON.Vec3(
+            buildingwidth * 0.5,
+            buildingHeight * 0.5,
+            buildingDepth * 0.5
+          )
+        ),
+        type: CANNON.Body.STATIC,
+        collisionFilterGroup: GROUND_GROUP,
+        collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
+      })
+      buildingCannonBody.position.x = building.position.x
+      buildingCannonBody.position.y = building.position.y
+      buildingCannonBody.position.z = building.position.z
+      buildingCannonBody.quaternion.setFromEuler(0, angle, 0)
+
+      this.world.addBody(buildingCannonBody)
+    }
+  }
+
+  _setupDefenceObjective() {
+    const material = new THREE.MeshStandardMaterial({
+      flatShading: true,
+    })
+    // const defenceGroup = new THREE.Group()
+    const defenceBaseGeometry = new THREE.ConeGeometry(0.5, 0.5, 16, 1)
+    const defenceBaseMesh = new THREE.Mesh(defenceBaseGeometry, material)
+
+    // alternate shape
+    // const defenceTopGeometry = new THREE.SphereGeometry(1, 3, 8)
+    const defenceTopGeometry = new THREE.TorusGeometry(0.05, 0.9, 11, 3)
+    const defenceTopMesh = new THREE.Mesh(defenceTopGeometry, material)
+
+    const spawnRadius = 2 + Math.random() * 2
+    const spawnAngle = Math.random() * Math.PI * 2
+
+    defenceBaseMesh.position.x = Math.sin(spawnAngle) * spawnRadius
+    defenceTopMesh.position.x = Math.sin(spawnAngle) * spawnRadius
+
+    defenceBaseMesh.position.y = 0.25 + 0.01
+    // Sphere Geometry position
+    // defenceTopMesh.position.y = 1.5 + 0.01
+
+    // Torus Position
+    defenceTopMesh.position.y = 1.5 + 0.01
+
+    // Torus Rotation
+    defenceTopMesh.rotation.x = Math.PI * 0.5
+
+    defenceBaseMesh.position.z = Math.cos(spawnAngle) * spawnRadius
+    defenceTopMesh.position.z = Math.cos(spawnAngle) * spawnRadius
+
+    this.scene.add(defenceBaseMesh, defenceTopMesh)
+
+    const defenceCannonBody = new CANNON.Body({
+      shape: new CANNON.Sphere(0.8),
+      mass: 5,
+      collisionFilterGroup: GROUND_GROUP,
+      collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
+    })
+
+    const defenceBody = new GameBody(
+      new THREE.Mesh(defenceTopGeometry, material),
+      defenceCannonBody,
+      'defenceObject',
+      {
+        ignoreGravity: true,
+        spawnRadius,
+        spawnAngle,
+      }
+    )
+
+    defenceCannonBody.position.x = Math.sin(spawnAngle) * spawnRadius
+    defenceCannonBody.position.y = 1.5 + 0.01
+    defenceCannonBody.position.z = Math.cos(spawnAngle) * spawnRadius
+
+    this.world.addBody(defenceCannonBody)
+
+    this.defenceObject = defenceBody
+
+    // defenceGroup.add(defenceBaseMesh, defenceTopMesh)
   }
 
   _setupDebug() {

@@ -3,6 +3,15 @@ import * as THREE from 'three'
 import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP, WALL_GROUP } from '../consts'
 import { GameBody } from '../game-body'
 
+<<<<<<< HEAD
+=======
+const PLAYER_Y = 0.6
+// old values
+// const BOX_SIZE = 1
+// const SPHERE_RADIUS = 1
+const BOX_SIZE = 0.1
+const SPHERE_RADIUS = 0.1
+>>>>>>> 4796109 (breaking everything for fun and profit, also some red colours)
 const BOX_SEGMENTS = 10
 const DEFAULT_COLOR = 0x55aa55
 
@@ -30,8 +39,22 @@ export class PlayerFactory {
      * @type {THREE.Material}
      */
     this.mat =
+<<<<<<< HEAD
       config.mat ?? new THREE.MeshStandardMaterial({ color: DEFAULT_COLOR })
     this.mat.flatShading = true
+=======
+      config.mat ??
+      new THREE.MeshStandardMaterial({
+        // old value
+        // color: DEFAULT_COLOR
+        roughness: 0.4,
+        flatShading: false,
+      })
+    /**
+     * @type {number}
+     */
+    this.linearDamping = 0.95
+>>>>>>> 4796109 (breaking everything for fun and profit, also some red colours)
 
     /**
      * @type {(THREE.BufferGeometry|null)}
@@ -106,11 +129,15 @@ export class PlayerFactory {
   }
 
   _initSphereGeometryAndCannonBody() {
+<<<<<<< HEAD
     this.geo = new THREE.SphereGeometry(
       this._settings.playerSphereRadius,
       10,
       10
     )
+=======
+    this.geo = new THREE.SphereGeometry(SPHERE_RADIUS, 32, 32)
+>>>>>>> 4796109 (breaking everything for fun and profit, also some red colours)
     this.cannonBody = new CANNON.Body({
       mass: 50,
       shape: new CANNON.Sphere(this._settings.playerSphereRadius),

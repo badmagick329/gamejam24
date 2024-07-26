@@ -46,6 +46,7 @@ export default async function run() {
         manager.update(timestamp, timeDiff)
       }
       game.world.fixedStep()
+      game.defenceObject.sync(timestamp)
       game.player.sync(timestamp)
       game.enemies.forEach((e) => e.sync(timestamp))
       if (settings.thirdPerson) {
@@ -56,7 +57,7 @@ export default async function run() {
       }
 
       // TODO: Temporary stuff. move/remove after testing
-      // game.controls.target.copy(game.player.mesh.position)
+      game.controls.target.copy(game.player.mesh.position)
       // ----------------
     })
   }

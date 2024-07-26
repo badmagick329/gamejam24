@@ -25,6 +25,7 @@ export class GameBody {
     this._freezeGravityAt = config?.freezeGravityAt
     this._additionalGravity = config?.additionalGravity
     this._freezeRotation = config?.freezeRotation
+    this.config = config
   }
 
   _generateName() {
@@ -36,6 +37,27 @@ export class GameBody {
     if (this._freezeRotation) {
       this.rigidBody.angularVelocity.set(0, 0, 0)
       this.rigidBody.quaternion.set(0, 0, 0, 1)
+    }
+
+    if (this._name === 'defenceObject') {
+      this.rigidBody.angularVelocity.set(10, 0, 0)
+      this.rigidBody.position.x =
+        Math.sin(this.config.spawnAngle) * this.config.spawnRadius
+      this.rigidBody.position.y = 1.5 + 0.01
+      this.rigidBody.position.z =
+        Math.cos(this.config.spawnAngle) * this.config.spawnRadius
+      this.mesh.position.copy(this.rigidBody.position)
+      this.mesh.quaternion.copy(this.rigidBody.quaternion)
+      this._throttledLogger?.info(
+        time,
+        'name',
+        this._name,
+        '\nmesh q\n',
+        this.mesh.quaternion,
+        '\nbody q\n',
+        this.rigidBody.quaternion
+      )
+      return
     }
 
     this.mesh.position.copy(this.rigidBody.position)
