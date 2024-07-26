@@ -55,9 +55,6 @@ export const initEngine = async (config) => {
       config.bloom?.radius ?? 0.5,
       config.bloom?.threshold ?? 0.002
     )
-    bloomPass.threshold = 0.002
-    bloomPass.strength = 1.5
-    bloomPass.radius = 0.5
     composer.addPass(bloomPass)
   }
 
