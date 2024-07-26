@@ -64,6 +64,13 @@ export default async function run() {
 
       // console.log('game.planesidemesh', game.groundSideMesh)
       game.groundSideMesh.material.uniforms.uTime.value = timestamp / 10000
+      for (let building of game.buildingsSideMesh) {
+        for (let material of building.material) {
+          if (material && material.type === 'ShaderMaterial') {
+            material.uniforms.uTime.value = timestamp / 10000
+          }
+        }
+      }
     })
   }
 

@@ -82,6 +82,7 @@ export class Game {
      * @type {THREE.Mesh}
      */
     this.groundSideMesh = null
+    this.buildingsSideMesh = null
 
     if (settings === undefined) {
       throw new Error('Error loading the settings file')
@@ -105,7 +106,7 @@ export class Game {
     this._setupPhysicsWithGround()
     this._buildThatWall()
     this.groundSideMesh = this._setupGroundMesh()
-    this._setupBuildings()
+    this.buildingsSideMesh = this._setupBuildings()
     this._setupDefenceObjective()
     this._setupDebug()
   }
@@ -158,8 +159,16 @@ export class Game {
     dirLight.shadow.camera.bottom = -35
     dirLight.shadow.camera.left = -55
 
+    const directionLight = new THREE.DirectionalLight()
+    directionLight.position.set(1, 0.25, 0)
+    directionLight.color = new THREE.Color(0x00fffc)
+    directionLight.intensity = 0.3
+    this.scene.add(directionLight)
+
     // old add lights to scene
-    this.scene.add(dirLight, ambientLight, hemiLight)
+    // this.scene.add(dirLight, ambientLight, hemiLight)
+    this.scene.add(hemiLight)
+
     if (this.settings.lightCameraHelper) {
       const directionalLightCameraHelper = new THREE.CameraHelper(
         dirLight.shadow.camera
@@ -308,6 +317,16 @@ export class Game {
 
   _setupBuildings() {
     const material = new THREE.MeshStandardMaterial()
+    const shaderMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uRadius: { value: 0.5 },
+      },
+      side: THREE.DoubleSide,
+      vertexShader,
+      fragmentShader,
+    })
+    let buildings = []
     const numberOfBuildings = Math.ceil(Math.random() * 4)
     for (let i = 0; i < numberOfBuildings; i++) {
       const buildingwidth = 1 + Math.random() * 2
@@ -318,7 +337,15 @@ export class Game {
         buildingHeight,
         buildingDepth
       )
-      const building = new THREE.Mesh(geometry, material)
+      const materials = [
+        shaderMaterial,
+        shaderMaterial,
+        material,
+        new THREE.MeshBasicMaterial(),
+        shaderMaterial,
+        shaderMaterial,
+      ]
+      const building = new THREE.Mesh(geometry, materials)
       building.position.y = buildingHeight * 0.5 + 0.01
       do {
         building.position.x = (this._groundWidth - 4) * (Math.random() - 0.5)
@@ -331,6 +358,7 @@ export class Game {
       )
       const angle = Math.random() * Math.PI * 0.5
       building.rotation.y = angle
+      buildings.push(building)
       this.scene.add(building)
 
       const buildingCannonBody = new CANNON.Body({
@@ -352,6 +380,7 @@ export class Game {
 
       this.world.addBody(buildingCannonBody)
     }
+    return buildings
   }
 
   _setupDefenceObjective() {

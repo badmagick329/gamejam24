@@ -19,7 +19,7 @@ varying vec3 vNormal;
 varying vec2 vUv;
 
 void main() {
-    fresnelShader();
+    gradient3();
 }
 
 void fresnelShader() {
