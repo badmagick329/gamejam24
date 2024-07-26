@@ -9,6 +9,8 @@ import {
   useRenderSize,
   useScene,
 } from '../render/init.js'
+import fragmentShader from '../shaders/fragment.glsl'
+import vertexShader from '../shaders/vertex.glsl'
 import {
   ENEMY_GROUP,
   GROUND_GROUP,
@@ -76,6 +78,11 @@ export class Game {
      */
     this.enemies = []
 
+    /**
+     * @type {THREE.Mesh}
+     */
+    this.groundSideMesh = null
+
     if (settings === undefined) {
       throw new Error('Error loading the settings file')
     }
@@ -97,7 +104,7 @@ export class Game {
     this._setupLight()
     this._setupPhysicsWithGround()
     this._buildThatWall()
-    this._setupGroundMesh()
+    this.groundSideMesh = this._setupGroundMesh()
     this._setupBuildings()
     this._setupDefenceObjective()
     this._setupDebug()
@@ -234,8 +241,13 @@ export class Game {
     })
   }
 
+  /**
+   * Returns one of the sides mesh so the material can be accessed for the shader
+   * in the update tick
+   * @returns {THREE.Mesh}
+   */
   _setupGroundMesh() {
-    let geo, mat
+    let geo, mat, mesh
     geo = new THREE.PlaneGeometry(this._groundWidth, this._groundDepth)
     mat = new THREE.MeshStandardMaterial({
       color: 0xaaaaaa,
@@ -247,7 +259,51 @@ export class Game {
     this.ground.rotation.x = Math.PI * 0.5
     this.scene.add(this.ground)
 
+    // ground sides
+    geo = new THREE.PlaneGeometry(this._groundWidth, 2)
+    mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uRadius: { value: 0.5 },
+      },
+      side: THREE.DoubleSide,
+      vertexShader,
+      fragmentShader,
+    })
+    // towards camera +z
+    mesh = new THREE.Mesh(geo, mat)
+    mesh.position.x = 0
+    mesh.position.y = -1
+    mesh.position.z = this._groundDepth / 2
+    this.scene.add(mesh)
+
+    // away from camera -z
+    mesh = new THREE.Mesh(geo, mat)
+    mesh.position.x = 0
+    mesh.position.y = -1
+    mesh.position.z = -this._groundDepth / 2
+    this.scene.add(mesh)
+
+    geo = new THREE.PlaneGeometry(this._groundDepth, 2)
+    // on the right +x
+    mesh = new THREE.Mesh(geo, mat)
+    mesh.rotation.y = Math.PI * 0.5
+    mesh.position.x = this._groundWidth / 2
+    mesh.position.y = -1
+    mesh.position.z = 0
+    this.scene.add(mesh)
+
+    // on the left -x
+    mesh = new THREE.Mesh(geo, mat)
+    mesh.rotation.y = Math.PI * 0.5
+    mesh.position.x = -this._groundWidth / 2
+    mesh.position.y = -1
+    mesh.position.z = 0
+    this.scene.add(mesh)
+
     this.ground.receiveShadow = true
+
+    return mesh
   }
 
   _setupBuildings() {

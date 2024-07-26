@@ -61,6 +61,9 @@ export default async function run() {
         game.controls.target.copy(game.player.mesh.position)
       }
       // ----------------
+
+      // console.log('game.planesidemesh', game.groundSideMesh)
+      game.groundSideMesh.material.uniforms.uTime.value = timestamp / 10000
     })
   }
 
