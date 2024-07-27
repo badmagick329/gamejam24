@@ -107,7 +107,6 @@ export class DefenceObjective extends Component {
       ignoreGravity: true,
       syncMesh: false,
     })
-    console.log(positionParameters)
 
     defenceCannonBody.position.x = positionParameters.positionX
     defenceCannonBody.position.y = 4 + 0.01
