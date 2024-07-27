@@ -3,7 +3,6 @@ import * as THREE from 'three'
 import { Component } from '../ecs'
 import { GameBody } from '../game'
 import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP } from '../game/consts'
-import { log } from 'three/examples/jsm/nodes/Nodes.js'
 
 export class DefenceObjective extends Component {
   constructor(config) {
@@ -58,16 +57,11 @@ export class DefenceObjective extends Component {
     const spawnRadius = 2 + Math.random() * 2
     const spawnAngle = Math.random() * Math.PI * 2
 
-    const positionX = Math.sin(spawnAngle) * spawnRadius
-    const positionY = 0
-    const positionZ = Math.cos(spawnAngle) * spawnRadius
-
     const material = new THREE.MeshStandardMaterial({
       flatShading: true,
     })
 
-    const positionParameters = {}
-
+    // const defenceTopMesh = this._getTorusMesh(material, spawnAngle, spawnRadius)
     // Use _getSphereMesh for an alternative defence object
     const defenceTopMesh = this._getSphereMesh(
       material,
@@ -75,22 +69,19 @@ export class DefenceObjective extends Component {
       spawnRadius
     )
 
-    // const defenceTopMesh = this._getTorusMesh(material, spawnAngle, spawnRadius)
     const defenceBaseMesh = this._getBaseMesh(material, spawnAngle, spawnRadius)
 
     this.scene.add(defenceBaseMesh, defenceTopMesh)
 
     this.defenceBody = this._createDefenceBody(
-      defenceTopMesh.geometry,
-      material,
+      defenceTopMesh,
       spawnRadius,
       spawnAngle
     )
-    // console.log(this.defenceBody)
     this.world.addBody(this.defenceBody.rigidBody)
   }
 
-  _createDefenceBody(defenceTopGeometry, material, spawnRadius, spawnAngle) {
+  _createDefenceBody(mesh, spawnRadius, spawnAngle) {
     const defenceCannonBody = new CANNON.Body({
       shape: new CANNON.Sphere(0.9),
       mass: 0,
@@ -98,15 +89,11 @@ export class DefenceObjective extends Component {
       collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
     })
 
-    const defenceBody = new GameBody(
-      new THREE.Mesh(defenceTopGeometry, material),
-      defenceCannonBody,
-      {
-        name: 'defenceObject',
-        ignoreGravity: true,
-        syncMesh: false,
-      }
-    )
+    const defenceBody = new GameBody(mesh, defenceCannonBody, {
+      name: 'defenceObject',
+      ignoreGravity: true,
+      syncMesh: false,
+    })
 
     defenceCannonBody.position.x = Math.sin(spawnAngle) * spawnRadius
     defenceCannonBody.position.y = 1.5 + 0.01
@@ -114,11 +101,13 @@ export class DefenceObjective extends Component {
     return defenceBody
   }
 
-  update(time) {
-    this._rotateMesh(time)
+  update(time, delta) {
+    this._rotateMesh(time, delta)
   }
 
-  _rotateMesh(time) {}
+  _rotateMesh(time, delta) {
+    this.defenceBody.mesh.rotation.y += delta
+  }
 }
 
 /**
