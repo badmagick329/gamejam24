@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { Component } from '../ecs'
 import { GameBody } from '../game'
 import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP } from '../game/consts'
+import { log } from 'three/examples/jsm/nodes/Nodes.js'
 
 export class DefenceObjective extends Component {
   constructor(config) {
@@ -23,54 +24,59 @@ export class DefenceObjective extends Component {
   }
 
   _getTorusMesh(material, spawnAngle, spawnRadius) {
-    const topGeometry = new THREE.TorusGeometry(0.05, 0.9, 11, 3)
-    const topMesh = new THREE.Mesh(topGeometry, material)
-    topMesh.position.y = 1.5 + 0.01
-    topMesh.rotation.x = Math.PI * 0.5
-    topMesh.position.z = Math.cos(spawnAngle) * spawnRadius
-    return topMesh
+    const defenceTopGeometry = new THREE.TorusGeometry(0.05, 0.9, 11, 3)
+    const defenceTopMesh = new THREE.Mesh(defenceTopGeometry, material)
+    // torus needs rotation
+    const torusRotation = Math.PI * 0.5
+    defenceTopMesh.position.x = Math.sin(spawnAngle) * spawnRadius
+    defenceTopMesh.position.y = 1.5 + 0.01
+    defenceTopMesh.rotation.x = torusRotation
+    defenceTopMesh.position.z = Math.cos(spawnAngle) * spawnRadius
+    return defenceTopMesh
   }
 
   _getSphereMesh(material, spawnAngle, spawnRadius) {
     const defenceTopGeometry = new THREE.SphereGeometry(1, 3, 8)
     const defenceTopMesh = new THREE.Mesh(defenceTopGeometry, material)
+    // sphere does not need rotation (spoiler: it does not look like a sphere)
     defenceTopMesh.position.x = Math.sin(spawnAngle) * spawnRadius
+    defenceTopMesh.position.y = 1.5 + 0.01
     defenceTopMesh.position.z = Math.cos(spawnAngle) * spawnRadius
     return defenceTopMesh
+  }
+
+  _getBaseMesh(material, spawnAngle, spawnRadius) {
+    const defenceBaseGeometry = new THREE.ConeGeometry(0.5, 0.5, 16, 1)
+    const defenceBaseMesh = new THREE.Mesh(defenceBaseGeometry, material)
+    defenceBaseMesh.position.x = Math.sin(spawnAngle) * spawnRadius
+    defenceBaseMesh.position.y = 0.25 + 0.01
+    defenceBaseMesh.position.z = Math.cos(spawnAngle) * spawnRadius
+    return defenceBaseMesh
   }
 
   init() {
     const spawnRadius = 2 + Math.random() * 2
     const spawnAngle = Math.random() * Math.PI * 2
 
+    const positionX = Math.sin(spawnAngle) * spawnRadius
+    const positionY = 0
+    const positionZ = Math.cos(spawnAngle) * spawnRadius
+
     const material = new THREE.MeshStandardMaterial({
       flatShading: true,
     })
-    // const defenceGroup = new THREE.Group()
-    const defenceBaseGeometry = new THREE.ConeGeometry(0.5, 0.5, 16, 1)
-    const defenceBaseMesh = new THREE.Mesh(defenceBaseGeometry, material)
-    const defenceTopMesh = this._getTorusMesh(material, spawnAngle, spawnRadius)
 
-    // alternate shape
-    // const defenceTopGeometry = new THREE.SphereGeometry(1, 3, 8)
-    // const defenceTopGeometry = new THREE.TorusGeometry(0.05, 0.9, 11, 3)
-    // const defenceTopMesh = new THREE.Mesh(defenceTopGeometry, material)
+    const positionParameters = {}
 
-    defenceBaseMesh.position.x = Math.sin(spawnAngle) * spawnRadius
-    // defenceTopMesh.position.x = Math.sin(spawnAngle) * spawnRadius
+    // Use _getSphereMesh for an alternative defence object
+    const defenceTopMesh = this._getSphereMesh(
+      material,
+      spawnAngle,
+      spawnRadius
+    )
 
-    defenceBaseMesh.position.y = 0.25 + 0.01
-    // Sphere Geometry position
-    // defenceTopMesh.position.y = 1.5 + 0.01
-
-    // Torus Position
-    // defenceTopMesh.position.y = 1.5 + 0.01
-
-    // Torus Rotation
-    // defenceTopMesh.rotation.x = Math.PI * 0.5
-
-    defenceBaseMesh.position.z = Math.cos(spawnAngle) * spawnRadius
-    // defenceTopMesh.position.z = Math.cos(spawnAngle) * spawnRadius
+    // const defenceTopMesh = this._getTorusMesh(material, spawnAngle, spawnRadius)
+    const defenceBaseMesh = this._getBaseMesh(material, spawnAngle, spawnRadius)
 
     this.scene.add(defenceBaseMesh, defenceTopMesh)
 
@@ -80,13 +86,13 @@ export class DefenceObjective extends Component {
       spawnRadius,
       spawnAngle
     )
-
+    // console.log(this.defenceBody)
     this.world.addBody(this.defenceBody.rigidBody)
   }
 
   _createDefenceBody(defenceTopGeometry, material, spawnRadius, spawnAngle) {
     const defenceCannonBody = new CANNON.Body({
-      shape: new CANNON.Sphere(0.8),
+      shape: new CANNON.Sphere(0.9),
       mass: 0,
       collisionFilterGroup: GROUND_GROUP,
       collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
@@ -98,8 +104,7 @@ export class DefenceObjective extends Component {
       {
         name: 'defenceObject',
         ignoreGravity: true,
-        spawnRadius,
-        spawnAngle,
+        syncMesh: false,
       }
     )
 
@@ -113,9 +118,7 @@ export class DefenceObjective extends Component {
     this._rotateMesh(time)
   }
 
-  _rotateMesh(time) {
-    //TODO:
-  }
+  _rotateMesh(time) {}
 }
 
 /**
