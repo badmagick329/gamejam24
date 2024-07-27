@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { Sky } from 'three/examples/jsm/objects/Sky.js'
 import { Component } from '../ecs'
-import { GameBody } from '../game'
 
 export class SkyBox extends Component {
   constructor(config) {
@@ -10,11 +9,7 @@ export class SkyBox extends Component {
       throw new Error('Sky requires a scene instance')
     }
     this.scene = config.scene
-
-    /**
-     * @type {(GameBody|null)}
-     */
-    this.sky = null
+    this.init()
   }
 
   init() {
@@ -25,11 +20,6 @@ export class SkyBox extends Component {
     sky.material.uniforms['mieCoefficient'].value = 0.1
     sky.material.uniforms['mieDirectionalG'].value = 0.95
     sky.material.uniforms['sunPosition'].value.set(0.3, -0.038, -0.95)
-
-    this.sky = this._createSkyBox(sky)
-  }
-
-  _createSkyBox(sky) {
     this.scene.add(sky)
   }
 }
