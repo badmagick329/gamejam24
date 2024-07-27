@@ -95,8 +95,8 @@ export class DefenceObjective extends Component {
     const defenceBody = new GameBody(
       new THREE.Mesh(defenceTopGeometry, material),
       defenceCannonBody,
-      'defenceObject',
       {
+        name: 'defenceObject',
         ignoreGravity: true,
         spawnRadius,
         spawnAngle,

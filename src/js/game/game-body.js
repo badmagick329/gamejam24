@@ -8,26 +8,23 @@ export class GameBody {
    * Responsible for common interactions between mesh and physics body
    * @param {THREE.Mesh} mesh
    * @param {CANNON.Body} rigidBody
-   * @param {string} [name]
+   * @param {GameBodyConfig} [config]
    */
-  constructor(mesh, rigidBody, name, config) {
+  constructor(mesh, rigidBody, config) {
     this.mesh = mesh
     this.rigidBody = rigidBody
-    this._name = name ?? this._generateName()
     this._logger = new Logger()
     this._logger.level = logLevels.INFO
     if (this._name) {
       this._throttledLogger = this._logger.getThrottledLogger(2000, this._name)
     }
 
-    // TODO: Refactor and type config
-    this._ignoreGravity =
-      config?.ignoreGravity !== undefined ? config.ignoreGravity : false
-    this._freezeGravityAt = config?.freezeGravityAt
-    this._additionalGravity = config?.additionalGravity
-    this._freezeRotation = config?.freezeRotation
     this.config = config
-    this.syncMesh = config?.syncMesh === undefined ? true : config?.syncMesh
+    this._name = config?.name ?? this._generateName()
+    this.config.additionalGravity = config?.additionalGravity ?? false
+    this.config.freezeRotation = config?.freezeRotation ?? false
+    this.config.ignoreGravity = config?.ignoreGravity ?? false
+    this.config.syncMesh = config?.syncMesh ?? true
   }
 
   _generateName() {
@@ -38,12 +35,12 @@ export class GameBody {
     this._injectUTime(time)
     this._handleCustomGravity(time)
 
-    if (this._freezeRotation) {
+    if (this.config.freezeRotation) {
       this.rigidBody.angularVelocity.set(0, 0, 0)
       this.rigidBody.quaternion.set(0, 0, 0, 1)
     }
 
-    if (this.syncMesh) {
+    if (this.config.syncMesh) {
       this.mesh.position.copy(this.rigidBody.position)
       this.mesh.quaternion.copy(this.rigidBody.quaternion)
     }
@@ -77,24 +74,21 @@ export class GameBody {
   }
 
   _handleCustomGravity(time) {
-    if (this._ignoreGravity) {
+    if (this.config.ignoreGravity) {
       this.rigidBody?.applyForce(new CANNON.Vec3(0, 9.81, 0))
       return
     }
 
     if (
-      this._freezeGravityAt &&
-      this.rigidBody?.position?.y <= this._freezeGravityAt
+      this.config.freezeGravityAt &&
+      this.rigidBody?.position?.y <= this.config.freezeGravityAt
     ) {
       const velocity = this.rigidBody.velocity
       this.rigidBody?.velocity?.set(velocity.x, 0.2, velocity.z)
-    } else if (this._additionalGravity) {
-      this._throttledLogger?.debug(
-        time,
-        'adding aditional gravity',
-        this._additionalGravity
+    } else if (this.config.additionalGravity) {
+      this.rigidBody?.applyForce(
+        new CANNON.Vec3(0, this.config.additionalGravity, 0)
       )
-      this.rigidBody?.applyForce(new CANNON.Vec3(0, this._additionalGravity, 0))
     }
   }
 
@@ -112,3 +106,12 @@ export class GameBody {
     }
   }
 }
+
+/**
+ * @typedef {Object} GameBodyConfig
+ * @property {name} [name]
+ * @property {boolean} [ignoreGravity]
+ * @property {number} [additionalGravity]
+ * @property {boolean} [freezeRotation]
+ * @property {boolean} [syncMesh]
+ */

@@ -61,11 +61,9 @@ export class BuildingFactory {
       buildingMesh.position.z
     )
 
-    return new GameBody(
-      buildingMesh,
-      buildingCannonBody,
-      `Building-${this._id++}`
-    )
+    return new GameBody(buildingMesh, buildingCannonBody, {
+      name: `Building-${this._id++}`,
+    })
   }
 
   /**

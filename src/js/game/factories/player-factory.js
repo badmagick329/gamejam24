@@ -63,7 +63,9 @@ export class PlayerFactory {
     this.body = new GameBody(
       new THREE.Mesh(this.geo, this.mat),
       this.cannonBody,
-      'player'
+      {
+        name: 'player',
+      }
     )
     this.body.mesh.castShadow = true
     return this.body

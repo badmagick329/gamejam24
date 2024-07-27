@@ -63,7 +63,8 @@ export class EnemyFactory {
         'EnemyFactory requires a collider description. Use an enemy setter before creating GameBody'
       )
     }
-    this.body = new GameBody(this.mesh, this.cannonBody, name, {
+    this.body = new GameBody(this.mesh, this.cannonBody, {
+      name,
       freezeGravityAt: this._settings.freezeEnemyGravityAt,
       additionalGravity: -9.81 * 50,
       freezeRotation: this._settings.freezeEnemyRotation,
