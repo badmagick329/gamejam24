@@ -22,34 +22,35 @@ export class DefenceObjective extends Component {
     this.defenceBody = null
   }
 
-  _getTorusMesh(material, spawnAngle, spawnRadius) {
+  _getTorusMesh(material, positionParameters) {
     const defenceTopGeometry = new THREE.TorusGeometry(0.05, 0.9, 11, 3)
     const defenceTopMesh = new THREE.Mesh(defenceTopGeometry, material)
     // torus needs rotation
     const torusRotation = Math.PI * 0.5
-    defenceTopMesh.position.x = Math.sin(spawnAngle) * spawnRadius
+    defenceTopMesh.position.x = positionParameters.positionX
     defenceTopMesh.position.y = 1.5 + 0.01
     defenceTopMesh.rotation.x = torusRotation
-    defenceTopMesh.position.z = Math.cos(spawnAngle) * spawnRadius
+    defenceTopMesh.position.z = positionParameters.positionZ
     return defenceTopMesh
   }
 
-  _getSphereMesh(material, spawnAngle, spawnRadius) {
+  _getSphereMesh(material, positionParameters) {
     const defenceTopGeometry = new THREE.SphereGeometry(1, 3, 8)
     const defenceTopMesh = new THREE.Mesh(defenceTopGeometry, material)
     // sphere does not need rotation (spoiler: it does not look like a sphere)
-    defenceTopMesh.position.x = Math.sin(spawnAngle) * spawnRadius
+    defenceTopMesh.position.x = positionParameters.positionX
     defenceTopMesh.position.y = 1.5 + 0.01
-    defenceTopMesh.position.z = Math.cos(spawnAngle) * spawnRadius
+    defenceTopMesh.position.z = positionParameters.positionZ
+    this.torus = false
     return defenceTopMesh
   }
 
-  _getBaseMesh(material, spawnAngle, spawnRadius) {
+  _getBaseMesh(material, positionParameters) {
     const defenceBaseGeometry = new THREE.ConeGeometry(0.5, 0.5, 16, 1)
     const defenceBaseMesh = new THREE.Mesh(defenceBaseGeometry, material)
-    defenceBaseMesh.position.x = Math.sin(spawnAngle) * spawnRadius
+    defenceBaseMesh.position.x = positionParameters.positionX
     defenceBaseMesh.position.y = 0.25 + 0.01
-    defenceBaseMesh.position.z = Math.cos(spawnAngle) * spawnRadius
+    defenceBaseMesh.position.z = positionParameters.positionZ
     return defenceBaseMesh
   }
 
@@ -57,31 +58,37 @@ export class DefenceObjective extends Component {
     const spawnRadius = 2 + Math.random() * 2
     const spawnAngle = Math.random() * Math.PI * 2
 
+    // torus is default defence object
+    this.torus = true
+
     const material = new THREE.MeshStandardMaterial({
       flatShading: true,
     })
 
-    // const defenceTopMesh = this._getTorusMesh(material, spawnAngle, spawnRadius)
-    // Use _getSphereMesh for an alternative defence object
-    const defenceTopMesh = this._getSphereMesh(
-      material,
-      spawnAngle,
-      spawnRadius
-    )
+    const positionParameters = {
+      positionX: Math.sin(spawnAngle) * spawnRadius,
+      positionZ: Math.cos(spawnAngle) * spawnRadius,
+    }
 
-    const defenceBaseMesh = this._getBaseMesh(material, spawnAngle, spawnRadius)
+    // Use _getSphereMesh for an alternative defence object
+    // if using sphereMesh, set this.defenceBody.mesh.rotation.z = time / 1000
+    // instead to this.defenceBody.mesh.rotation.y = time / 1000
+
+    const defenceTopMesh = this._getSphereMesh(material, positionParameters)
+
+    // const defenceTopMesh = this._getTorusMesh(material, positionParameters)
+    const defenceBaseMesh = this._getBaseMesh(material, positionParameters)
 
     this.scene.add(defenceBaseMesh, defenceTopMesh)
 
     this.defenceBody = this._createDefenceBody(
       defenceTopMesh,
-      spawnRadius,
-      spawnAngle
+      positionParameters
     )
     this.world.addBody(this.defenceBody.rigidBody)
   }
 
-  _createDefenceBody(mesh, spawnRadius, spawnAngle) {
+  _createDefenceBody(mesh, positionParameters) {
     const defenceCannonBody = new CANNON.Body({
       shape: new CANNON.Sphere(0.9),
       mass: 0,
@@ -95,18 +102,22 @@ export class DefenceObjective extends Component {
       syncMesh: false,
     })
 
-    defenceCannonBody.position.x = Math.sin(spawnAngle) * spawnRadius
+    defenceCannonBody.position.x = positionParameters.positionX
     defenceCannonBody.position.y = 1.5 + 0.01
-    defenceCannonBody.position.z = Math.cos(spawnAngle) * spawnRadius
+    defenceCannonBody.position.z = positionParameters.positionX
     return defenceBody
   }
 
-  update(time, delta) {
-    this._rotateMesh(time, delta)
+  update(time) {
+    this._rotateMesh(time)
   }
 
-  _rotateMesh(time, delta) {
-    this.defenceBody.mesh.rotation.y += delta
+  _rotateMesh(time) {
+    if (this.torus) {
+      this.defenceBody.mesh.rotation.z = time / 1000
+    } else {
+      this.defenceBody.mesh.rotation.y = time / 1000
+    }
   }
 }
 
