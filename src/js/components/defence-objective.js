@@ -22,9 +22,9 @@ export class DefenceObjective extends Component {
     this.defenceBody = null
 
     /**
-     * @type {(boolean|null)}
+     * @type {(boolean)}
      */
-    this.usingTorus = true
+    this.usingTorus = false
 
     /**
      * @type {(THREE.Mesh)}
