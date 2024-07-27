@@ -9,11 +9,8 @@ import {
   useRenderSize,
   useScene,
 } from '../render/init.js'
-import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP } from './consts.js'
 import { GameBody } from './game-body.js'
 
-const GROUND_WIDTH = 20.0
-const GROUND_DEPTH = 20.0
 const WALL_THICKNESS = 5.0
 
 export class Game {
@@ -79,8 +76,8 @@ export class Game {
      */
     this.settings = settings
 
-    this._groundWidth = this.settings.groundWidth || GROUND_WIDTH
-    this._groundDepth = this.settings.groundDepth || GROUND_DEPTH
+    this._groundWidth = this.settings.groundWidth
+    this._groundDepth = this.settings.groundDepth
     this._wallThickness = WALL_THICKNESS
   }
 
@@ -91,7 +88,6 @@ export class Game {
     this._setupRenderer()
     this._setupLight()
     this._setupPhysics()
-    this._setupDefenceObjective()
     this._setupDebug()
   }
 
@@ -130,9 +126,7 @@ export class Game {
     const dirLight = new THREE.DirectionalLight('#555555', 0.2)
     const ambientLight = new THREE.AmbientLight('#555555', 0.2)
     const hemiLight = new THREE.HemisphereLight('#ff0000', '#0000ff', 2)
-    dirLight.position.y = 5
-    dirLight.position.z = 5
-    dirLight.position.x = 5
+    dirLight.position.set(5, 5, 5)
 
     dirLight.castShadow = true
 
@@ -168,69 +162,6 @@ export class Game {
     this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
       scale: 1.02,
     })
-  }
-
-  _setupDefenceObjective() {
-    const material = new THREE.MeshStandardMaterial({
-      flatShading: true,
-    })
-    // const defenceGroup = new THREE.Group()
-    const defenceBaseGeometry = new THREE.ConeGeometry(0.5, 0.5, 16, 1)
-    const defenceBaseMesh = new THREE.Mesh(defenceBaseGeometry, material)
-
-    // alternate shape
-    // const defenceTopGeometry = new THREE.SphereGeometry(1, 3, 8)
-    const defenceTopGeometry = new THREE.TorusGeometry(0.05, 0.9, 11, 3)
-    const defenceTopMesh = new THREE.Mesh(defenceTopGeometry, material)
-
-    const spawnRadius = 2 + Math.random() * 2
-    const spawnAngle = Math.random() * Math.PI * 2
-
-    defenceBaseMesh.position.x = Math.sin(spawnAngle) * spawnRadius
-    defenceTopMesh.position.x = Math.sin(spawnAngle) * spawnRadius
-
-    defenceBaseMesh.position.y = 0.25 + 0.01
-    // Sphere Geometry position
-    // defenceTopMesh.position.y = 1.5 + 0.01
-
-    // Torus Position
-    defenceTopMesh.position.y = 1.5 + 0.01
-
-    // Torus Rotation
-    defenceTopMesh.rotation.x = Math.PI * 0.5
-
-    defenceBaseMesh.position.z = Math.cos(spawnAngle) * spawnRadius
-    defenceTopMesh.position.z = Math.cos(spawnAngle) * spawnRadius
-
-    this.scene.add(defenceBaseMesh, defenceTopMesh)
-
-    const defenceCannonBody = new CANNON.Body({
-      shape: new CANNON.Sphere(0.8),
-      mass: 5,
-      collisionFilterGroup: GROUND_GROUP,
-      collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
-    })
-
-    const defenceBody = new GameBody(
-      new THREE.Mesh(defenceTopGeometry, material),
-      defenceCannonBody,
-      'defenceObject',
-      {
-        ignoreGravity: true,
-        spawnRadius,
-        spawnAngle,
-      }
-    )
-
-    defenceCannonBody.position.x = Math.sin(spawnAngle) * spawnRadius
-    defenceCannonBody.position.y = 1.5 + 0.01
-    defenceCannonBody.position.z = Math.cos(spawnAngle) * spawnRadius
-
-    this.world.addBody(defenceCannonBody)
-
-    this.defenceObject = defenceBody
-
-    // defenceGroup.add(defenceBaseMesh, defenceTopMesh)
   }
 
   _setupDebug() {

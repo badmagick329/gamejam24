@@ -14,6 +14,7 @@ import {
 } from './components'
 
 import { BuildingsComp } from './components/buildings-comp.js'
+import { DefenceObjective } from './components/defence-objective.js'
 import { GroundComp } from './components/ground-comp.js'
 import { Entity, EntityManager } from './ecs'
 import { Game, GameBody, PlayerFactory, postprocessing } from './game'
@@ -44,7 +45,6 @@ export default async function run() {
         manager.update(timestamp, timeDiff)
       }
       game.world.fixedStep()
-      game.defenceObject.sync(timestamp)
       game.player.sync(timestamp)
       game.enemies.forEach((e) => e.sync(timestamp))
       if (settings.thirdPerson) {
@@ -164,6 +164,9 @@ export default async function run() {
       groundDepth: settings.groundDepth,
     })
     environment.addComponent(groundComp)
+    const defenceObjective = new DefenceObjective({ world, scene })
+    defenceObjective.init()
+    environment.addComponent(defenceObjective)
 
     manager.add(environment)
 

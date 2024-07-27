@@ -36,17 +36,11 @@ export class GameBody {
 
   sync(time) {
     this._injectUTime(time)
-
     this._handleCustomGravity(time)
+
     if (this._freezeRotation) {
       this.rigidBody.angularVelocity.set(0, 0, 0)
       this.rigidBody.quaternion.set(0, 0, 0, 1)
-    }
-
-    // TODO: This should be moved somewhere else
-    if (this._name === 'defenceObject') {
-      this._defenceObjectStuff()
-      return
     }
 
     if (this.syncMesh) {
@@ -102,18 +96,6 @@ export class GameBody {
       )
       this.rigidBody?.applyForce(new CANNON.Vec3(0, this._additionalGravity, 0))
     }
-  }
-
-  _defenceObjectStuff() {
-    // TODO: Refactor
-    this.rigidBody.angularVelocity.set(10, 0, 0)
-    this.rigidBody.position.x =
-      Math.sin(this.config.spawnAngle) * this.config.spawnRadius
-    this.rigidBody.position.y = 1.5 + 0.01
-    this.rigidBody.position.z =
-      Math.cos(this.config.spawnAngle) * this.config.spawnRadius
-    this.mesh.position.copy(this.rigidBody.position)
-    this.mesh.quaternion.copy(this.rigidBody.quaternion)
   }
 
   _injectUTime(time) {
