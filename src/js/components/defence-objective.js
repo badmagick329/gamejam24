@@ -8,10 +8,10 @@ export class DefenceObjective extends Component {
   constructor(config) {
     super()
     if (config?.world === undefined) {
-      throw new Error('GroundComp requires a world instance')
+      throw new Error('DefenceObjective requires a world instance')
     }
     if (config?.scene === undefined) {
-      throw new Error('GroundComp requires a scene instance')
+      throw new Error('DefenceObjective requires a scene instance')
     }
     this.world = config.world
     this.scene = config.scene
@@ -74,7 +74,6 @@ export class DefenceObjective extends Component {
 
     this.scene.add(defenceBaseMesh, defenceTopMesh)
 
-    console.log('defencetopmesh', defenceTopMesh)
     this.defenceBody = this._createDefenceBody(
       defenceTopMesh.geometry,
       material,
