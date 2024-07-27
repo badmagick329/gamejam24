@@ -15,6 +15,7 @@ import {
 
 import { BuildingsComp } from './components/buildings-comp.js'
 import { DefenceObjective } from './components/defence-objective.js'
+import { SkyBox } from './components/sky.js'
 import { GroundComp } from './components/ground-comp.js'
 import { Entity, EntityManager } from './ecs'
 import { Game, GameBody, PlayerFactory, postprocessing } from './game'
@@ -157,6 +158,9 @@ export default async function run() {
       groundDepth: settings.groundDepth,
     })
     environment.addComponent(buildingsComp)
+    const sky = new SkyBox({ scene })
+    sky.init()
+    environment.addComponent(sky)
     const groundComp = new GroundComp({
       world,
       scene,
