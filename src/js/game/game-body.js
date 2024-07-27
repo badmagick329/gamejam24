@@ -84,7 +84,7 @@ export class GameBody {
       this.rigidBody?.position?.y <= this.config.freezeGravityAt
     ) {
       const velocity = this.rigidBody.velocity
-      this.rigidBody?.velocity?.set(velocity.x, 0.2, velocity.z)
+      this.rigidBody?.velocity?.set(velocity.x, 0.0, velocity.z)
     } else if (this.config.additionalGravity) {
       this.rigidBody?.applyForce(
         new CANNON.Vec3(0, this.config.additionalGravity, 0)

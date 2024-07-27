@@ -1,6 +1,8 @@
 import * as CANNON from 'cannon-es'
 import { Component, Entity, EntityManager } from '../ecs'
 import { EnemyFactory, GameBody } from '../game'
+import { BULLET_GROUP } from '../game/consts'
+import { Logger, logLevels } from '../logging'
 import { addVariance } from '../utils'
 import { BaseEnemyMovement } from './base-enemy-movement'
 import { EnemyFSM } from './enemy-fsm'
@@ -24,8 +26,11 @@ export class BaseEnemySpawner extends Component {
     this._enemies = enemies
     this._lastSpawn = null
     this._enemyFactory = new EnemyFactory({ world, settings })
+    this.logger = new Logger()
+    this.logger.level = logLevels.WARNING
+    this.throttledLogger = this.logger.getThrottledLogger(1000, 'enemy spawner')
     // TODO: a temp stop button for spawning for testing. make it a toggleable in debug?
-    this._maxEnemies = 5
+    this._maxEnemies = 10
     this._numberOfSpawns = 0
   }
 
@@ -61,7 +66,8 @@ export class BaseEnemySpawner extends Component {
     this._enemies.push(enemy)
     this._scene.add(enemy.mesh)
     this._numberOfSpawns++
-    this._initComponents(enemy)
+    const { movement, enemyFSM } = this._initComponents(enemy)
+    this._attachCollisionEvents(enemy.rigidBody, enemyFSM)
   }
 
   /**
@@ -84,7 +90,6 @@ export class BaseEnemySpawner extends Component {
       this._enemies.splice(toRemove[i], 1)
     }
     if (toRemove.length > 0) {
-      // console.log('enemies array length now is', this._enemies.length)
     }
   }
 
@@ -95,23 +100,55 @@ export class BaseEnemySpawner extends Component {
   _isOutOfBounds(enemy) {
     return (
       enemy.rigidBody?.position?.y < -30 ||
-      enemy.rigidBody?.position?.z < -50 ||
-      enemy.rigidBody?.position?.z > 50
+      enemy.rigidBody?.position?.z < -55 ||
+      enemy.rigidBody?.position?.z > 55 ||
+      enemy.rigidBody?.position?.x < -100 ||
+      enemy.rigidBody?.position?.x > 100
     )
   }
 
   /**
    * @param {GameBody} enemy
-   * @returns {void}
+   * @returns {{movement: BaseEnemyMovement|undefined, enemy: EnemyFSM|undefined}}
    */
   _initComponents(enemy) {
     const enemyEntity = new Entity()
+    let movement, enemyFSM
     if (this._settings.enemyMovement) {
-      const movement = new BaseEnemyMovement(enemy, this._player)
-      const enemyFSM = new EnemyFSM()
+      movement = new BaseEnemyMovement(
+        enemy,
+        this._player,
+        this._settings.freezeEnemyGravityAt
+      )
+      enemyFSM = new EnemyFSM(enemy)
       enemyEntity.addComponent(movement)
       enemyEntity.addComponent(enemyFSM)
     }
     this._manager.add(enemyEntity)
+    return {
+      movement,
+      enemyFSM,
+    }
+  }
+
+  /**
+   * @param {CANNON.Body} enemyBody
+   * @param {(EnemyFSM|undefined)} enemyFSM
+   */
+  _attachCollisionEvents(enemyBody, enemyFSM) {
+    if (!enemyFSM) {
+      console.log(
+        'no fsm initialisd, possibly due to movement being disabled. skipping collision events'
+      )
+      return
+    }
+
+    enemyBody.addEventListener('collide', (event) => {
+      const other = event.body
+      // TODO: Change this to knockback weapon when that is added
+      if (other.collisionFilterGroup === BULLET_GROUP) {
+        enemyFSM.transition('knockedBack')
+      }
+    })
   }
 }
