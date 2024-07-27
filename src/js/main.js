@@ -14,17 +14,14 @@ import {
 } from './components'
 
 import { BuildingsComp } from './components/buildings-comp.js'
+import { GroundComp } from './components/ground-comp.js'
 import { Entity, EntityManager } from './ecs'
 import { Game, GameBody, PlayerFactory, postprocessing } from './game'
-import { Logger, logLevels } from './logging.js'
 
 export default async function run() {
   const MOTION_BLUR_AMOUNT = 0.425
 
   const startApp = async () => {
-    const logger = new Logger()
-    logger.level = logLevels.DEBUG
-    const throttledLogger = logger.getThrottledLogger(1000, 'camera')
     const game = new Game(settings)
 
     game.init()
@@ -62,8 +59,6 @@ export default async function run() {
         game.controls.target.copy(game.player.mesh.position)
       }
       // ----------------
-
-      game.groundSideMesh.material.uniforms.uTime.value = timestamp / 10000
     })
   }
 
@@ -161,8 +156,15 @@ export default async function run() {
       groundWidth: settings.groundWidth,
       groundDepth: settings.groundDepth,
     })
-    buildingsComp.init()
     environment.addComponent(buildingsComp)
+    const groundComp = new GroundComp({
+      world,
+      scene,
+      groundWidth: settings.groundWidth,
+      groundDepth: settings.groundDepth,
+    })
+    environment.addComponent(groundComp)
+
     manager.add(environment)
 
     return manager

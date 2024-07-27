@@ -9,14 +9,7 @@ import {
   useRenderSize,
   useScene,
 } from '../render/init.js'
-import fragmentShader from '../shaders/fragment.glsl'
-import vertexShader from '../shaders/vertex.glsl'
-import {
-  ENEMY_GROUP,
-  GROUND_GROUP,
-  PLAYER_GROUP,
-  WALL_GROUP,
-} from './consts.js'
+import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP } from './consts.js'
 import { GameBody } from './game-body.js'
 
 const GROUND_WIDTH = 20.0
@@ -78,12 +71,6 @@ export class Game {
      */
     this.enemies = []
 
-    /**
-     * @type {THREE.Mesh}
-     */
-    this.groundSideMesh = null
-    this.buildingsSideMesh = null
-
     if (settings === undefined) {
       throw new Error('Error loading the settings file')
     }
@@ -103,9 +90,7 @@ export class Game {
     this._setupCamera()
     this._setupRenderer()
     this._setupLight()
-    this._setupPhysicsWithGround()
-    this._buildThatWall()
-    this.groundSideMesh = this._setupGroundMesh()
+    this._setupPhysics()
     this._setupDefenceObjective()
     this._setupDebug()
   }
@@ -176,142 +161,13 @@ export class Game {
     }
   }
 
-  _setupPhysicsWithGround() {
+  _setupPhysics() {
     this.world = new CANNON.World({
       gravity: new CANNON.Vec3(0, -9.81, 0),
     })
-    const groundCannonBody = new CANNON.Body({
-      shape: new CANNON.Box(
-        new CANNON.Vec3(this._groundWidth / 2.0, this._groundDepth / 2.0, 0.1)
-      ),
-      type: CANNON.Body.STATIC,
-      material: new CANNON.Material({
-        friction: 0.1,
-        restitution: 0,
-      }),
-      collisionFilterGroup: GROUND_GROUP,
-      collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
-    })
-    groundCannonBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
-    this.world.addBody(groundCannonBody)
-
     this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
       scale: 1.02,
     })
-  }
-
-  _buildThatWall() {
-    const wallConfig = [
-      {
-        sX: 1,
-        sY: 5,
-        sZ: this._groundDepth / 2,
-        pX: -this._groundWidth / 2,
-        pY: 5,
-        pZ: 0,
-      },
-      {
-        sX: 1,
-        sY: 5,
-        sZ: this._groundDepth / 2,
-        pX: this._groundWidth / 2,
-        pY: 5,
-        pZ: 0,
-      },
-      {
-        sX: this._groundWidth / 2,
-        sY: 5,
-        sZ: 1,
-        pX: 0,
-        pY: 5,
-        pZ: -this._groundDepth / 2,
-      },
-      {
-        sX: this._groundWidth / 2,
-        sY: 5,
-        sZ: 1,
-        pX: 0,
-        pY: 5,
-        pZ: this._groundDepth / 2,
-      },
-    ]
-
-    wallConfig.forEach((wc) => {
-      const wallCannonBody = new CANNON.Body({
-        mass: 0,
-        shape: new CANNON.Box(new CANNON.Vec3(wc.sX, wc.sY, wc.sZ)),
-        material: new CANNON.Material(),
-        collisionFilterGroup: WALL_GROUP,
-        collisionFilterMask: PLAYER_GROUP,
-      })
-      wallCannonBody.position.set(wc.pX, wc.pY, wc.pZ)
-      this.world.addBody(wallCannonBody)
-    })
-  }
-
-  /**
-   * Returns one of the sides mesh so the material can be accessed for the shader
-   * in the update tick
-   * @returns {THREE.Mesh}
-   */
-  _setupGroundMesh() {
-    let geo, mat, mesh
-    geo = new THREE.PlaneGeometry(this._groundWidth, this._groundDepth)
-    mat = new THREE.MeshStandardMaterial({
-      color: 0xaaaaaa,
-      side: THREE.DoubleSide,
-      flatShading: false,
-    })
-    this.ground = new THREE.Mesh(geo, mat)
-    // this.ground.position.y = 0.1
-    this.ground.rotation.x = Math.PI * 0.5
-    this.scene.add(this.ground)
-
-    // ground sides
-    geo = new THREE.PlaneGeometry(this._groundWidth, 2)
-    mat = new THREE.ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uRadius: { value: 0.5 },
-      },
-      side: THREE.DoubleSide,
-      vertexShader,
-      fragmentShader,
-    })
-    // towards camera +z
-    mesh = new THREE.Mesh(geo, mat)
-    mesh.position.x = 0
-    mesh.position.y = -1
-    mesh.position.z = this._groundDepth / 2
-    this.scene.add(mesh)
-
-    // away from camera -z
-    mesh = new THREE.Mesh(geo, mat)
-    mesh.position.x = 0
-    mesh.position.y = -1
-    mesh.position.z = -this._groundDepth / 2
-    this.scene.add(mesh)
-
-    geo = new THREE.PlaneGeometry(this._groundDepth, 2)
-    // on the right +x
-    mesh = new THREE.Mesh(geo, mat)
-    mesh.rotation.y = Math.PI * 0.5
-    mesh.position.x = this._groundWidth / 2
-    mesh.position.y = -1
-    mesh.position.z = 0
-    this.scene.add(mesh)
-
-    // on the left -x
-    mesh = new THREE.Mesh(geo, mat)
-    mesh.rotation.y = Math.PI * 0.5
-    mesh.position.x = -this._groundWidth / 2
-    mesh.position.y = -1
-    mesh.position.z = 0
-    this.scene.add(mesh)
-
-    this.ground.receiveShadow = true
-
-    return mesh
   }
 
   _setupDefenceObjective() {

@@ -14,6 +14,12 @@ export class BuildingsComp extends Component {
     if (config?.scene === undefined) {
       throw new Error('BuildingsComp requires a scene instance')
     }
+    if (config?.groundWidth === undefined) {
+      throw new Error('BuildingComp requires a groundWidth')
+    }
+    if (config?.groundDepth === undefined) {
+      throw new Error('BuildingComp requires a groundDepth')
+    }
     /**
      * @type {BuildingsCompConfig}
      */
@@ -23,15 +29,13 @@ export class BuildingsComp extends Component {
      * @type {GameBody[]}
      */
     this.buildings = []
-    this.buildingFactory = new BuildingFactory({
+    const buildingFactory = new BuildingFactory({
       world: config.world,
       groundWidth: config.groundWidth,
       groundDepth: config.groundDepth,
     })
-  }
 
-  init() {
-    this.buildings = this.buildingFactory.create()
+    this.buildings = buildingFactory.create()
     this.buildings.forEach((b) => {
       this.config.scene.add(b.mesh)
       this.config.world.addBody(b.rigidBody)
