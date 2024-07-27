@@ -20,6 +20,7 @@ export class GameBody {
       this._throttledLogger = this._logger.getThrottledLogger(2000, this._name)
     }
 
+    // TODO: Refactor and type config
     this._ignoreGravity =
       config?.ignoreGravity !== undefined ? config.ignoreGravity : false
     this._freezeGravityAt = config?.freezeGravityAt
@@ -34,12 +35,15 @@ export class GameBody {
   }
 
   sync(time) {
+    this._injectUTime(time)
+
     this._handleCustomGravity(time)
     if (this._freezeRotation) {
       this.rigidBody.angularVelocity.set(0, 0, 0)
       this.rigidBody.quaternion.set(0, 0, 0, 1)
     }
 
+    // TODO: This should be moved somewhere else
     if (this._name === 'defenceObject') {
       this._defenceObjectStuff()
       return
@@ -110,14 +114,19 @@ export class GameBody {
       Math.cos(this.config.spawnAngle) * this.config.spawnRadius
     this.mesh.position.copy(this.rigidBody.position)
     this.mesh.quaternion.copy(this.rigidBody.quaternion)
-    // this._throttledLogger?.info(
-    //   time,
-    //   'name',
-    //   this._name,
-    //   '\nmesh q\n',
-    //   this.mesh.quaternion,
-    //   '\nbody q\n',
-    //   this.rigidBody.quaternion
-    // )
+  }
+
+  _injectUTime(time) {
+    if (!this.mesh.material) {
+      return
+    }
+
+    if (Array.isArray(this.mesh.material)) {
+      this.mesh.material
+        .filter((m) => m.type === 'ShaderMaterial')
+        .forEach((m) => (m.uniforms.uTime.value = time / 10000))
+    } else if (this.mesh.material.type === 'ShaderMaterial') {
+      this.mesh.material.uniforms.uTime.value = time / 10000
+    }
   }
 }

@@ -13,6 +13,7 @@ import {
   PlayerFSM,
 } from './components'
 
+import { BuildingsComp } from './components/buildings-comp.js'
 import { Entity, EntityManager } from './ecs'
 import { Game, GameBody, PlayerFactory, postprocessing } from './game'
 import { Logger, logLevels } from './logging.js'
@@ -62,15 +63,7 @@ export default async function run() {
       }
       // ----------------
 
-      // console.log('game.planesidemesh', game.groundSideMesh)
       game.groundSideMesh.material.uniforms.uTime.value = timestamp / 10000
-      for (let building of game.buildingsSideMesh) {
-        for (let material of building.material) {
-          if (material && material.type === 'ShaderMaterial') {
-            material.uniforms.uTime.value = timestamp / 10000
-          }
-        }
-      }
     })
   }
 
@@ -159,6 +152,19 @@ export default async function run() {
     enemySpawner.addComponent(baseEnemySpawner)
 
     manager.add(enemySpawner, 'enemySpawner')
+
+    // environment
+    const environment = new Entity()
+    const buildingsComp = new BuildingsComp({
+      world,
+      scene,
+      groundWidth: settings.groundWidth,
+      groundDepth: settings.groundDepth,
+    })
+    buildingsComp.init()
+    environment.addComponent(buildingsComp)
+    manager.add(environment)
+
     return manager
   }
   await initEngine()

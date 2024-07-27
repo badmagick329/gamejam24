@@ -3,7 +3,7 @@ import { Component, Entity, EntityManager } from '../ecs'
 import { EnemyFactory, GameBody } from '../game'
 import { addVariance } from '../utils'
 import { BaseEnemyMovement } from './base-enemy-movement'
-// import { EnemyFSM } from './enemy-fsm'
+import { EnemyFSM } from './enemy-fsm'
 
 export class BaseEnemySpawner extends Component {
   /**
@@ -108,9 +108,9 @@ export class BaseEnemySpawner extends Component {
     const enemyEntity = new Entity()
     if (this._settings.enemyMovement) {
       const movement = new BaseEnemyMovement(enemy, this._player)
-      // const enemyFSM = new EnemyFSM()
+      const enemyFSM = new EnemyFSM()
       enemyEntity.addComponent(movement)
-      // enemyEntity.addComponent(enemyFSM)
+      enemyEntity.addComponent(enemyFSM)
     }
     this._manager.add(enemyEntity)
   }

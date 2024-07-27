@@ -8,6 +8,10 @@ export class State {
      * @type {Object.<string, State>}
      */
     this.transitions = transitions
+    /**
+     * @type {number}
+     */
+    this.timeSpent = 0
   }
 
   /**

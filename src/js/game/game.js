@@ -106,7 +106,6 @@ export class Game {
     this._setupPhysicsWithGround()
     this._buildThatWall()
     this.groundSideMesh = this._setupGroundMesh()
-    this.buildingsSideMesh = this._setupBuildings()
     this._setupDefenceObjective()
     this._setupDebug()
   }
@@ -313,74 +312,6 @@ export class Game {
     this.ground.receiveShadow = true
 
     return mesh
-  }
-
-  _setupBuildings() {
-    const material = new THREE.MeshStandardMaterial()
-    const shaderMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uRadius: { value: 0.5 },
-      },
-      side: THREE.DoubleSide,
-      vertexShader,
-      fragmentShader,
-    })
-    let buildings = []
-    const numberOfBuildings = Math.ceil(Math.random() * 4)
-    for (let i = 0; i < numberOfBuildings; i++) {
-      const buildingwidth = 1 + Math.random() * 2
-      const buildingHeight = 1 + Math.random() * 2
-      const buildingDepth = 1 + Math.random() * 2
-      const geometry = new THREE.BoxGeometry(
-        buildingwidth,
-        buildingHeight,
-        buildingDepth
-      )
-      const materials = [
-        shaderMaterial,
-        shaderMaterial,
-        material,
-        new THREE.MeshBasicMaterial(),
-        shaderMaterial,
-        shaderMaterial,
-      ]
-      const building = new THREE.Mesh(geometry, materials)
-      building.position.y = buildingHeight * 0.5 + 0.01
-      do {
-        building.position.x = (this._groundWidth - 4) * (Math.random() - 0.5)
-        building.position.z = (this._groundDepth - 4) * (Math.random() - 0.5)
-      } while (
-        building.position.x < this._groundWidth / 2 - 4 &&
-        building.position.x > -(this._groundWidth / 2 - 4) &&
-        building.position.z < this._groundDepth / 2 - 4 &&
-        building.position.z > -(this._groundDepth / 2 - 4)
-      )
-      const angle = Math.random() * Math.PI * 0.5
-      building.rotation.y = angle
-      buildings.push(building)
-      this.scene.add(building)
-
-      const buildingCannonBody = new CANNON.Body({
-        shape: new CANNON.Box(
-          new CANNON.Vec3(
-            buildingwidth * 0.5,
-            buildingHeight * 0.5,
-            buildingDepth * 0.5
-          )
-        ),
-        type: CANNON.Body.STATIC,
-        collisionFilterGroup: GROUND_GROUP,
-        collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
-      })
-      buildingCannonBody.position.x = building.position.x
-      buildingCannonBody.position.y = building.position.y
-      buildingCannonBody.position.z = building.position.z
-      buildingCannonBody.quaternion.setFromEuler(0, angle, 0)
-
-      this.world.addBody(buildingCannonBody)
-    }
-    return buildings
   }
 
   _setupDefenceObjective() {
