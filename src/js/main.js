@@ -1,6 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { settings } from '../../.game-settings.js'
+import { settings } from '../../game-settings.js'
 import { ThirdPersonCamera } from './components'
 import { initEngine, useTick } from './render/init.js'
 
