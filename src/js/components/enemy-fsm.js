@@ -2,11 +2,13 @@ import { Component } from '../ecs'
 import { GameBody, State } from '../game'
 import { Logger, logLevels } from '../logging'
 
+const KNOCKED_BACK_TIME = 450
+
 export class EnemyFSM extends Component {
   /**
    * @param {GameBody} enemy
    */
-  constructor(enemy) {
+  constructor(enemy, yThresholdToAllowMovement) {
     super()
     if (!(enemy instanceof GameBody)) {
       throw new Error('EnemyFSM must be initialized with a GameBody instance')
@@ -15,7 +17,7 @@ export class EnemyFSM extends Component {
     this.maxTimesInState = {}
     this.currentState = initialState
     this.logger = new Logger()
-    this.logger.level = logLevels.WARNING
+    this.logger.level = logLevels.INFO
     this.throttledLogger = this.logger.getThrottledLogger(
       1000,
       'enemy fsm component'
@@ -24,7 +26,10 @@ export class EnemyFSM extends Component {
      * @type {GameBody}
      */
     this.enemy = enemy
-    this.yThresholdToAllowMovement = 1.8
+
+    this.yThresholdToAllowMovement = yThresholdToAllowMovement
+    this.knockedBackTime = KNOCKED_BACK_TIME
+    this.closeToGround = false
   }
 
   initStates() {
@@ -42,57 +47,65 @@ export class EnemyFSM extends Component {
     knockedBack.addTransition('idle', idleState)
     knockedBack.addTransition('walk', walkState)
     knockedBack.addTransition('stasis', stasisState)
-    knockedBack.addTransition('knockback', knockedBack)
-
-    this.maxTimesInState = [
-      {
-        name: 'knockBack',
-        maxTime: 1000,
-        nextState: 'walk',
-      },
-    ]
+    knockedBack.addTransition('knockedBack', knockedBack)
     return idleState
   }
 
-  transition = (event) => {
+  transition(event) {
     const nextState = this.currentState.transitions[event]
     if (nextState) {
+      this.logger.debug(
+        'Transition',
+        this.currentState.name,
+        '->',
+        nextState.name,
+        'current y pos',
+        this.enemy?.rigidBody?.position?.y
+      )
+      this.broadcast({
+        topic: `state.change`,
+        value: {
+          source: this.enemy.name,
+          previous: this.currentState.name,
+          current: nextState.name,
+        },
+      })
       this.currentState = nextState
     }
   }
 
   update(time, delta) {
     this.currentState.timeSpent += delta
-    this._handlePositionBasedChanges(time)
-    this._handleTimeBasedChanges(time)
+    this._handleStateChanges(time)
   }
 
-  _handlePositionBasedChanges(time) {
-    if (!this.enemy?.rigidBody) {
-      return
-    }
-    this.throttledLogger.info(time, 'y pos', this.enemy.rigidBody.position.y)
-    if (
-      this.enemy.rigidBody.position.y <= this.yThresholdToAllowMovement &&
-      this.currentState.name === 'idle'
-    ) {
-      this.transition('walk')
-    }
-  }
-
-  _handleTimeBasedChanges(time) {
+  _handleStateChanges(time) {
     if (!this.enemy?.rigidBody) {
       return
     }
 
     if (this.currentState.name === 'knockedBack') {
-      if (this.currentState.timeSpent > 1000) {
-        if (this.enemy.rigidBody.position.y > this.yThresholdToAllowMovement) {
-          this.transition('idle')
-        } else {
-          this.transition('walk')
-        }
-        this.currentState.timeSpent = 0
+      this._handleKnockedBackState()
+      return
+    }
+
+    this.closeToGround =
+      this.enemy.rigidBody.position.y <= this.yThresholdToAllowMovement
+
+    if (this.closeToGround && this.currentState.name === 'idle') {
+      this.transition('walk')
+    } else if (!this.closeToGround) {
+      this.transition('idle')
+    }
+  }
+
+  _handleKnockedBackState() {
+    if (this.currentState.timeSpent > this.knockedBackTime) {
+      this.currentState.timeSpent = 0
+      if (this.enemy.rigidBody.position.y > this.yThresholdToAllowMovement) {
+        this.transition('idle')
+      } else {
+        this.transition('walk')
       }
     }
   }

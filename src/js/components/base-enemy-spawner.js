@@ -90,6 +90,7 @@ export class BaseEnemySpawner extends Component {
       this._enemies.splice(toRemove[i], 1)
     }
     if (toRemove.length > 0) {
+      this._numberOfSpawns -= toRemove.length
     }
   }
 
@@ -120,11 +121,13 @@ export class BaseEnemySpawner extends Component {
         this._player,
         this._settings.freezeEnemyGravityAt
       )
-      enemyFSM = new EnemyFSM(enemy)
+      enemyFSM = new EnemyFSM(enemy, this._settings.freezeEnemyGravityAt)
       enemyEntity.addComponent(movement)
       enemyEntity.addComponent(enemyFSM)
     }
     this._manager.add(enemyEntity)
+
+    movement.registerHandlers()
     return {
       movement,
       enemyFSM,
@@ -148,6 +151,8 @@ export class BaseEnemySpawner extends Component {
       // TODO: Change this to knockback weapon when that is added
       if (other.collisionFilterGroup === BULLET_GROUP) {
         enemyFSM.transition('knockedBack')
+      } else {
+        // console.log('HIT SOMETHING ELSE', other)
       }
     })
   }

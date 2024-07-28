@@ -33,12 +33,18 @@ export class BulletSpawner extends Component {
   }
 
   update(time, delta) {
+    let bullet
     for (let i = 0; i < this._bullets.length; i++) {
+      /**
+       * @type {GameBody}
+       */
+      bullet = this._bullets[i].bullet
       this._bullets[i].bullet.rigidBody.velocity.set(
         0,
         0,
         -this._settings.bulletSpeed
       )
+      bullet.rigidBody.angularVelocity.set(this._settings.bulletSpeed, 0, 0)
       this._bullets[i].bullet.sync(time)
       this._bullets[i].timeAlive += delta
       this._handleDisposal(this._bullets[i], i)

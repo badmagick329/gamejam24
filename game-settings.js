@@ -17,13 +17,13 @@ const settings = {
   playerLinearDamping: 0.95,
   bulletSpeed: 50.0,
   bulletRadius: 0.8,
-  bulletHeightOffset: 0.2,
+  bulletHeightOffset: 0.3,
   bulletIntervalBetweenShots: 110,
   enemyMovement: true,
   enemyType: 'box',
   baseEnemySpawnInterval: 2000,
   freezeEnemyRotation: false,
-  freezeEnemyGravityAt: 1.8,
+  freezeEnemyGravityAt: 2.0,
 }
 
 export { settings }

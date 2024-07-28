@@ -4,7 +4,7 @@ import { Component } from '../ecs'
 import { GameBody } from '../game'
 import { Logger, logLevels } from '../logging'
 
-const IDLE_COLOR = 0x9999ff
+const IDLE_COLOR = 0x7777ff
 const WALK_COLOR = 0xa0b04a
 const KNOCKEDBACK_COLOR = 0xeeeeee
 
@@ -21,13 +21,28 @@ export class BaseEnemyMovement extends Component {
     this.yThresholdToAllowMovement = yThresholdToAllowMovement
     this._step = 15
     this._dead = false
-    this._fsm = null
     this.logger = new Logger()
-    this.logger.level = logLevels.WARNING
+    this.logger.level = logLevels.DEBUG
+    this.isWalking = false
     this.throttledLogger = this.logger.getThrottledLogger(
       1000,
       this._enemy._name
     )
+    this.stateColors = {
+      idle: new THREE.Color(IDLE_COLOR),
+      walk: new THREE.Color(WALK_COLOR),
+      knockedBack: new THREE.Color(KNOCKEDBACK_COLOR),
+    }
+  }
+
+  registerHandlers() {
+    this.registerHandler('state.change', (m) => {
+      if (this._enemy.name !== m.value.source) {
+        return
+      }
+      this.setColorBasedOnState(m.value.current)
+      this.isWalking = m.value.current === 'walk' ? true : false
+    })
   }
 
   update(time) {
@@ -42,23 +57,13 @@ export class BaseEnemyMovement extends Component {
       return
     }
 
-    if (!this._fsm) {
-      this._fsm = this.getComponent('EnemyFSM')
-    }
-
-    this.setColorBasedOnState()
-
-    const movementDisable =
-      this._fsm.currentState.name === 'idle' ||
-      this._fsm.currentState.name === 'knockedBack'
-    if (movementDisable) {
-      return
-    }
-
     this.updateEnemyMovement(playerPosition)
   }
 
   updateEnemyMovement(playerPosition) {
+    if (!this.isWalking) {
+      return
+    }
     const enemyPosition = this._enemy.rigidBody.position
 
     const direction = new CANNON.Vec3(
@@ -76,13 +81,11 @@ export class BaseEnemyMovement extends Component {
     )
   }
 
-  setColorBasedOnState() {
-    if (this._fsm.currentState.name === 'idle') {
-      this._enemy.mesh.material.color = new THREE.Color(IDLE_COLOR)
-    } else if (this._fsm.currentState.name === 'walk') {
-      this._enemy.mesh.material.color = new THREE.Color(WALK_COLOR)
-    } else if (this._fsm.currentState.name === 'knockedBack') {
-      this._enemy.mesh.material.color = new THREE.Color(KNOCKEDBACK_COLOR)
+  setColorBasedOnState(name) {
+    if (!this._enemy?.mesh?.material) {
+      return
     }
+
+    this._enemy.mesh.material.color = this.stateColors[name]
   }
 }

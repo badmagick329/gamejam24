@@ -31,6 +31,10 @@ export class GameBody {
     return `GameBody-${GameBody.ID++}`
   }
 
+  get name() {
+    return this._name
+  }
+
   sync(time) {
     this._injectUTime(time)
     this._handleCustomGravity(time)
