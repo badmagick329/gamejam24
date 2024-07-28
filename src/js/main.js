@@ -167,7 +167,10 @@ export default async function run() {
     environment.addComponent(sky)
     const hud = new Hud({ scene: sceneHUD })
     environment.addComponent(hud)
-    hud.registerHandlers()
+    if (settings.enableUI) {
+      hud.init()
+      hud.registerHandlers()
+    }
     const groundComp = new GroundComp({
       world,
       scene,

@@ -24,6 +24,7 @@ const settings = {
   baseEnemySpawnInterval: 2000,
   freezeEnemyRotation: false,
   freezeEnemyGravityAt: 2.0,
+  enableUI: false,
 }
 
 export { settings }

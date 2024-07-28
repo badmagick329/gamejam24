@@ -8,6 +8,9 @@ export class Hud extends Component {
       throw new Error('Hud requires a scene instance')
     }
     this.scene = config.scene
+  }
+
+  init() {
     this._writeInCenter('hi 😐')
   }
 

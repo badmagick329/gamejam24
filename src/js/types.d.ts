@@ -29,4 +29,5 @@ export type GameSettings = {
   baseEnemySpawnInterval: number
   freezeEnemyRotation: boolean
   freezeEnemyGravityAt: number
+  enableUI: boolean
 }
