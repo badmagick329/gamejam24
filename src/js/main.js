@@ -8,7 +8,7 @@ import {
   BaseEnemySpawner,
   BulletSpawner,
   InputController,
-  // MouseInputController,
+  MouseInputController,
   MovementController,
   PlayerFSM,
 } from './components'
@@ -49,7 +49,7 @@ export default async function run() {
       }
       game.world.fixedStep()
       game.player.sync(timestamp)
-      game.enemies.forEach((e) => e.sync(timestamp))
+      game.enemies.forEach((e) => e?.sync(timestamp))
       if (settings.thirdPerson) {
         manager.update(timestamp, timeDiff)
       }
@@ -109,12 +109,12 @@ export default async function run() {
     // inputs and movement
     const inputController = new InputController()
     player.addComponent(inputController)
-    // const mouseInputController = new MouseInputController(
-    //   renderer,
-    //   camera,
-    //   scene
-    // )
-    // player.addComponent(mouseInputController)
+    const mouseInputController = new MouseInputController(
+      renderer,
+      camera,
+      scene
+    )
+    player.addComponent(mouseInputController)
     const movementController = new MovementController(
       playerBody.mesh,
       playerBody.rigidBody,
