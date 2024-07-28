@@ -8,6 +8,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import TickManager from './tick-manager.js'
 
 let scene,
+  sceneHUD,
   camera,
   renderer,
   composer,
@@ -61,7 +62,7 @@ export const initEngine = async (config) => {
     30
   )
 
-  const sceneHUD = new THREE.Scene()
+  sceneHUD = new THREE.Scene()
 
   const hudTexture = new THREE.Texture(hudCanvas)
   hudTexture.needsUpdate = true
@@ -144,6 +145,11 @@ export const useRenderSize = () => ({
  * @returns {THREE.Scene}
  */
 export const useScene = () => scene
+
+/**
+ * @returns {THREE.Scene}
+ */
+export const useSceneHUD = () => sceneHUD
 
 /**
  * @returns {THREE.Camera}

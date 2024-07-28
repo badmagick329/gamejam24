@@ -12,6 +12,12 @@ export class Hud extends Component {
   }
 
   init() {
+    console.log(
+      'in init\nbitmap:\n',
+      this.scene.hudBitmap,
+      '\nscene\n',
+      this.scene
+    )
     // const sky = new Sky()
     this.scene.hudBitmap.clearRect(
       0,

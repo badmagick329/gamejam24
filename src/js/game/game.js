@@ -8,6 +8,7 @@ import {
   useRenderer,
   useRenderSize,
   useScene,
+  useSceneHUD,
 } from '../render/init.js'
 import { GameBody } from './game-body.js'
 
@@ -23,6 +24,10 @@ export class Game {
      * @type {(THREE.Scene|null)}
      */
     this.scene = null
+    /**
+     * @type {(THREE.Scene|null)}
+     */
+    this.sceneHUD = null
     /**
      * @type {(THREE.PerspectiveCamera|null)}
      */
@@ -93,6 +98,7 @@ export class Game {
 
   _setupScene() {
     this.scene = useScene()
+    this.sceneHUD = useSceneHUD()
     // Experimenting with fog. Feel free to change
     const color = 0x0e0e0e
     const near = 10

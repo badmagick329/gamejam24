@@ -16,8 +16,8 @@ import {
 import { BuildingsComp } from './components/buildings-comp.js'
 import { DefenceObjective } from './components/defence-objective.js'
 import { GroundComp } from './components/ground-comp.js'
-import { SkyBox } from './components/sky.js'
 import { Hud } from './components/hud.js'
+import { SkyBox } from './components/sky.js'
 import { Entity, EntityManager } from './ecs'
 import { Game, GameBody, PlayerFactory, postprocessing } from './game'
 
@@ -34,6 +34,7 @@ export default async function run() {
       game.renderer,
       game.camera,
       game.scene,
+      game.sceneHUD,
       game.player,
       game.world,
       game.enemies,
@@ -91,6 +92,7 @@ export default async function run() {
     renderer,
     camera,
     scene,
+    sceneHUD,
     playerBody,
     world,
     enemies,
@@ -162,7 +164,7 @@ export default async function run() {
     environment.addComponent(buildingsComp)
     const sky = new SkyBox({ scene })
     environment.addComponent(sky)
-    const hud = new Hud({ scene })
+    const hud = new Hud({ scene: sceneHUD })
     environment.addComponent(hud)
     const groundComp = new GroundComp({
       world,
