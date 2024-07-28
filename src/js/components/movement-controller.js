@@ -99,7 +99,7 @@ function moveTo(vector, values) {
     vector.z * step
   )
 
-  body.velocity.set(movement.x, 0, movement.z)
+  body.velocity.set(movement.x, -9.81, movement.z)
 }
 
 /**
