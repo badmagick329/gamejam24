@@ -98,6 +98,7 @@ export default async function run() {
     // Create entities and components
     const manager = new EntityManager()
     const player = new Entity()
+    manager.add(player, 'player')
     // player state machine
     const playerFsm = new PlayerFSM()
     player.addComponent(playerFsm)
@@ -117,6 +118,7 @@ export default async function run() {
       settings.playerSpeed
     )
     player.addComponent(movementController)
+    movementController.registerHandlers()
 
     // camera
     if (settings.thirdPerson) {
@@ -133,7 +135,6 @@ export default async function run() {
       settings
     )
     player.addComponent(bulletSpawner)
-    manager.add(player, 'player')
 
     // enemies
     const enemySpawner = new Entity()

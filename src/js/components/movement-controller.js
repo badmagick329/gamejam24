@@ -49,22 +49,17 @@ export class MovementController extends Component {
     this._mesh = mesh
     this._body = body
     this._step = speed
-    this._fsm = null
+  }
+
+  registerHandlers() {
+    this.registerHandler('player.movement', (m) => {
+      for (const key of m.value.pressedKeys) {
+        movementMap[key] && movementMap[key](m)
+      }
+    })
   }
 
   update(_, delta) {
-    // NOTE: this has to be initialised here to ensure that all components have been added
-    // before this
-    if (!this._fsm) {
-      this._fsm = this.getComponent('PlayerFSM')
-      this.registerHandler('player.movement', (m) => {
-        for (const key of m.value.pressedKeys) {
-          movementMap[key] && movementMap[key](m)
-        }
-        this._fsm.handleMovement(m)
-      })
-    }
-
     const pressedKeys = []
     for (const [key, active] of Object.entries(
       this.getComponent('InputController')._keys

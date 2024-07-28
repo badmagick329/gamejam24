@@ -26,13 +26,15 @@ export class BaseEnemyMovement extends Component {
     this.isWalking = false
     this.throttledLogger = this.logger.getThrottledLogger(
       1000,
-      this._enemy._name
+      this._enemy.name
     )
     this.stateColors = {
       idle: new THREE.Color(IDLE_COLOR),
       walk: new THREE.Color(WALK_COLOR),
       knockedBack: new THREE.Color(KNOCKEDBACK_COLOR),
     }
+
+    this._removalChecks = 0
   }
 
   registerHandlers() {
@@ -52,7 +54,10 @@ export class BaseEnemyMovement extends Component {
     const playerPosition = this._player.rigidBody.position
     if (!this._enemy?.rigidBody?.position) {
       // body has been cleaned up, no need to proceed
-      // TODO: Ensure this isn't continuously running after the body has been removed
+      this._removalChecks++
+      if (this._removalChecks > 1) {
+        throw new Error("BaseEnemyMovement object isn't being cleaned up")
+      }
       this._dead = true
       return
     }
