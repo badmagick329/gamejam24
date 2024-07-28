@@ -165,12 +165,6 @@ export default async function run() {
     environment.addComponent(buildingsComp)
     const sky = new SkyBox({ scene })
     environment.addComponent(sky)
-    const hud = new Hud({ scene: sceneHUD })
-    environment.addComponent(hud)
-    if (settings.enableUI) {
-      hud.init()
-      hud.registerHandlers()
-    }
     const groundComp = new GroundComp({
       world,
       scene,
@@ -181,6 +175,16 @@ export default async function run() {
     const defenceObjective = new DefenceObjective({ world, scene })
     defenceObjective.init()
     environment.addComponent(defenceObjective)
+
+    // UI
+    const ui = new Entity()
+    manager.add(ui)
+    const hud = new Hud({ scene: sceneHUD })
+    ui.addComponent(hud)
+    if (settings.enableUI) {
+      hud.init()
+      hud.registerHandlers()
+    }
 
     return manager
   }
