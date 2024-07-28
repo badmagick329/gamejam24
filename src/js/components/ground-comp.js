@@ -4,8 +4,8 @@ import { Component } from '../ecs'
 import { GameBody } from '../game'
 import {
   ENEMY_GROUP,
-  GROUND_GROUP,
   PLAYER_GROUP,
+  STATIC_GROUP,
   WALL_GROUP,
 } from '../game/consts'
 import fragmentShader from '../shaders/fragment.glsl'
@@ -140,7 +140,7 @@ export class GroundComp extends Component {
         friction: 0.5,
         restitution: 0.5,
       }),
-      collisionFilterGroup: GROUND_GROUP,
+      collisionFilterGroup: STATIC_GROUP,
       collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
     })
     groundCannonBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0)

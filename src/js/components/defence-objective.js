@@ -2,7 +2,7 @@ import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import { Component } from '../ecs'
 import { GameBody } from '../game'
-import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP } from '../game/consts'
+import { ENEMY_GROUP, PLAYER_GROUP, STATIC_GROUP } from '../game/consts'
 
 export class DefenceObjective extends Component {
   constructor(config) {
@@ -98,7 +98,7 @@ export class DefenceObjective extends Component {
     const defenceCannonBody = new CANNON.Body({
       shape: new CANNON.Sphere(2.9),
       mass: 0,
-      collisionFilterGroup: GROUND_GROUP,
+      collisionFilterGroup: STATIC_GROUP,
       collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
     })
 

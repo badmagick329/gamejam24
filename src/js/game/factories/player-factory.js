@@ -1,6 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP, WALL_GROUP } from '../consts'
+import { ENEMY_GROUP, PLAYER_GROUP, STATIC_GROUP, WALL_GROUP } from '../consts'
 import { GameBody } from '../game-body'
 
 const BOX_SEGMENTS = 10
@@ -132,7 +132,7 @@ export class PlayerFactory {
       material: new CANNON.Material(),
       collisionFilterGroup: PLAYER_GROUP,
       collisionFilterMask:
-        PLAYER_GROUP | ENEMY_GROUP | WALL_GROUP | GROUND_GROUP,
+        PLAYER_GROUP | ENEMY_GROUP | WALL_GROUP | STATIC_GROUP,
     })
     this.cannonBody.linearDamping = this._settings.playerLinearDamping || 0.95
     this.world.addBody(this.cannonBody)

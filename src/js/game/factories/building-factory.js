@@ -2,7 +2,7 @@ import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import fragmentShader from '../../shaders/fragment.glsl'
 import vertexShader from '../../shaders/vertex.glsl'
-import { ENEMY_GROUP, GROUND_GROUP, PLAYER_GROUP } from '../consts'
+import { ENEMY_GROUP, PLAYER_GROUP, STATIC_GROUP } from '../consts'
 import { GameBody } from '../game-body'
 
 export class BuildingFactory {
@@ -82,7 +82,7 @@ export class BuildingFactory {
         )
       ),
       type: CANNON.Body.STATIC,
-      collisionFilterGroup: GROUND_GROUP,
+      collisionFilterGroup: STATIC_GROUP,
       collisionFilterMask: PLAYER_GROUP | ENEMY_GROUP,
     })
     buildingCannonBody.quaternion.setFromEuler(0, angle, 0)
