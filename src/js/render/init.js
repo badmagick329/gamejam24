@@ -48,16 +48,8 @@ export const initEngine = async (config) => {
   const hudCanvas = document.createElement('canvas')
   hudCanvas.width = renderWidth
   hudCanvas.height = renderHeight
-  sceneHUD.hudBitmap = hudCanvas.getContext('2d')
-
-  sceneHUD.hudBitmap.font = 'Normal 40px Arial'
-  sceneHUD.hudBitmap.textAlign = 'center'
-  sceneHUD.hudBitmap.fillStyle = 'rgba(245,245,245,1)'
-  sceneHUD.hudBitmap.fillText(
-    'Initializing...',
-    renderWidth / 2,
-    renderHeight / 2
-  )
+  sceneHUD.canvas = hudCanvas
+  sceneHUD.ctx = hudCanvas.getContext('2d')
 
   const cameraHUD = new THREE.OrthographicCamera(
     -renderWidth / 2,
@@ -70,6 +62,8 @@ export const initEngine = async (config) => {
 
   sceneHUD.hudTexture = new THREE.Texture(hudCanvas)
   sceneHUD.hudTexture.needsUpdate = true
+  sceneHUD.renderWidth = renderWidth
+  sceneHUD.renderHeight = renderHeight
   const material = new THREE.MeshBasicMaterial({ map: sceneHUD.hudTexture })
   material.transparent = true
 
