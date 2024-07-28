@@ -43,15 +43,20 @@ export const initEngine = async (config) => {
   document.body.appendChild(renderer.domElement)
 
   // HUD
+  sceneHUD = new THREE.Scene()
   const hudCanvas = document.createElement('canvas')
   hudCanvas.width = renderWidth
   hudCanvas.height = renderHeight
-  const hudBitmap = hudCanvas.getContext('2d')
+  sceneHUD.hudBitmap = hudCanvas.getContext('2d')
 
-  hudBitmap.font = 'Normal 40px Arial'
-  hudBitmap.textAlign = 'center'
-  hudBitmap.fillStyle = 'rgba(245,245,245,1)'
-  hudBitmap.fillText('Initializing...', renderWidth / 2, renderHeight / 2)
+  sceneHUD.hudBitmap.font = 'Normal 40px Arial'
+  sceneHUD.hudBitmap.textAlign = 'center'
+  sceneHUD.hudBitmap.fillStyle = 'rgba(245,245,245,1)'
+  sceneHUD.hudBitmap.fillText(
+    'Initializing...',
+    renderWidth / 2,
+    renderHeight / 2
+  )
 
   const cameraHUD = new THREE.OrthographicCamera(
     -renderWidth / 2,
@@ -62,11 +67,9 @@ export const initEngine = async (config) => {
     30
   )
 
-  sceneHUD = new THREE.Scene()
-
-  const hudTexture = new THREE.Texture(hudCanvas)
-  hudTexture.needsUpdate = true
-  const material = new THREE.MeshBasicMaterial({ map: hudTexture })
+  sceneHUD.hudTexture = new THREE.Texture(hudCanvas)
+  sceneHUD.hudTexture.needsUpdate = true
+  const material = new THREE.MeshBasicMaterial({ map: sceneHUD.hudTexture })
   material.transparent = true
 
   const planeGeometry = new THREE.PlaneGeometry(renderWidth, renderHeight)
