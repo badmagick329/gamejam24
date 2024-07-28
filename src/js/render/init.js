@@ -31,9 +31,10 @@ export const initEngine = async (config) => {
   camera = new THREE.PerspectiveCamera(75, renderAspectRatio, 0.1, 1000)
   camera.position.z = 2
 
-  renderer = new THREE.WebGLRenderer({ antialias: true })
+  renderer = new THREE.WebGLRenderer({ antialias: false })
   renderer.setSize(renderWidth, renderHeight)
   renderer.setPixelRatio(window.devicePixelRatio * 1.5)
+  renderer.autoClear = false
 
   renderer.setClearColor(0x101114)
 
@@ -75,7 +76,6 @@ export const initEngine = async (config) => {
   const planeGeometry = new THREE.PlaneGeometry(renderWidth, renderHeight)
   const plane = new THREE.Mesh(planeGeometry, material)
   sceneHUD.add(plane)
-  renderer.render(sceneHUD, cameraHUD)
   // End HUD
 
   const target = new THREE.WebGLRenderTarget(renderWidth, renderHeight, {
@@ -83,7 +83,10 @@ export const initEngine = async (config) => {
   })
   composer = new EffectComposer(renderer, target)
   const renderPass = new RenderPass(scene, camera)
+  const uiPass = new RenderPass(sceneHUD, cameraHUD)
+  uiPass.clear = false
   composer.addPass(renderPass)
+  composer.addPass(uiPass)
 
   if (config?.bloom) {
     const bloomPass = new UnrealBloomPass(
