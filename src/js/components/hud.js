@@ -8,9 +8,16 @@ export class Hud extends Component {
       throw new Error('Hud requires a scene instance')
     }
     this.scene = config.scene
+    this._writeInCenter('hi 😐')
   }
 
-  _renderHUD(time, delta) {
+  registerHandlers() {
+    this.registerHandler('player.movement', (m) => {
+      this._writeInCenter(`pressed: ${m.value.pressedKeys} ${getRandomEmoji()}`)
+    })
+  }
+
+  _writeInCenter(text) {
     this.scene.ctx.fillStyle = 'rgba(0,0,0,0)'
     this.scene.ctx.clearRect(
       0,
@@ -22,16 +29,41 @@ export class Hud extends Component {
     this.scene.ctx.textAlign = 'center'
     this.scene.ctx.fillStyle = 'rgba(245,245,245,1)'
     this.scene.ctx.fillText(
-      `${time.toFixed(2)}     ${delta.toFixed(2)}`,
+      text,
       this.scene.renderWidth / 2,
       this.scene.renderHeight / 2
     )
     this.scene.hudTexture.needsUpdate = true
   }
 
+  _renderHUD(time, delta) {}
+
   update(time, delta) {
     this._renderHUD(time, delta)
   }
+}
+
+const EMOJIS = [
+  '😫',
+  '😃',
+  '😭',
+  '🥰',
+  '😍',
+  '🤓',
+  '🤯',
+  '😯',
+  '🫣',
+  '😤',
+  '😳',
+  '😬',
+  '🙄',
+  '👀',
+  '🔥',
+  '🤪',
+  '😑',
+]
+function getRandomEmoji() {
+  return EMOJIS[Math.floor(Math.random() * EMOJIS.length)]
 }
 
 /**

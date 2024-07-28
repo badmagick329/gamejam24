@@ -155,6 +155,7 @@ export default async function run() {
 
     // environment
     const environment = new Entity()
+    manager.add(environment)
     const buildingsComp = new BuildingsComp({
       world,
       scene,
@@ -166,6 +167,7 @@ export default async function run() {
     environment.addComponent(sky)
     const hud = new Hud({ scene: sceneHUD })
     environment.addComponent(hud)
+    hud.registerHandlers()
     const groundComp = new GroundComp({
       world,
       scene,
@@ -176,8 +178,6 @@ export default async function run() {
     const defenceObjective = new DefenceObjective({ world, scene })
     defenceObjective.init()
     environment.addComponent(defenceObjective)
-
-    manager.add(environment)
 
     return manager
   }
