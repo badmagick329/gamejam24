@@ -103,7 +103,7 @@ export class DefenceObjective extends Component {
     })
 
     const defenceBody = new GameBody(mesh, defenceCannonBody, {
-      name: 'defenceObject',
+      name: 'defenceObjective',
       ignoreGravity: true,
       syncMesh: false,
     })
