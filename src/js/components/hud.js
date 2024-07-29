@@ -50,6 +50,7 @@ export class Hud extends Component {
     healthEmpty: 0,
     healthCurrent: 85,
     healthLow: 20,
+    healthVerylow: 10,
     HealthThird: 33,
     HealthTwoThirds: 66,
     scoreHigh: 9876543,
@@ -90,19 +91,19 @@ export class Hud extends Component {
     this.scene.ctx.font = 'Normal 20px Arial'
     this.scene.ctx.fillText(
       `hp`,
-      this.scene.canvas.width * 0.92,
+      this.scene.canvas.width * 0.91,
       this.scene.canvas.height * 0.97
     )
     const percentageHealth = health / this.playerInfo.healthFull
-    const barStartX = this.scene.canvas.width * 0.8
-    const barStartY = this.scene.canvas.height * 0.93
-    var barWidth = this.scene.canvas.width - this.scene.canvas.width * 0.9
+    const barStartX = this.scene.canvas.width * 0.7
+    const barStartY = this.scene.canvas.height * 0.92
+    var barWidth = this.scene.canvas.width - this.scene.canvas.width * 0.8
     barWidth = barWidth * percentageHealth
     const red = Math.floor(Math.min(255, 255 * (1.2 - percentageHealth)))
     const green = Math.floor(255 * (percentageHealth / 1.5))
     const blue = Math.floor(255 * (percentageHealth / 3.5))
     this.scene.ctx.fillStyle = `rgba(${red},${green},${blue},1)`
-    const barHeight = this.scene.canvas.height - this.scene.canvas.height * 0.98
+    const barHeight = this.scene.canvas.height - this.scene.canvas.height * 0.97
     this.scene.ctx.fillRect(barStartX, barStartY, barWidth, barHeight)
 
     // this.scene.ctx.fillText(

@@ -149,8 +149,8 @@ export class Game {
     this.scene.add(directionLight)
 
     // old add lights to scene
-    // this.scene.add(dirLight, ambientLight, hemiLight)
-    this.scene.add(hemiLight)
+    this.scene.add(dirLight, ambientLight, hemiLight)
+    // this.scene.add(hemiLight)
 
     if (this.settings.lightCameraHelper) {
       const directionalLightCameraHelper = new THREE.CameraHelper(

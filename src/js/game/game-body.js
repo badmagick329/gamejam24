@@ -60,6 +60,8 @@ export class GameBody {
    * @returns {void}
    */
   dispose(scene, world) {
+    // logging disposal ///////////////////////////////////////////////////////////////////////////////////////
+    console.log('disposing of', this.name, '. pos', this.mesh.position)
     this.mesh.geometry.dispose()
 
     if (this.mesh.material.map) {

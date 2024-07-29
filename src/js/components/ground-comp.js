@@ -65,7 +65,7 @@ export class GroundComp extends Component {
    * @returns {THREE.Mesh}
    */
   _createGroundMesh() {
-    let geo, mat, mesh
+    let geo, mat, mesh, forcefieldMesh
     geo = new THREE.PlaneGeometry(
       this.config.groundWidth,
       this.config.groundDepth
@@ -120,6 +120,59 @@ export class GroundComp extends Component {
     mesh.position.y = -1
     mesh.position.z = 0
     this.scene.add(mesh)
+
+    /**
+     * Forcefield WIP
+     */
+    // // forcefield sides
+    // const ffHeight = 10
+    // geo = new THREE.PlaneGeometry(this.config.groundWidth, ffHeight)
+    // mat = new THREE.MeshPhysicalMaterial({
+    //   side: THREE.DoubleSide,
+    //   transparent: true,
+    //   opacity: 0.4,
+    //   transmission: 1,
+    //   dispersion: 1,
+    //   iridescence: 1,
+    //   iridescenceIOR: 1.6,
+    //   sheen: 1,
+    //   reflectivity: 1,
+    //   thickness: 1,
+    // })
+
+    // // towards camera +z
+    // forcefieldMesh = new THREE.Mesh(geo, mat)
+    // forcefieldMesh.position.x = 0
+    // forcefieldMesh.position.y = ffHeight / 2
+    // forcefieldMesh.position.z = this.config.groundDepth / 2
+    // this.scene.add(forcefieldMesh)
+
+    // // away from camera -z
+    // forcefieldMesh = new THREE.Mesh(geo, mat)
+    // forcefieldMesh.position.x = 0
+    // forcefieldMesh.position.y = ffHeight / 2
+    // forcefieldMesh.position.z = -this.config.groundDepth / 2
+    // this.scene.add(forcefieldMesh)
+
+    // geo = new THREE.PlaneGeometry(this.config.groundDepth, ffHeight)
+    // // on the right +x
+    // forcefieldMesh = new THREE.Mesh(geo, mat)
+    // forcefieldMesh.rotation.y = Math.PI * 0.5
+    // forcefieldMesh.position.x = this.config.groundWidth / 2
+    // forcefieldMesh.position.y = ffHeight / 2
+    // forcefieldMesh.position.z = 0
+    // this.scene.add(forcefieldMesh)
+
+    // // on the left -x
+    // forcefieldMesh = new THREE.Mesh(geo, mat)
+    // forcefieldMesh.rotation.y = Math.PI * 0.5
+    // forcefieldMesh.position.x = -this.config.groundWidth / 2
+    // forcefieldMesh.position.y = ffHeight / 2
+    // forcefieldMesh.position.z = 0
+    // this.scene.add(forcefieldMesh)
+    /**
+     * End of forcefield WIP
+     */
 
     this.ground.receiveShadow = true
 

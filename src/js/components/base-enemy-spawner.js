@@ -31,7 +31,7 @@ export class BaseEnemySpawner extends Component {
     this.throttledLogger = this.logger.getThrottledLogger(1000, 'enemy spawner')
     // TODO: a temp stop button for spawning for testing. make it a toggleable in debug?
     this._maxEnemies = 10
-    this._numberOfSpawns = 0
+    this._numberOfSpawns = 9
   }
 
   update(timeElapsed, timeDiff) {
@@ -100,11 +100,11 @@ export class BaseEnemySpawner extends Component {
    */
   _isOutOfBounds(enemy) {
     return (
-      enemy.rigidBody?.position?.y < -30 ||
-      enemy.rigidBody?.position?.z < -55 ||
-      enemy.rigidBody?.position?.z > 55 ||
-      enemy.rigidBody?.position?.x < -60 ||
-      enemy.rigidBody?.position?.x > 60
+      enemy.rigidBody?.position?.y < -5 ||
+      enemy.rigidBody?.position?.z < -550 ||
+      enemy.rigidBody?.position?.z > 550 ||
+      enemy.rigidBody?.position?.x < -600 ||
+      enemy.rigidBody?.position?.x > 600
     )
   }
 
