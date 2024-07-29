@@ -60,7 +60,7 @@ export class Hud extends Component {
 
   _ui() {
     const score = this.playerInfo.scoreHigh
-    const health = this.playerInfo.healthLow
+    const health = this.playerInfo.healthHalf
     this._clear()
     this._showScore(score)
     this._showHealth(health)

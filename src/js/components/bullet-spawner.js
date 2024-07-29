@@ -34,7 +34,11 @@ export class BulletSpawner extends Component {
      */
     this._settings = settings
     this._raycaster = new THREE.Raycaster()
-    this._direction = new THREE.Vector3()
+    this._direction = new THREE.Vector3(
+      0,
+      this._settings.bulletHeightOffset,
+      -1
+    )
 
     this.logger = new Logger()
     this.logger.level = logLevels.INFO
@@ -83,7 +87,10 @@ export class BulletSpawner extends Component {
     this._raycaster.setFromCamera(new THREE.Vector2(x, y), this._camera)
 
     // Define a plane at y = 0.6 (player's height)
-    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.6)
+    const plane = new THREE.Plane(
+      new THREE.Vector3(0, 1, 0),
+      this._settings.bulletHeightOffset
+    )
 
     // Get the intersection point of the ray with the plane
     const intersection = new THREE.Vector3()
@@ -110,9 +117,9 @@ export class BulletSpawner extends Component {
 
     const cannonBody = this._createBulletBody(
       {
-        x: position.x,
+        x: position.x + this._direction.x * 2,
         y: position.y + this._settings.bulletHeightOffset,
-        z: position.z - this._config.playerZOffset,
+        z: position.z + this._direction.z * 2,
       },
       this._direction
     )
