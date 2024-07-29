@@ -17,6 +17,7 @@ export class BulletSpawner extends Component {
    * @param {CANNON.Body} playerBody
    * @param {THREE.Scene} scene
    * @param {CANNON.World} world
+   * @param {THREE.Camera} camera
    * @param {Object} settings
    */
   constructor(playerBody, scene, world, camera, settings) {
@@ -48,10 +49,10 @@ export class BulletSpawner extends Component {
        */
       bullet = this._bullets[i].bullet
 
-      let xVel = this._direction.x * this._settings.bulletSpeed
-      let zVel = this._direction.z * this._settings.bulletSpeed
+      let xVel = this._bullets[i].direction.x * this._settings.bulletSpeed
+      let zVel = this._bullets[i].direction.z * this._settings.bulletSpeed
 
-      this.throttledLogger.debug(time, 'xVel', xVel, 'zVel', zVel)
+      // this.throttledLogger.debug(time, 'xVel', xVel, 'zVel', zVel)
       bullet.rigidBody.velocity.set(xVel, 0, zVel)
       bullet.rigidBody.angularVelocity.set(this._settings.bulletSpeed, 0, 0)
       this._bullets[i].bullet.sync(time)
@@ -67,15 +68,35 @@ export class BulletSpawner extends Component {
       if (this._raycaster === null) {
         this._raycaster = new THREE.Raycaster()
       }
-      this._raycaster.setFromCamera(m.value.position, this._camera)
-      this._direction = this._raycaster.ray.direction.clone().normalize()
+      // this._raycaster.setFromCamera(m.value.position, this._camera)
+      // this._direction = this._raycaster.ray.direction.clone().normalize()
+      this._direction = this._mouseToWorldPosition(
+        m.value.position.x,
+        m.value.position.y
+      )
       this.broadcast({
         topic: 'mouse.direction',
         value: {
           direction: this._direction,
+          position: m.value.position,
         },
       })
     })
+  }
+
+  _mouseToWorldPosition(x, y) {
+    const vector = new THREE.Vector3(x, y, 1)
+    vector.unproject(this._camera)
+    vector
+      .sub(
+        new THREE.Vector3(
+          this._playerBody.position.x,
+          this._playerBody.position.y,
+          this._playerBody.position.z
+        )
+      )
+      .normalize()
+    return vector
   }
 
   _shootBullet(time) {
@@ -108,6 +129,7 @@ export class BulletSpawner extends Component {
       bullet,
       timeAlive: 0.0,
       maxTravel: this._config.maxTravel,
+      direction: new THREE.Vector3().copy(this._direction),
     })
   }
 
