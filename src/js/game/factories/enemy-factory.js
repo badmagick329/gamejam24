@@ -65,8 +65,6 @@ export class EnemyFactory {
     }
     this.body = new GameBody(this.mesh, this.cannonBody, {
       name,
-      // freezeGravity makes the game play much worse
-      // freezeGravityAt: this._settings.freezeEnemyGravityAt,
       additionalGravity: -9.81 * 50,
       freezeRotation: this._settings.freezeEnemyRotation,
     })

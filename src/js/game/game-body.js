@@ -39,12 +39,12 @@ export class GameBody {
     this._injectUTime(time)
     this._handleCustomGravity(time)
 
-    if (this.config.freezeRotation) {
+    if (this.config.freezeRotation && this.rigidBody) {
       this.rigidBody.angularVelocity.set(0, 0, 0)
       this.rigidBody.quaternion.set(0, 0, 0, 1)
     }
 
-    if (this.config.syncMesh) {
+    if (this.config.syncMesh && this.mesh) {
       this.mesh.position.copy(this.rigidBody.position)
       this.mesh.quaternion.copy(this.rigidBody.quaternion)
     }
@@ -60,20 +60,22 @@ export class GameBody {
    * @returns {void}
    */
   dispose(scene, world) {
-    // logging disposal ///////////////////////////////////////////////////////////////////////////////////////
-    console.log('disposing of', this.name, '. pos', this.mesh.position)
-    this.mesh.geometry.dispose()
+    this.mesh?.geometry?.dispose()
 
-    if (this.mesh.material.map) {
+    if (this.mesh?.material?.map) {
       object.material.map.dispose()
     }
 
-    Array.isArray(this.mesh.material)
+    Array.isArray(this.mesh?.material)
       ? this.mesh.material.forEach((material) => material.dispose())
-      : this.mesh.material.dispose()
+      : this.mesh?.material?.dispose()
 
-    scene.remove(this.mesh)
-    world.removeBody(this.rigidBody)
+    if (this.mesh) {
+      scene.remove(this.mesh)
+    }
+    if (this.rigidBody) {
+      world.removeBody(this.rigidBody)
+    }
 
     this.rigidBody = null
     this.mesh = null
@@ -99,7 +101,7 @@ export class GameBody {
   }
 
   _injectUTime(time) {
-    if (!this.mesh.material) {
+    if (!this.mesh?.material) {
       return
     }
 

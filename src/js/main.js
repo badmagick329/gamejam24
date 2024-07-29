@@ -143,6 +143,7 @@ export default async function run() {
 
     // enemies
     const enemySpawner = new Entity()
+    manager.add(enemySpawner, 'enemySpawner')
     const baseEnemySpawner = new BaseEnemySpawner(
       manager,
       scene,
@@ -152,8 +153,7 @@ export default async function run() {
       settings
     )
     enemySpawner.addComponent(baseEnemySpawner)
-
-    manager.add(enemySpawner, 'enemySpawner')
+    baseEnemySpawner.registerHandlers()
 
     // environment
     const environment = new Entity()

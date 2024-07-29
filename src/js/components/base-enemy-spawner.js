@@ -5,6 +5,7 @@ import { BULLET_GROUP } from '../game/consts'
 import { Logger, logLevels } from '../logging'
 import { addVariance } from '../utils'
 import { BaseEnemyMovement } from './base-enemy-movement'
+import { EnemyAttributes } from './enemy-attributes'
 import { EnemyFSM } from './enemy-fsm'
 
 export class BaseEnemySpawner extends Component {
@@ -24,14 +25,39 @@ export class BaseEnemySpawner extends Component {
     this._world = world
     this._player = player
     this._enemies = enemies
+    /**
+     * @type {Entity[]}
+     */
+    this._enemyEntities = []
     this._lastSpawn = null
     this._enemyFactory = new EnemyFactory({ world, settings })
     this.logger = new Logger()
     this.logger.level = logLevels.WARNING
     this.throttledLogger = this.logger.getThrottledLogger(1000, 'enemy spawner')
     // TODO: a temp stop button for spawning for testing. make it a toggleable in debug?
-    this._maxEnemies = 10
-    this._numberOfSpawns = 9
+    this._maxEnemies = 1
+    this._numberOfSpawns = 0
+  }
+
+  registerHandlers() {
+    this.registerHandler('enemy.died', (m) => {
+      this._numberOfSpawns--
+      // console.log(
+      //   'maxenemies',
+      //   this._maxEnemies,
+      //   ' numberofspawns',
+      //   this._numberOfSpawns
+      // )
+      for (const ee of this._enemyEntities) {
+        if (ee.name === m.value.source) {
+          this._manager.remove(ee)
+          ee = null
+        }
+      }
+      this._enemyEntities = this._enemyEntities.filter(
+        (entity) => entity !== null
+      )
+    })
   }
 
   update(timeElapsed, timeDiff) {
@@ -67,7 +93,7 @@ export class BaseEnemySpawner extends Component {
     this._scene.add(enemy.mesh)
     this._numberOfSpawns++
     const { movement, enemyFSM } = this._initComponents(enemy)
-    this._attachCollisionEvents(enemy.rigidBody, enemyFSM)
+    this._attachCollisionEvents(enemy, enemyFSM)
   }
 
   /**
@@ -85,7 +111,7 @@ export class BaseEnemySpawner extends Component {
       this._enemies[i] = null
     }
 
-    // Important: remove from array in place
+    // TODO: This approach of removing in place is flawed. Refer to issues
     for (let i = 0; i < toRemove.length; i++) {
       this._enemies.splice(toRemove[i], 1)
     }
@@ -114,6 +140,8 @@ export class BaseEnemySpawner extends Component {
    */
   _initComponents(enemy) {
     const enemyEntity = new Entity()
+    enemyEntity.setName(enemy.name)
+    this._manager.add(enemyEntity)
     let movement, enemyFSM
     if (this._settings.enemyMovement) {
       movement = new BaseEnemyMovement(
@@ -122,12 +150,19 @@ export class BaseEnemySpawner extends Component {
         this._settings.freezeEnemyGravityAt
       )
       enemyFSM = new EnemyFSM(enemy, this._settings.freezeEnemyGravityAt)
+      const enemyAttributes = new EnemyAttributes(
+        enemy,
+        this._scene,
+        this._world
+      )
       enemyEntity.addComponent(movement)
       enemyEntity.addComponent(enemyFSM)
+      enemyEntity.addComponent(enemyAttributes)
+      movement.registerHandlers()
+      enemyAttributes.registerHandlers()
     }
-    this._manager.add(enemyEntity)
+    this._enemyEntities.push(enemyEntity)
 
-    movement.registerHandlers()
     return {
       movement,
       enemyFSM,
@@ -135,10 +170,10 @@ export class BaseEnemySpawner extends Component {
   }
 
   /**
-   * @param {CANNON.Body} enemyBody
+   * @param {GameBody} enemy
    * @param {(EnemyFSM|undefined)} enemyFSM
    */
-  _attachCollisionEvents(enemyBody, enemyFSM) {
+  _attachCollisionEvents(enemy, enemyFSM) {
     if (!enemyFSM) {
       console.log(
         'no fsm initialisd, possibly due to movement being disabled. skipping collision events'
@@ -146,13 +181,19 @@ export class BaseEnemySpawner extends Component {
       return
     }
 
-    enemyBody.addEventListener('collide', (event) => {
+    enemy.rigidBody.addEventListener('collide', (event) => {
       const other = event.body
       // TODO: Change this to knockback weapon when that is added
       if (other.collisionFilterGroup === BULLET_GROUP) {
         enemyFSM.transition('knockedBack')
-      } else {
-        // console.log('HIT SOMETHING ELSE', other)
+        const message = {
+          topic: 'enemy.hurt',
+          value: {
+            damage: 5,
+            source: enemy.name,
+          },
+        }
+        this.broadcast(message)
       }
     })
   }

@@ -24,6 +24,7 @@ export type GameSettings = {
   bulletRadius: number
   bulletHeightOffset: number
   bulletIntervalBetweenShots: number
+  bulletDamage: number
   enemyMovement: boolean
   enemyType: 'box' | 'torus' | 'sphere'
   baseEnemySpawnInterval: number
