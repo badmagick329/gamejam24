@@ -109,8 +109,7 @@ export class Game {
 
   _setupControls() {
     this.controls = useControls()
-    // NOTE: Allow rotate during dev
-    this.controls.enableRotate = true
+    this.controls.enableRotate = false
   }
 
   _setupCamera() {

@@ -16,9 +16,9 @@ export class Hud extends Component {
   }
 
   registerHandlers() {
-    // this.registerHandler('mouse.direction', (m) => {
+    // this.registerHandler('mouse.down', (m) => {
     //   this._writeInUpperRightCorner(
-    //     `mouse.direction: x: ${m.value.direction.x.toFixed(2)} y: ${m.value.direction.y.toFixed(2)} z: ${m.value.direction.z.toFixed(2)} ${getRandomEmoji()}`
+    //     `mouse.down: x: ${m.value.position.x.toFixed(2)} y: ${m.value.position.y.toFixed(2)} b: ${m.value.buttons}`
     //   )
     // })
   }

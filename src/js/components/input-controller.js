@@ -1,5 +1,17 @@
 import { Component } from '../ecs'
 
+const keyMap = {
+  w: 'forward',
+  a: 'left',
+  s: 'backward',
+  d: 'right',
+  ' ': 'space',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  ArrowUp: 'forward',
+  ArrowDown: 'backward',
+}
+
 export class InputController extends Component {
   constructor() {
     super()
@@ -19,42 +31,16 @@ export class InputController extends Component {
   }
 
   _onKeyDown(event) {
-    switch (event.key) {
-      case 'w':
-        this._keys.forward = true
-        break
-      case 'a':
-        this._keys.left = true
-        break
-      case 's':
-        this._keys.backward = true
-        break
-      case 'd':
-        this._keys.right = true
-        break
-      case ' ':
-        this._keys.space = true
-        break
+    if (keyMap[event.key] === undefined) {
+      return
     }
+    this._keys[keyMap[event.key]] = true
   }
 
   _onKeyUp(event) {
-    switch (event.key) {
-      case 'w':
-        this._keys.forward = false
-        break
-      case 'a':
-        this._keys.left = false
-        break
-      case 's':
-        this._keys.backward = false
-        break
-      case 'd':
-        this._keys.right = false
-        break
-      case ' ':
-        this._keys.space = false
-        break
+    if (keyMap[event.key] === undefined) {
+      return
     }
+    this._keys[keyMap[event.key]] = false
   }
 }

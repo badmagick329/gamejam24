@@ -156,14 +156,21 @@ export class BulletSpawner extends Component {
       this._lastShot === null ||
       time - this._lastShot > this._settings.bulletIntervalBetweenShots
     ) {
+      // check for mouse left click
+      if (this.getComponent('MouseInputController').pressed === 1) {
+        this._shootBullet(time)
+        this._lastShot = time
+        return
+      }
+
+      // check for keyboard trigger key
       for (const [key, active] of Object.entries(
         this.getComponent('InputController')._keys
       )) {
         if (key === this._config.triggerKey && active) {
-          if (this.currentMousePosition !== null) {
-            this._shootBullet(time)
-            this._lastShot = time
-          }
+          this._shootBullet(time)
+          this._lastShot = time
+          return
         }
       }
     }
