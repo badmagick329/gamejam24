@@ -3,10 +3,11 @@ import * as THREE from 'three'
 import { Component } from '../ecs'
 import { GameBody } from '../game'
 import { BULLET_GROUP, ENEMY_GROUP } from '../game/consts'
+import { Logger, logLevels } from '../logging'
 
 const config = {
   maxTimeAlive: 10000,
-  maxTravel: 50,
+  maxTravel: 80,
   triggerKey: 'space',
   playerZOffset: 3,
 }
@@ -18,11 +19,12 @@ export class BulletSpawner extends Component {
    * @param {CANNON.World} world
    * @param {Object} settings
    */
-  constructor(playerBody, scene, world, settings) {
+  constructor(playerBody, scene, world, camera, settings) {
     super()
     this._playerBody = playerBody
     this._scene = scene
     this._world = world
+    this._camera = camera
     this._bullets = []
     this._lastShot = null
     this._config = config
@@ -30,6 +32,12 @@ export class BulletSpawner extends Component {
      * @type {import('../types').GameSettings}
      */
     this._settings = settings
+    this._raycaster = null
+    this._direction = new THREE.Vector3()
+
+    this.logger = new Logger()
+    this.logger.level = logLevels.INFO
+    this.throttledLogger = this.logger.getThrottledLogger(1000, 'bullet')
   }
 
   update(time, delta) {
@@ -39,11 +47,12 @@ export class BulletSpawner extends Component {
        * @type {GameBody}
        */
       bullet = this._bullets[i].bullet
-      this._bullets[i].bullet.rigidBody.velocity.set(
-        0,
-        0,
-        -this._settings.bulletSpeed
-      )
+
+      let xVel = this._direction.x * this._settings.bulletSpeed
+      let zVel = this._direction.z * this._settings.bulletSpeed
+
+      this.throttledLogger.debug(time, 'xVel', xVel, 'zVel', zVel)
+      bullet.rigidBody.velocity.set(xVel, 0, zVel)
       bullet.rigidBody.angularVelocity.set(this._settings.bulletSpeed, 0, 0)
       this._bullets[i].bullet.sync(time)
       this._bullets[i].timeAlive += delta
@@ -53,7 +62,23 @@ export class BulletSpawner extends Component {
     this._handleShoot(time)
   }
 
-  _shootBullet(direction, time) {
+  registerHandlers() {
+    this.registerHandler('mouse.movement', (m) => {
+      if (this._raycaster === null) {
+        this._raycaster = new THREE.Raycaster()
+      }
+      this._raycaster.setFromCamera(m.value.position, this._camera)
+      this._direction = this._raycaster.ray.direction.clone().normalize()
+      this.broadcast({
+        topic: 'mouse.direction',
+        value: {
+          direction: this._direction,
+        },
+      })
+    })
+  }
+
+  _shootBullet(time) {
     const position = this._playerBody.position
     const bulletGeometry = new THREE.SphereGeometry(
       this._settings.bulletRadius,
@@ -70,7 +95,7 @@ export class BulletSpawner extends Component {
         y: position.y + this._settings.bulletHeightOffset,
         z: position.z - this._config.playerZOffset,
       },
-      direction
+      this._direction
     )
     const bullet = new GameBody(bulletMesh, cannonBody, {
       name: `Bullet-${time}`,
@@ -92,11 +117,6 @@ export class BulletSpawner extends Component {
       shape: new CANNON.Sphere(this._settings.bulletRadius),
       position: new CANNON.Vec3(position.x, position.y, position.z),
       material: new CANNON.Material(),
-      velocity: new CANNON.Vec3(
-        direction.x * this._settings.bulletSpeed,
-        direction.y * this._settings.bulletSpeed,
-        direction.z * this._settings.bulletSpeed
-      ),
       collisionFilterGroup: BULLET_GROUP,
       collisionFilterMask: ENEMY_GROUP,
     })
@@ -113,8 +133,10 @@ export class BulletSpawner extends Component {
         this.getComponent('InputController')._keys
       )) {
         if (key === this._config.triggerKey && active) {
-          this._shootBullet({ x: 0, y: 0, z: -1.0 }, time)
-          this._lastShot = time
+          if (this.currentMousePosition !== null) {
+            this._shootBullet(time)
+            this._lastShot = time
+          }
         }
       }
     }

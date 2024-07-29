@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { Component } from '../ecs'
+import { Logger } from '../logging'
 
 export class MouseInputController extends Component {
   constructor(renderer, camera, scene) {
@@ -11,6 +12,7 @@ export class MouseInputController extends Component {
     this._init(renderer)
     this.intersects = []
     this.pressed = null
+    this.logger = new Logger()
   }
 
   _init(renderer) {
@@ -22,6 +24,13 @@ export class MouseInputController extends Component {
       this.mousePosition.y = getMouseY(e, renderer)
       this._rayCaster.setFromCamera(this.mousePosition, this._camera)
       this.intersects = this._rayCaster.intersectObjects(this._scene.children)
+      this.broadcast({
+        topic: 'mouse.movement',
+        value: {
+          position: this.mousePosition,
+          intersects: this.intersects,
+        },
+      })
     })
     window.addEventListener('mouseup', (e) => {
       if (!this.mousePosition) {
@@ -71,16 +80,16 @@ export class MouseInputController extends Component {
         value: { intersects: this.intersects },
       })
     }
-    if (this.pressed !== null) {
-      this.broadcast({
-        topic: 'mouse.movement',
-        value: {
-          position: this.mousePosition,
-          intersects: this.intersects,
-          buttons: this.pressed,
-        },
-      })
-    }
+    // if (this.pressed !== null) {
+    //   this.broadcast({
+    //     topic: 'mouse.movement',
+    //     value: {
+    //       position: this.mousePosition,
+    //       intersects: this.intersects,
+    //       buttons: this.pressed,
+    //     },
+    //   })
+    // }
   }
 }
 

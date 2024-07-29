@@ -103,8 +103,8 @@ export class BaseEnemySpawner extends Component {
       enemy.rigidBody?.position?.y < -30 ||
       enemy.rigidBody?.position?.z < -55 ||
       enemy.rigidBody?.position?.z > 55 ||
-      enemy.rigidBody?.position?.x < -100 ||
-      enemy.rigidBody?.position?.x > 100
+      enemy.rigidBody?.position?.x < -60 ||
+      enemy.rigidBody?.position?.x > 60
     )
   }
 

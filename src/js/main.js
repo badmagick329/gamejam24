@@ -135,9 +135,11 @@ export default async function run() {
       playerBody.rigidBody,
       scene,
       world,
+      camera,
       settings
     )
     player.addComponent(bulletSpawner)
+    bulletSpawner.registerHandlers()
 
     // enemies
     const enemySpawner = new Entity()
