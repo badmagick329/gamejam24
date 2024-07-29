@@ -33,7 +33,7 @@ export class BulletSpawner extends Component {
      * @type {import('../types').GameSettings}
      */
     this._settings = settings
-    this._raycaster = null
+    this._raycaster = new THREE.Raycaster()
     this._direction = new THREE.Vector3()
 
     this.logger = new Logger()
@@ -52,7 +52,6 @@ export class BulletSpawner extends Component {
       let xVel = this._bullets[i].direction.x * this._settings.bulletSpeed
       let zVel = this._bullets[i].direction.z * this._settings.bulletSpeed
 
-      // this.throttledLogger.debug(time, 'xVel', xVel, 'zVel', zVel)
       bullet.rigidBody.velocity.set(xVel, 0, zVel)
       bullet.rigidBody.angularVelocity.set(this._settings.bulletSpeed, 0, 0)
       this._bullets[i].bullet.sync(time)
@@ -65,11 +64,6 @@ export class BulletSpawner extends Component {
 
   registerHandlers() {
     this.registerHandler('mouse.movement', (m) => {
-      if (this._raycaster === null) {
-        this._raycaster = new THREE.Raycaster()
-      }
-      // this._raycaster.setFromCamera(m.value.position, this._camera)
-      // this._direction = this._raycaster.ray.direction.clone().normalize()
       this._direction = this._mouseToWorldPosition(
         m.value.position.x,
         m.value.position.y
@@ -85,18 +79,22 @@ export class BulletSpawner extends Component {
   }
 
   _mouseToWorldPosition(x, y) {
-    const vector = new THREE.Vector3(x, y, 1)
-    vector.unproject(this._camera)
-    vector
-      .sub(
-        new THREE.Vector3(
-          this._playerBody.position.x,
-          this._playerBody.position.y,
-          this._playerBody.position.z
-        )
-      )
+    // Set the raycaster from the camera through the mouse position
+    this._raycaster.setFromCamera(new THREE.Vector2(x, y), this._camera)
+
+    // Define a plane at y = 0.6 (player's height)
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.6)
+
+    // Get the intersection point of the ray with the plane
+    const intersection = new THREE.Vector3()
+    this._raycaster.ray.intersectPlane(plane, intersection)
+
+    // Calculate the direction from the player to the intersection point
+    const direction = new THREE.Vector3()
+      .subVectors(intersection, this._playerBody.position)
       .normalize()
-    return vector
+
+    return direction
   }
 
   _shootBullet(time) {
