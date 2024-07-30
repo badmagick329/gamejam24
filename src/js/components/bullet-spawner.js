@@ -173,7 +173,7 @@ export class BulletSpawner extends Component {
 
   _createBulletBody(position, direction) {
     const cannonBody = new CANNON.Body({
-      mass: 1000,
+      mass: 0.1,
       shape: new CANNON.Sphere(this._settings.bulletRadius),
       position: new CANNON.Vec3(position.x, position.y, position.z),
       material: new CANNON.Material(),
@@ -184,10 +184,19 @@ export class BulletSpawner extends Component {
     return cannonBody
   }
 
+  /**
+   * @param {CANNON.Body} body
+   * @param {string} name
+   */
   _attachCollisionEvent(body, name) {
     body.addEventListener('collide', (event) => {
+      /**
+       * @type {CANNON.Body}
+       */
       const other = event.body
       if (other.collisionFilterGroup === ENEMY_GROUP) {
+        other.velocity.setZero()
+        other.angularVelocity.setZero()
         const idx = this._nameToIndex(name)
         if (idx === -1) {
           this.logger.warn(
