@@ -20,6 +20,9 @@ export class BaseEnemySpawner extends Component {
   constructor(entityManager, scene, world, player, enemies, settings) {
     super()
     this._settings = settings
+    /**
+     * @type {EntityManager}
+     */
     this._manager = entityManager
     this._scene = scene
     this._world = world
@@ -42,15 +45,9 @@ export class BaseEnemySpawner extends Component {
   registerHandlers() {
     this.registerHandler('enemy.died', (m) => {
       this._numberOfSpawns--
-      // console.log(
-      //   'maxenemies',
-      //   this._maxEnemies,
-      //   ' numberofspawns',
-      //   this._numberOfSpawns
-      // )
-      for (const ee of this._enemyEntities) {
+      for (let ee of this._enemyEntities) {
         if (ee.name === m.value.source) {
-          this._manager.remove(ee)
+          this._manager.remove(ee.name)
           ee = null
         }
       }
@@ -140,8 +137,7 @@ export class BaseEnemySpawner extends Component {
    */
   _initComponents(enemy) {
     const enemyEntity = new Entity()
-    enemyEntity.setName(enemy.name)
-    this._manager.add(enemyEntity)
+    this._manager.add(enemyEntity, enemy.name)
     let movement, enemyFSM
     if (this._settings.enemyMovement) {
       movement = new BaseEnemyMovement(

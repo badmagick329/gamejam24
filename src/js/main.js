@@ -157,7 +157,7 @@ export default async function run() {
 
     // environment
     const environment = new Entity()
-    manager.add(environment)
+    manager.add(environment, 'environment')
     const buildingsComp = new BuildingsComp({
       world,
       scene,
@@ -180,7 +180,7 @@ export default async function run() {
 
     // UI
     const ui = new Entity()
-    manager.add(ui)
+    manager.add(ui, 'ui')
     const hud = new Hud({ scene: sceneHUD })
     ui.addComponent(hud)
     if (settings.enableUI) {

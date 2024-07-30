@@ -63,6 +63,9 @@ export class EntityManager {
     e.setName(n)
   }
 
+  /**
+   * @param {string} n
+   */
   remove(n) {
     let e = this._entitiesMap[n]
     if (!e) {
