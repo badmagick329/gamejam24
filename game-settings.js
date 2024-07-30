@@ -19,7 +19,7 @@ const settings = {
   bulletRadius: 0.8,
   bulletHeightOffset: 0.3,
   bulletIntervalBetweenShots: 110,
-  bulletDamage: 1,
+  bulletDamage: 3,
   enemyMovement: true,
   enemyType: 'box',
   baseEnemySpawnInterval: 2000,

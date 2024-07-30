@@ -38,7 +38,7 @@ export class BaseEnemySpawner extends Component {
     this.logger.level = logLevels.WARNING
     this.throttledLogger = this.logger.getThrottledLogger(1000, 'enemy spawner')
     // TODO: a temp stop button for spawning for testing. make it a toggleable in debug?
-    this._maxEnemies = 1
+    this._maxEnemies = 10
     this._numberOfSpawns = 0
   }
 
@@ -185,7 +185,7 @@ export class BaseEnemySpawner extends Component {
         const message = {
           topic: 'enemy.hurt',
           value: {
-            damage: 5,
+            damage: this._settings.bulletDamage,
             source: enemy.name,
           },
         }
