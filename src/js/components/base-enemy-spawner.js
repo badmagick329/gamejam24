@@ -122,6 +122,9 @@ export class BaseEnemySpawner extends Component {
    * @returns {boolean}
    */
   _isOutOfBounds(enemy) {
+    if (!enemy?.rigidBody) {
+      return
+    }
     return (
       enemy.rigidBody?.position?.y < -5 ||
       enemy.rigidBody?.position?.z < -550 ||

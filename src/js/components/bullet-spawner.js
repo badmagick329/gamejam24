@@ -231,6 +231,9 @@ export class BulletSpawner extends Component {
   }
 
   _disposeBullet(idx) {
+    if (!this._bullets[idx]) {
+      return
+    }
     let obj = this._bullets[idx].bullet
     obj.dispose(this._scene, this._world)
     this._bullets.splice(idx, 1)
