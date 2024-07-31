@@ -1,15 +1,15 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { Component } from '../ecs'
-import { GameBody } from '../game'
+import { Component } from '../ecs/component.js'
 import {
   ENEMY_GROUP,
   PLAYER_GROUP,
   STATIC_GROUP,
   WALL_GROUP,
-} from '../game/consts'
-import fragmentShader from '../shaders/fragment.glsl'
-import vertexShader from '../shaders/vertex.glsl'
+} from '../game/consts.js'
+import { GameBody } from '../game/game-body.js'
+import fragmentShader from '../shaders/fragment.glsl.js'
+import vertexShader from '../shaders/vertex.glsl.js'
 
 const CONFIG = {
   groundColor: 0xaaaaaa,

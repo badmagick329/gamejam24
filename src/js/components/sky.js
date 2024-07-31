@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { Sky } from 'three/examples/jsm/objects/Sky.js'
-import { Component } from '../ecs'
+import { Sky } from 'three/addons/objects/Sky.js'
+import { Component } from '../ecs/component.js'
 
 export class SkyBox extends Component {
   constructor(config) {

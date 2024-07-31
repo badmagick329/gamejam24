@@ -1,10 +1,10 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
-import Stats from 'three/examples/jsm/libs/stats.module.js'
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js'
+import Stats from 'three/addons/libs/stats.module.js'
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import TickManager from './tick-manager.js'
 
 let scene,
@@ -92,10 +92,10 @@ export const initEngine = async (config) => {
     composer.addPass(bloomPass)
   }
 
-  stats = Stats()
-  document.body.appendChild(stats.dom)
+  // stats = Stats()
+  // document.body.appendChild(stats.dom)
 
-  gui = new GUI()
+  // gui = new GUI()
 
   if (!config?.disableOrbitControls) {
     controls = new OrbitControls(camera, renderer.domElement)

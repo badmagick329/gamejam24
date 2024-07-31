@@ -1,12 +1,15 @@
 import * as CANNON from 'cannon-es'
-import { Component, Entity, EntityManager } from '../ecs'
-import { EnemyFactory, GameBody } from '../game'
-import { BULLET_GROUP } from '../game/consts'
-import { Logger, logLevels } from '../logging'
-import { addVariance } from '../utils'
-import { BaseEnemyMovement } from './base-enemy-movement'
-import { EnemyAttributes } from './enemy-attributes'
-import { EnemyFSM } from './enemy-fsm'
+import { Component } from '../ecs/component.js'
+import { EntityManager } from '../ecs/entity-manager.js'
+import { Entity } from '../ecs/entity.js'
+import { BULLET_GROUP } from '../game/consts.js'
+import { EnemyFactory } from '../game/factories/enemy-factory.js'
+import { GameBody } from '../game/game-body.js'
+import { Logger, logLevels } from '../logging.js'
+import { addVariance } from '../utils.js'
+import { BaseEnemyMovement } from './base-enemy-movement.js'
+import { EnemyAttributes } from './enemy-attributes.js'
+import { EnemyFSM } from './enemy-fsm.js'
 
 export class BaseEnemySpawner extends Component {
   /**

@@ -1,6 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { Logger, logLevels } from '../logging'
+import { Logger, logLevels } from '../logging.js'
 
 export class GameBody {
   static ID = 0

@@ -1,6 +1,6 @@
-import { Component } from '../ecs'
-import { GameBody } from '../game'
-import { BuildingFactory } from '../game/factories/building-factory'
+import { Component } from '../ecs/component.js'
+import { BuildingFactory } from '../game/factories/building-factory.js'
+import { GameBody } from '../game/game-body.js'
 
 export class BuildingsComp extends Component {
   /**

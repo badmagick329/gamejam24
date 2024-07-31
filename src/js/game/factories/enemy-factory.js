@@ -5,8 +5,8 @@ import {
   ENEMY_GROUP,
   PLAYER_GROUP,
   STATIC_GROUP,
-} from '../consts'
-import { GameBody } from '../game-body'
+} from '../consts.js'
+import { GameBody } from '../game-body.js'
 
 export class EnemyFactory {
   /**

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { Component } from '../ecs'
-import { Logger } from '../logging'
+import { Component } from '../ecs/component.js'
+import { Logger } from '../logging.js'
 
 export class MouseInputController extends Component {
   constructor(renderer, camera, scene) {

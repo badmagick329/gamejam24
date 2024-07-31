@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { Component } from '../ecs'
+import { Component } from '../ecs/component.js'
 
 export class Hud extends Component {
   constructor(config) {
@@ -149,7 +149,7 @@ export class Hud extends Component {
   }
 
   _renderHUD(time, delta) {
-    this._ui()
+    // this._ui()
   }
 
   update(time, delta) {

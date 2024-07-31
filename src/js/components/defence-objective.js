@@ -1,8 +1,9 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { Component } from '../ecs'
-import { GameBody } from '../game'
-import { ENEMY_GROUP, PLAYER_GROUP, STATIC_GROUP } from '../game/consts'
+
+import { Component } from '../ecs/component.js'
+import { ENEMY_GROUP, PLAYER_GROUP, STATIC_GROUP } from '../game/consts.js'
+import { GameBody } from '../game/game-body.js'
 
 export class DefenceObjective extends Component {
   constructor(config) {

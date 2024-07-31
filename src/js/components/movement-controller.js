@@ -1,6 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { Component } from '../ecs'
+import { Component } from '../ecs/component.js'
 
 const movementMap = {
   forward: (m) => {

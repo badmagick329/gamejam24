@@ -1,9 +1,9 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import fragmentShader from '../../shaders/fragment.glsl'
-import vertexShader from '../../shaders/vertex.glsl'
-import { ENEMY_GROUP, PLAYER_GROUP, STATIC_GROUP } from '../consts'
-import { GameBody } from '../game-body'
+import fragmentShader from '../../shaders/fragment.glsl.js'
+import vertexShader from '../../shaders/vertex.glsl.js'
+import { ENEMY_GROUP, PLAYER_GROUP, STATIC_GROUP } from '../consts.js'
+import { GameBody } from '../game-body.js'
 
 export class BuildingFactory {
   /**

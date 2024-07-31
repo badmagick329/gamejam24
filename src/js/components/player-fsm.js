@@ -1,5 +1,5 @@
-import { Component } from '../ecs'
-import { State } from '../game'
+import { Component } from '../ecs/component.js'
+import { State } from '../game/state.js'
 
 export class PlayerFSM extends Component {
   constructor() {

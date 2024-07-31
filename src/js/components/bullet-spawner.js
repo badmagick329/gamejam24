@@ -1,9 +1,9 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { Component } from '../ecs'
-import { GameBody } from '../game'
-import { BULLET_GROUP, ENEMY_GROUP } from '../game/consts'
-import { Logger, logLevels } from '../logging'
+import { Component } from '../ecs/component.js'
+import { BULLET_GROUP, ENEMY_GROUP } from '../game/consts.js'
+import { GameBody } from '../game/game-body.js'
+import { Logger, logLevels } from '../logging.js'
 
 const config = {
   maxTimeAlive: 10000,
@@ -173,7 +173,7 @@ export class BulletSpawner extends Component {
 
   _createBulletBody(position, direction) {
     const cannonBody = new CANNON.Body({
-      mass: 0.1,
+      mass: 10.1,
       shape: new CANNON.Sphere(this._settings.bulletRadius),
       position: new CANNON.Vec3(position.x, position.y, position.z),
       material: new CANNON.Material(),

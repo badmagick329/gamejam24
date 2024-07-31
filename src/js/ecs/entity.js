@@ -1,5 +1,5 @@
-import { Component } from './component'
-import { EntityManager } from './entity-manager'
+import { Component } from './component.js'
+import { EntityManager } from './entity-manager.js'
 
 export class Entity {
   constructor() {

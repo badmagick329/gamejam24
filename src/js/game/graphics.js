@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import { SavePass } from 'three/examples/jsm/postprocessing/SavePass.js'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
-import { BlendShader } from 'three/examples/jsm/shaders/BlendShader.js'
-import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js'
+import { SavePass } from 'three/addons/postprocessing/SavePass.js'
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
+import { BlendShader } from 'three/addons/shaders/BlendShader.js'
+import { CopyShader } from 'three/addons/shaders/CopyShader.js'
 import { addPass } from '../render/init.js'
 
 /**

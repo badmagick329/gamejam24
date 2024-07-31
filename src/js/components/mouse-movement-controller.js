@@ -1,6 +1,6 @@
 import RAPIER from '@dimforge/rapier3d-compat'
 import * as THREE from 'three'
-import { Component } from '../ecs'
+import { Component } from '../ecs/component.js'
 
 class MouseMovementController extends Component {
   /**

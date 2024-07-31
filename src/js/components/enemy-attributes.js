@@ -1,7 +1,7 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { Component } from '../ecs'
-import { GameBody } from '../game'
+import { Component } from '../ecs/component.js'
+import { GameBody } from '../game/game-body.js'
 
 export class EnemyAttributes extends Component {
   /**

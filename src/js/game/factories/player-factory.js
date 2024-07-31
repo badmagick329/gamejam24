@@ -1,7 +1,12 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { ENEMY_GROUP, PLAYER_GROUP, STATIC_GROUP, WALL_GROUP } from '../consts'
-import { GameBody } from '../game-body'
+import {
+  ENEMY_GROUP,
+  PLAYER_GROUP,
+  STATIC_GROUP,
+  WALL_GROUP,
+} from '../consts.js'
+import { GameBody } from '../game-body.js'
 
 const BOX_SEGMENTS = 10
 

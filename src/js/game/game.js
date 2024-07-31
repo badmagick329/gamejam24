@@ -1,5 +1,4 @@
 import * as CANNON from 'cannon-es'
-import CannonDebugger from 'cannon-es-debugger'
 import * as THREE from 'three'
 import {
   useCamera,
@@ -93,7 +92,7 @@ export class Game {
     this._setupRenderer()
     this._setupLight()
     this._setupPhysics()
-    this._setupDebug()
+    // this._setupDebug()
   }
 
   _setupScene() {
@@ -164,9 +163,9 @@ export class Game {
     this.world = new CANNON.World({
       gravity: new CANNON.Vec3(0, -9.81, 0),
     })
-    this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
-      scale: 1.02,
-    })
+    // this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
+    //   scale: 1.02,
+    // })
   }
 
   _setupDebug() {

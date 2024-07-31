@@ -1,8 +1,8 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { Component } from '../ecs'
-import { GameBody } from '../game'
-import { Logger, logLevels } from '../logging'
+import { Component } from '../ecs/component.js'
+import { GameBody } from '../game/game-body.js'
+import { Logger, logLevels } from '../logging.js'
 
 const IDLE_COLOR = 0x7777ff
 const WALK_COLOR = 0xa0b04a

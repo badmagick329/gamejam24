@@ -1,6 +1,7 @@
-import { Component } from '../ecs'
-import { GameBody, State } from '../game'
-import { Logger, logLevels } from '../logging'
+import { Component } from '../ecs/component.js'
+import { GameBody } from '../game/game-body.js'
+import { State } from '../game/state.js'
+import { Logger, logLevels } from '../logging.js'
 
 const KNOCKED_BACK_TIME = 450
 

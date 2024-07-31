@@ -1,25 +1,26 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
-import { settings } from '../../game-settings.js'
-import { ThirdPersonCamera } from './components'
+import { settings } from '../game-settings.js'
 import { initEngine, useTick } from './render/init.js'
 
-import {
-  BaseEnemySpawner,
-  BulletSpawner,
-  InputController,
-  MouseInputController,
-  MovementController,
-  PlayerFSM,
-} from './components'
+import { BaseEnemySpawner } from './components/base-enemy-spawner.js'
+import { BulletSpawner } from './components/bullet-spawner.js'
+import { InputController } from './components/input-controller.js'
+import { MouseInputController } from './components/mouse-input-controller.js'
+import { MovementController } from './components/movement-controller.js'
+import { PlayerFSM } from './components/player-fsm.js'
 
 import { BuildingsComp } from './components/buildings-comp.js'
 import { DefenceObjective } from './components/defence-objective.js'
 import { GroundComp } from './components/ground-comp.js'
 import { Hud } from './components/hud.js'
 import { SkyBox } from './components/sky.js'
-import { Entity, EntityManager } from './ecs'
-import { Game, GameBody, PlayerFactory, postprocessing } from './game'
+import { EntityManager } from './ecs/entity-manager.js'
+import { Entity } from './ecs/entity.js'
+import { PlayerFactory } from './game/factories/player-factory.js'
+import { GameBody } from './game/game-body.js'
+import { Game } from './game/game.js'
+import { postprocessing } from './game/graphics.js'
 
 export default async function run() {
   const MOTION_BLUR_AMOUNT = 0.425
@@ -124,11 +125,11 @@ export default async function run() {
     movementController.registerHandlers()
 
     // camera
-    if (settings.thirdPerson) {
-      const thirdPersonCamera = new ThirdPersonCamera()
-      player.addComponent(thirdPersonCamera)
-      thirdPersonCamera.setTarget(playerBody.mesh)
-    }
+    // if (settings.thirdPerson) {
+    //   const thirdPersonCamera = new ThirdPersonCamera()
+    //   player.addComponent(thirdPersonCamera)
+    //   thirdPersonCamera.setTarget(playerBody.mesh)
+    // }
 
     // bullets
     const bulletSpawner = new BulletSpawner(

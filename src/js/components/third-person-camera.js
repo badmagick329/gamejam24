@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { Component } from '../ecs'
-import { Logger } from '../logging'
-import { useCamera, useControls } from '../render/init'
+import { Component } from '../ecs/component.js'
+import { Logger } from '../logging.js'
+import { useCamera, useControls } from '../render/init.js'
 
 export class ThirdPersonCamera extends Component {
   constructor() {
